@@ -1,0 +1,358 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { DndContext, useDraggable, useDroppable } from '@dnd-kit/core';
+import { Attempt, Part, Question, Option, Section } from '@/types';
+import parse, { Text } from 'html-react-parser';
+import { debounce } from 'lodash';
+import { toast } from 'sonner';
+import { cleanTinyMce } from '@/utils/util';
+import PracticeQuestion from '@/components/practice/practice-question';
+
+interface SectionUpdateProps {
+    order: number;
+    section: Section;
+    attempt: Attempt;
+    partIndex: number;
+    sectionIndex: number;
+    setSelectedPart: (part: Part | null) => void;
+}
+
+export default function PracticeSection({
+                                            order,
+                                            section,
+                                            attempt,
+                                            partIndex,
+                                            sectionIndex,
+                                            setSelectedPart
+                                        }: SectionUpdateProps) {
+    const { t } = useTranslation();
+
+    const [selectedAnswers, setSelectedAnswers] = useState<
+        Record<number, { optionId: string | number | null; text: string }>
+    >({});
+    const [availableOptions, setAvailableOptions] = useState<Option[]>([]);
+
+    const allOptions = useMemo(() => {
+        const correctAnswers =
+            section.questions?.map((q: Question, idx: number) => ({
+                id: q.id ?? idx,
+                label: (q.answer_text ?? '').trim(),
+                original: q,
+                order: idx
+            })) ?? [];
+
+        const incorrectOptions =
+            (section as Section).options?.map((o: Option, idx: number) => ({
+                id: `opt-${o.id ?? idx}`,
+                label: (o.textarea ?? '').trim(),
+                original: o,
+                order: correctAnswers.length + idx
+            })) ?? [];
+
+        const merged = [...correctAnswers, ...incorrectOptions];
+        const seen = new Set<string>();
+        const unique = merged.filter((o) => {
+            const key = o.label.toLowerCase();
+            if (seen.has(key) || key === '') return false;
+            seen.add(key);
+            return true;
+        });
+
+        return unique.sort((a, b) =>
+            (a.label || '').localeCompare(b.label || '', undefined, { sensitivity: 'base' })
+        );
+    }, [section]);
+
+    const normalize = (s?: string) => (s ?? '').trim().toLowerCase();
+
+    /** ✅ Initial setup */
+    useEffect(() => {
+        const avail = [...allOptions];
+        const selected: Record<number, { optionId: number | null; text: string }> = {};
+
+        (section.questions || []).forEach((slot: any) => {
+            const attemptText = slot?.attempt_answer?.answer_text;
+            if (attemptText) {
+                const match = allOptions.find(
+                    (o) => normalize(o.label) === normalize(attemptText)
+                );
+                if (match) {
+                    selected[slot.id] = { optionId: match.id, text: match.label };
+                    const idx = avail.findIndex((a) => a.id === match.id);
+                    if (idx >= 0) avail.splice(idx, 1);
+                } else {
+                    selected[slot.id] = { optionId: null, text: attemptText };
+                }
+            }
+        });
+
+        setAvailableOptions(avail);
+        setSelectedAnswers(selected);
+    }, [allOptions, section.questions]);
+
+    /** ✅ Debounced save (works even for long deletes) */
+    const debouncedSave = useMemo(
+        () =>
+            debounce(async (qId: number, value: string) => {
+                try {
+                    const response = await fetch(
+                        route('attempt-answer.store', {
+                            part_id: section.part_id,
+                            attempt_id: attempt.id
+                        }),
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content
+                            },
+                            body: JSON.stringify({
+                                question_id: qId,
+                                answer_text: value.trim() === '' ? null : value.trim()
+                            })
+                        }
+                    );
+
+                    const data = await response.json();
+
+                    if (!data.success) throw new Error(data?.error || 'Yuborishda xatolik');
+
+                    setSelectedPart((prev) => {
+                        if (!prev) return null;
+                        const updatedSections = prev.sections.map((s: Section, idx) =>
+                            idx !== sectionIndex
+                                ? s
+                                : {
+                                    ...s,
+                                    questions: s.questions.map((q: Question) =>
+                                        q.id === qId
+                                            ? {
+                                                ...q,
+                                                attempt_answer:
+                                                    value.trim() === ''
+                                                        ? null
+                                                        : {
+                                                            id: data?.data?.attempt_answer_id ?? Date.now(),
+                                                            question_id: qId,
+                                                            answer_text: value.trim()
+                                                        }
+                                            }
+                                            : q
+                                    )
+                                }
+                        );
+                        return { ...prev, sections: updatedSections };
+                    });
+                } catch (error) {
+                    const message =
+                        error instanceof Error
+                            ? error.message
+                            : typeof error === 'string'
+                                ? error
+                                : 'Xatolik yuz berdi';
+
+                    toast.error(message);
+                }
+            }, 600), // ⏱️ biroz kattaroq delay — delete uchun
+        []
+    );
+
+    const handleInputChange = (slotId: number, text: string) => {
+        setSelectedAnswers((prev) => ({
+            ...prev,
+            [slotId]: { optionId: prev[slotId]?.optionId ?? null, text }
+        }));
+        debouncedSave(slotId, text);
+    };
+
+    const handleRemove = (slotId: number) => {
+        setSelectedAnswers((prev) => {
+            const copy = { ...prev };
+            delete copy[slotId];
+            return copy;
+        });
+        debouncedSave(slotId, '');
+    };
+
+    const handleDragEnd = (event: any) => {
+        const { active, over } = event;
+        if (!over || !active) return;
+        const overId = String(over.id);
+        if (!overId.startsWith('drop-')) return;
+        const slotId = Number(overId.replace('drop-', ''));
+
+        const activeId = String(active.id);
+        if (!activeId.startsWith('drag-')) return;
+        const draggedId = activeId.replace('drag-', '');
+        const draggedOpt = allOptions.find((o) => String(o.id) === draggedId);
+        if (!draggedOpt) return;
+
+        setSelectedAnswers((prev) => ({
+            ...prev,
+            [slotId]: { optionId: draggedOpt.id, text: draggedOpt.label }
+        }));
+
+        setAvailableOptions((prev) => prev.filter((o) => o.id !== draggedOpt.id));
+        debouncedSave(slotId, draggedOpt.label);
+    };
+
+    const DraggableOption = ({ opt }: { opt: any }) => {
+        const { setNodeRef, listeners, attributes, transform, isDragging } = useDraggable({
+            id: `drag-${opt.id}`
+        });
+        const style: React.CSSProperties = transform
+            ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` }
+            : {};
+        return (
+            <div
+                ref={setNodeRef}
+                {...listeners}
+                {...attributes}
+                style={style}
+                className={`cursor-grab select-none rounded-md border-[2px] px-3 py-1 text-sm shadow-sm transition-colors duration-200
+                border-blue-500 bg-white text-gray-900
+                dark:border-blue-400 dark:bg-gray-800 dark:text-gray-100
+                hover:bg-blue-50 dark:hover:bg-gray-700
+                active:scale-[0.97]
+                ${isDragging ? 'opacity-50' : ''}
+            `}
+            >
+                {opt.label}
+            </div>
+        );
+    };
+
+    const DroppablePlaceholder = ({ slotQuestion, number }: { slotQuestion: Question; number: number }) => {
+        const nodeId = `drop-${slotQuestion.id}`;
+        const { setNodeRef, isOver } = useDroppable({ id: nodeId });
+        const assigned = selectedAnswers[slotQuestion.id];
+        const displayText = assigned?.text ?? slotQuestion?.attempt_answer?.answer_text ?? '';
+
+        return (
+            <span
+                ref={setNodeRef}
+                className={`inline-flex items-center gap-2 min-w-[120px] rounded-md border border-dashed px-2 py-1 text-sm mx-1 ${
+                    isOver ? 'bg-blue-100 border-blue-400' : 'border-gray-400'
+                }`}
+            >
+                <span className="text-blue-600 font-semibold">{number}.</span>
+                <span className="truncate max-w-[10rem]">{displayText || '_____'}</span>
+                {displayText && (
+                    <button
+                        onClick={() => handleRemove(slotQuestion.id)}
+                        type="button"
+                        className="text-xs text-red-500 hover:text-red-700"
+                    >
+                        ❌
+                    </button>
+                )}
+            </span>
+        );
+    };
+
+    let qIndex = 0;
+    let section_order = order ?? 0;
+
+    const parsedContent =
+        ['complete_section', 'drag_and_drop'].includes(section.question_type.type) &&
+        parse(cleanTinyMce(section.textarea) ?? '', {
+            replace: (domNode) => {
+                if (domNode instanceof Text) {
+                    const text = domNode.data;
+                    const parts = text.split(/(\{.*?\})/g);
+                    if (parts.length > 1) {
+                        return (
+                            <>
+                                {parts.map((part, i) => {
+                                    if (part.match(/^\{.*\}$/)) {
+                                        const question = section.questions[qIndex++];
+                                        section_order++;
+                                        if (!question) return null;
+                                        const number = section_order;
+                                        if (section.question_type.type === 'drag_and_drop')
+                                            return (
+                                                <DroppablePlaceholder
+                                                    key={question.id}
+                                                    slotQuestion={question}
+                                                    number={number}
+                                                />
+                                            );
+                                        return (
+                                            <span key={question.id} className="inline-flex items-center gap-1">
+                                                <span className="text-blue-600 font-semibold">{number}.</span>
+                                                <input
+                                                    type="text"
+                                                    className="inline w-40 rounded-md border border-blue-500 px-3 py-1.5 text-sm shadow-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                                                    value={
+                                                        selectedAnswers[question.id]?.text ??
+                                                        question.attempt_answer?.answer_text ??
+                                                        ''
+                                                    }
+                                                    onChange={(e) =>
+                                                        handleInputChange(question.id, e.target.value)
+                                                    }
+                                                />
+                                            </span>
+                                        );
+                                    }
+                                    return part;
+                                })}
+                            </>
+                        );
+                    }
+                }
+            }
+        });
+
+    return (
+        <div key={section.id} className="p-1">
+            <div className="prose dark:prose-invert break-words max-w-full">
+                {section.question_type.type === 'drag_and_drop' ? (
+                    <DndContext onDragEnd={handleDragEnd}>
+                        {parsedContent}
+                        <div className="mt-4 flex flex-wrap gap-2">
+                            {availableOptions.map((opt) => (
+                                <DraggableOption key={opt.id} opt={opt} />
+                            ))}
+                        </div>
+                    </DndContext>
+                ) : section.question_type.type === 'complete_section' ? (
+                    parsedContent
+                ) : (
+                    <div
+                        className="text-base/8"
+                        dangerouslySetInnerHTML={{ __html: cleanTinyMce(section.textarea) }}
+                    />
+                )}
+            </div>
+
+            {(section.question_type.type !== 'complete_section' &&
+                section.question_type.type !== 'drag_and_drop' &&
+                section.question_type.type !== 'essay') && (
+                <div className="px-3 pb-4 text-sm text-gray-600 dark:text-gray-400">
+                    <div className="space-y-6">
+                        {section.questions.map((question, qIndex) => {
+                            const increment = question.is_correct_count
+                                ? Number(question.is_correct_count)
+                                : 1;
+                            section_order += increment;
+
+                            return (
+                                <PracticeQuestion
+                                    key={qIndex}
+                                    order={section_order}
+                                    attempt={attempt}
+                                    section={section}
+                                    question={question}
+                                    index={qIndex}
+                                    setSelectedPart={setSelectedPart}
+                                />
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}

@@ -1,0 +1,39 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API",
+        "description": "Description of your API",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/example": {
+            "get": {
+                "tags": [
+                    "Example"
+                ],
+                "summary": "Example API",
+                "operationId": "22dfb0a7c663e09ec23fa724ba4e90fe",
+                "responses": {
+                    "200": {
+                        "description": "Successful response"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Example",
+            "description": "Example"
+        }
+    ]
+}

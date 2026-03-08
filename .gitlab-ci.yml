@@ -1,0 +1,26 @@
+stages:
+  - deploy
+
+before_script:
+  # Install SSH key
+  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+  - eval $(ssh-agent -s)
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - ssh-keyscan "$SSH_HOST" >> ~/.ssh/known_hosts
+  - chmod 644 ~/.ssh/known_hosts
+
+deploy_production:
+  stage: deploy
+  script:
+    - ssh "$SSH_USER"@"$SSH_HOST" "
+      cd "$WORK_DIR"
+      && git pull origin main
+      && composer install
+      && npm install
+      && npm run build
+      && php artisan migrate
+      && php artisan optimize:clear"
+  only:
+    - main

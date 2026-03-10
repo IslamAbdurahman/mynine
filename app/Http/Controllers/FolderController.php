@@ -98,7 +98,7 @@ class FolderController extends Controller
         try {
             Folder::create($request->validated());
 
-            return back()->with('success', 'Folder created successfully.');
+            return back()->with('success', __('updated_successfully'));
         } catch (\Exception $e) {
             // Proper Inertia error response
             throw ValidationException::withMessages([
@@ -155,7 +155,7 @@ class FolderController extends Controller
     {
         try {
             $folder->update($request->validated());
-            return back()->with('success', 'Folder updated successfully.');
+            return back()->with('success', __('updated_successfully'));
         } catch (\Exception $e) {
             // Proper Inertia error response
             throw ValidationException::withMessages([
@@ -171,7 +171,7 @@ class FolderController extends Controller
     {
         try {
             $folder->delete();
-            return back()->with('success', 'Folder deleted successfully.');
+            return back()->with('success', __('deleted_successfully'));
         } catch (\Exception $e) {
             // Proper Inertia error response
             throw ValidationException::withMessages([

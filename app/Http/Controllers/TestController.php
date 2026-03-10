@@ -104,7 +104,7 @@ class TestController extends Controller
                 ])->toArray()
             );
 
-            return back()->with('success', 'Test created successfully.');
+            return back()->with('success', __('updated_successfully'));
         } catch (\Exception $e) {
             // Proper Inertia error response
             throw ValidationException::withMessages([
@@ -192,7 +192,7 @@ class TestController extends Controller
 
             $test->update($data);
 
-            return back()->with('success', 'Test updated successfully.');
+            return back()->with('success', __('updated_successfully'));
         } catch (\Exception $e) {
             // Proper Inertia error response
             throw ValidationException::withMessages([
@@ -213,7 +213,7 @@ class TestController extends Controller
 
             DB::commit();
 
-            return back()->with('success', 'Test deleted successfully.');
+            return back()->with('success', __('deleted_successfully'));
         } catch (\Exception $e) {
             // Proper Inertia error response
             throw ValidationException::withMessages([

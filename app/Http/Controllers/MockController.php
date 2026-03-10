@@ -122,13 +122,13 @@ class MockController extends Controller
                     ->count();
 
                 if ($mock >= 3) {
-                    throw new \Exception('You have reached the maximum number of mocks for this month.');
+                    throw new \Exception(__('error.max_mocks_reached'));
                 }
             }
 
             Mock::create($request->validated());
 
-            return back()->with('success', 'Mock created successfully.');
+            return back()->with('success', __('success.mock_created'));
         } catch (\Exception $e) {
             // Proper Inertia error response
             throw ValidationException::withMessages([
@@ -163,7 +163,7 @@ class MockController extends Controller
         try {
 
             $mock->update($request->validated());
-            return back()->with('success', 'Mock updated successfully.');
+            return back()->with('success', __('success.mock_updated'));
         } catch (\Exception $e) {
             // Proper Inertia error response
             throw ValidationException::withMessages([
@@ -179,7 +179,7 @@ class MockController extends Controller
     {
         try {
             $mock->delete();
-            return back()->with('success', 'Mock deleted successfully.');
+            return back()->with('success', __('success.mock_deleted'));
         } catch (\Exception $e) {
             // Proper Inertia error response
             throw ValidationException::withMessages([

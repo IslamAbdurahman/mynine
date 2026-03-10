@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
+use Illuminate\Validation\ValidationException;
 
 class PracticeController extends Controller
 {
@@ -27,15 +28,30 @@ class PracticeController extends Controller
             'attempt_id' => 'required|exists:attempts,id'
         ]);
 
+        try {
         $attempt = Attempt::query()
             ->where('id', $request->attempt_id)
             ->where('user_id', Auth::id())
             ->where('finished_at', null)
-            ->firstOrFail();
+            ->first();
+
+            if (!$attempt) {
+                return back()->with('error', __('error.attempt_not_found'));
+            }
+
 
         return Inertia::render('practice/index', [
             'attempt' => $attempt
         ]);
+            
+
+        } catch (\Exception $e) {
+            throw ValidationException::withMessages([
+                'error' => [$e->getMessage()],
+            ]);
+        }
+
+
     }
 
     /**
@@ -76,7 +92,7 @@ class PracticeController extends Controller
 
             // If the attempt is already finished, return it
             if ($attempt->finished_at) {
-                return redirect(route('attempt.index'))->with('success', 'Test submitted successfully');
+                return redirect(route('attempt.index'))->with('success', __('success.test_submitted'));
             }
 
             DB::beginTransaction();
@@ -116,10 +132,10 @@ class PracticeController extends Controller
             DB::commit();
 
             if ($attempt->mock_id && $attempt->mock?->slug) {
-                return redirect('/?slug=' . $attempt->mock->slug)->with('success', 'Test submitted successfully');
+                return redirect('/?slug=' . $attempt->mock->slug)->with('success', __('success.test_submitted'));
             }
 
-            return redirect(route('attempt.index'))->with('success', 'Test submitted successfully');
+            return redirect(route('attempt.index'))->with('success', __('success.test_submitted'));
 
         } catch (\Exception $e) {
             return response()->json([

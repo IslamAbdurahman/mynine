@@ -17,7 +17,7 @@ class TelegramLoginController extends Controller
 
         // Validate Telegram login
         if (!$this->isTelegramDataValid($data)) {
-            return redirect()->route('home')->with('error', 'Invalid Telegram login.');
+            return redirect()->route('home')->with('error', __('error.invalid_telegram_login'));
         }
 
         // Create or update user

@@ -1,6 +1,11 @@
 {
     "error": {
-        "search_failed": "Qidirish muvaffaqiyatsiz bo'ldi"
+        "search_failed": "Qidirish muvaffaqiyatsiz bo'ldi",
+        "invalid_telegram_login": "Telegram orqali kirishda xatolik.",
+        "unauthorized_access": "Sizga ushbu sahifaga kirishga ruxsat berilmagan",
+        "attempt_not_found": "Urinish topilmadi yoki allaqachon yakunlangan.",
+        "max_mocks_reached": "Siz ushbu oy uchun maksimal mock miqdoriga yetdingiz.",
+        "submission_failed": "Yuborishda xatolik yuz berdi"
     },
     "lang": {
         "title": "\uD83C\uDDFA\uD83C\uDDFF Til",
@@ -348,7 +353,12 @@
         "processing": "Ishlov berilmoqda..."
     },
     "success": {
-        "found": "Muvaffaqiyatli topildi"
+        "found": "Muvaffaqiyatli topildi",
+        "mock_created": "Mock muvaffaqiyatli yaratildi.",
+        "mock_updated": "Mock muvaffaqiyatli yangilandi.",
+        "mock_deleted": "Mock muvaffaqiyatli o'chirildi.",
+        "test_submitted": "Test muvaffaqiyatli topshirildi",
+        "test_type_submitted": "Test turi muvaffaqiyatli topshirildi."
     },
     "ielts_practice_test": "IELTS amaliyoti testi",
     "confirm_details": "Iltimos, ma'lumotlaringizni tasdiqlang va boshlash uchun modulni tanlang.",

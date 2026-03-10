@@ -33,7 +33,7 @@ class OptionController extends Controller
         try {
             Option::create($request->validated());
 
-            return back()->with('success', 'Option created successfully.');
+            return back()->with('success', __('updated_successfully'));
         } catch (\Exception $e) {
             // Proper Inertia error response
             throw ValidationException::withMessages([
@@ -67,7 +67,7 @@ class OptionController extends Controller
         try {
             $option->update($request->validated());
 
-            return back()->with('success', 'Option created successfully.');
+            return back()->with('success', __('updated_successfully'));
         } catch (\Exception $e) {
             // Proper Inertia error response
             throw ValidationException::withMessages([
@@ -83,7 +83,7 @@ class OptionController extends Controller
     {
         try {
             $option->delete();
-            return back()->with('success', 'Option deleted successfully.');
+            return back()->with('success', __('deleted_successfully'));
         } catch (\Exception $e) {
             // Proper Inertia error response
             throw ValidationException::withMessages([

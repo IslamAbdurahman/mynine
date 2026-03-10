@@ -120,7 +120,7 @@ export default function PracticeSection({
 
                     const data = await response.json();
 
-                    if (!data.success) throw new Error(data?.error || 'Yuborishda xatolik');
+                    if (!data.success) throw new Error(data?.error || t('error.submission_failed'));
 
                     setSelectedPart((prev) => {
                         if (!prev) return null;

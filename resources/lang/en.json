@@ -1,6 +1,11 @@
 {
     "error": {
-        "search_failed": "Search failed"
+        "search_failed": "Search failed",
+        "invalid_telegram_login": "Invalid Telegram login.",
+        "unauthorized_access": "You are not allowed to access this page",
+        "attempt_not_found": "Attempt not found or already finished.",
+        "max_mocks_reached": "You have reached the maximum number of mocks for this month.",
+        "submission_failed": "Submission failed"
     },
     "lang": {
         "title": "\uD83C\uDDEC\uD83C\uDDE7 Lang",
@@ -349,7 +354,12 @@
         "processing": "Processing..."
     },
     "success": {
-        "found": "Found successfully"
+        "found": "Found successfully",
+        "mock_created": "Mock created successfully.",
+        "mock_updated": "Mock updated successfully.",
+        "mock_deleted": "Mock deleted successfully.",
+        "test_submitted": "Test submitted successfully",
+        "test_type_submitted": "Test type submitted successfully."
     },
     "ielts_practice_test": "IELTS Practice Test",
     "confirm_details": "Please confirm your details and select a module to begin.",

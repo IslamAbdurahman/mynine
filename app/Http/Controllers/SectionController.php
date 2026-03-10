@@ -42,7 +42,7 @@ class SectionController extends Controller
 
             DB::commit();
 
-            return back()->with('success', 'Section created successfully.');
+            return back()->with('success', __('updated_successfully'));
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -84,7 +84,7 @@ class SectionController extends Controller
 
             DB::commit();
 
-            return back()->with('success', 'Section updated successfully.');
+            return back()->with('success', __('updated_successfully'));
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -101,7 +101,7 @@ class SectionController extends Controller
     {
         try {
             $section->delete();
-            return back()->with('success', 'Section deleted successfully.');
+            return back()->with('success', __('deleted_successfully'));
         } catch (\Exception $e) {
             // Proper Inertia error response
             throw ValidationException::withMessages([

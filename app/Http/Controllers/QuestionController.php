@@ -54,7 +54,7 @@ class QuestionController extends Controller
 
             DB::commit();
 
-            return back()->with('success', 'Question created successfully!');
+            return back()->with('success', __('updated_successfully'));
         } catch (\Exception $e) {
             throw ValidationException::withMessages([
                 'error' => [$e->getMessage()],
@@ -88,7 +88,7 @@ class QuestionController extends Controller
 
             $question->update($request->validated());
 
-            return back()->with('success', 'Question created successfully!');
+            return back()->with('success', __('updated_successfully'));
 
         } catch (\Exception $e) {
             // Proper Inertia error response
@@ -105,7 +105,7 @@ class QuestionController extends Controller
     {
         try {
             $question->delete();
-            return back()->with('success', 'Question deleted successfully.');
+            return back()->with('success', __('deleted_successfully'));
         } catch (\Exception $e) {
             // Proper Inertia error response
             throw ValidationException::withMessages([

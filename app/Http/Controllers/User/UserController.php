@@ -114,7 +114,7 @@ class UserController extends Controller
 
             $user->assignRole('Student');
 
-            return back()->with('success', 'User updated successfully.');
+            return back()->with('success', __('updated_successfully'));
         } catch (\Exception $e) {
             // Proper Inertia error response
             throw ValidationException::withMessages([
@@ -131,7 +131,7 @@ class UserController extends Controller
     {
 
         if (!Auth::user()->hasRole('Admin')) {
-            return back()->with('error', "You are not allowed to access this page");
+            return back()->with('error', __("error.unauthorized_access"));
         }
 
         return Inertia::render('user/show', [
@@ -170,7 +170,7 @@ class UserController extends Controller
                 }
             }
 
-            return back()->with('success', 'User updated successfully.');
+            return back()->with('success', __('updated_successfully'));
         } catch (\Exception $e) {
             // Proper Inertia error response
             throw ValidationException::withMessages([
@@ -188,7 +188,7 @@ class UserController extends Controller
         try {
 
             $user->delete();
-            return back()->with('success', 'User deleted successfully.');
+            return back()->with('success', __('deleted_successfully'));
         } catch (\Exception $e) {
             // Proper Inertia error response
             throw ValidationException::withMessages([

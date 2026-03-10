@@ -113,7 +113,7 @@ export default function PracticeQuestion({
                     ? error.message
                     : typeof error === 'string'
                         ? error
-                        : 'Xatolik yuz berdi';
+                        : t('error_occurred');
 
                 toast.error(message);
             }
@@ -163,7 +163,7 @@ export default function PracticeQuestion({
             })
                 .then(async (response) => {
                     const data = await response.json(); // ✅ await the JSON
-                    if (!data.success) throw new Error(data?.error || 'Yuborishda xatolik');
+                    if (!data.success) throw new Error(data?.error || t('error.submission_failed'));
                     return data; // ✅ pass parsed data to next .then()
                 })
                 .then(() => {

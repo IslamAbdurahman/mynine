@@ -237,7 +237,7 @@ class AttemptController extends Controller
     {
         try {
             $attempt->delete();
-            return back()->with('success', 'Attempt deleted successfully.');
+            return back()->with('success', __('deleted_successfully'));
         } catch (\Exception $e) {
             // Proper Inertia error response
             throw ValidationException::withMessages([

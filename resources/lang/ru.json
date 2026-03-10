@@ -1,6 +1,11 @@
 {
     "error": {
-        "search_failed": "Поиск не удался"
+        "search_failed": "Поиск не удался",
+        "invalid_telegram_login": "Неверный вход через Telegram.",
+        "unauthorized_access": "У вас нет доступа к этой странице",
+        "attempt_not_found": "Попытка не найдена или уже завершена.",
+        "max_mocks_reached": "Вы достигли максимального количества пробных экзаменов в этом месяце.",
+        "submission_failed": "Ошибка при отправке"
     },
     "lang": {
         "title": "\uD83C\uDDF7\uD83C\uDDFA Язык",
@@ -348,7 +353,12 @@
         "processing": "Обработка..."
     },
     "success": {
-        "found": "Успешно найдено"
+        "found": "Успешно найдено",
+        "mock_created": "Пробный экзамен успешно создан.",
+        "mock_updated": "Пробный экзамен успешно обновлен.",
+        "mock_deleted": "Пробный экзамен успешно удален.",
+        "test_submitted": "Тест успешно сдан",
+        "test_type_submitted": "Тип теста успешно сдан."
     },
     "ielts_practice_test": "Практический тест IELTS",
     "confirm_details": "Пожалуйста, подтвердите свои данные и выберите модуль, чтобы начать.",

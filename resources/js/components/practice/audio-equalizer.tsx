@@ -113,23 +113,18 @@ export default function AudioEqualizer({
     };
 
     return (
-        <div className="flex items-center gap-1 pt-5">
+        <div className="flex items-center gap-1">
             {/* Equalizer */}
-            <div className="flex items-end gap-[1px] h-1">
+            <div className="flex items-end gap-[1px] h-3 mr-2">
                 {bars.map((value, i) => (
                     <motion.div
                         key={i}
-                        className="w-1 bg-green-500 rounded"
-                        animate={{ height: value / 6 }}
+                        className="w-[3px] bg-green-500 rounded-t"
+                        animate={{ height: Math.max(2, value / 8) }}
                         transition={{ type: "spring", stiffness: 150, damping: 20 }}
                     />
                 ))}
             </div>
-
-            {/* Time counter */}
-            <span className="text-sm text-gray-700 dark:text-gray-300">
-        {formatTime(time)} / {formatTime(duration)}
-      </span>
 
             {/* Hidden audio */}
             <audio

@@ -12,6 +12,7 @@ class Attempt extends Model
 
 
     protected $fillable = [
+        'name',
         'mock_id',
         'user_id',
         'test_id',

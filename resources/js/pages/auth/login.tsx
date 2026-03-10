@@ -1,4 +1,4 @@
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 
 import LanguageBar from '@/components/language';
@@ -52,22 +52,29 @@ export default function Login({ status, canResetPassword }: LoginProps) {
         <AuthLayout title={t('login.title')} description={t('login.description')}>
             <Head title={t('login.submit')} />
 
-            <LanguageBar />
+            <div className="absolute top-6 right-6">
+                <LanguageBar />
+            </div>
 
             <LoginCard />
 
-
-            <div className="flex items-center">
-                <Label htmlFor="password">{t('login.password')}</Label>
+            <div className="mt-4 flex flex-col items-center gap-4">
                 {canResetPassword && (
-                    <TextLink href={route('password.request')} className="ml-auto text-sm" tabIndex={5}>
+                    <Link
+                        href={route('password.request')}
+                        className="text-sm font-bold text-gray-500 hover:text-primary transition-colors duration-300 underline-offset-4 hover:underline"
+                        tabIndex={5}
+                    >
                         {t('login.forgot')}
-                    </TextLink>
+                    </Link>
+                )}
+
+                {status && (
+                    <div className="rounded-xl bg-green-500/10 px-4 py-2 border border-green-500/20 text-center text-sm font-bold text-green-600">
+                        {t('login.status_success')}
+                    </div>
                 )}
             </div>
-
-            {status &&
-                <div className="mb-4 text-center text-sm font-medium text-green-600">{t('login.status_success')}</div>}
         </AuthLayout>
     );
 }

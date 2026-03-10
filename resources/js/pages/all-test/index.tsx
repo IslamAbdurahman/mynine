@@ -1,15 +1,20 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, usePage, useForm } from '@inertiajs/react';
-import { type BreadcrumbItem, type FolderPaginate, SearchData } from '@/types';
+import { type BreadcrumbItem, type FolderPaginate, SearchData, Folder } from '@/types';
 import { useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import AllTestCard from '@/components/all-test/all-test-card';
-import SearchForm from '@/components/search-form';
+import PremiumFilters from '@/components/premium-filters';
 import { useTranslation } from 'react-i18next';
 import MobileSearchModal from '@/components/MobileSearchModal';
 
 export default function AllTest() {
-    const { folder } = usePage<{ folder: FolderPaginate }>().props;
+    const { folder, folders, filters, isAdmin } = usePage<{ 
+        folder: FolderPaginate,
+        folders: Folder[],
+        filters: any,
+        isAdmin: boolean
+    }>().props;
     const { t } = useTranslation();  // Using the translation hook
 
     const breadcrumbs: BreadcrumbItem[] = [
@@ -21,8 +26,11 @@ export default function AllTest() {
 
     // Form handling for search and per_page
     const { data, setData } = useForm<SearchData>({
-        search: '',
-        per_page: folder.per_page,
+        search: filters?.search || '',
+        folder_id: filters?.folder_id || '',
+        from: filters?.from || '',
+        to: filters?.to || '',
+        per_page: filters?.per_page || folder.per_page,
         page: folder.current_page,
         total: folder.total
     });
@@ -33,25 +41,27 @@ export default function AllTest() {
     };
 
 
-    useEffect(() => {
-        const urlParams = new URLSearchParams(location.search);
-        const searchQuery = urlParams.get('search') || ''; // Get 'search' query from the URL
-        setData('search', searchQuery); // Set it to the form state
-    }, [location.search]);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={t('all_tests')} />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 {/* Search and Per-Page Selection */}
-                <div className="flex justify-end items-center">
+                <div className="flex justify-end items-center mb-2">
                     <MobileSearchModal
                         data={data}
                         setData={setData}
                         handleSubmit={handleSubmit}
+                        folders={folders}
+                        isAdmin={isAdmin}
                     />
-                    <div className={'hidden lg:block'}>
-                        <SearchForm handleSubmit={handleSubmit} setData={setData} data={data} />
+                    <div className="hidden lg:block w-full">
+                        <PremiumFilters 
+                            handleSubmit={handleSubmit} 
+                            setData={setData} 
+                            data={data} 
+                            folders={folders}
+                        />
                     </div>
                 </div>
 

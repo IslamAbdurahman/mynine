@@ -12,7 +12,9 @@ interface SectionUpdateProps {
     question: Question;
     section: Section;
     index: number;
-    setSelectedPart: (part: Part | null) => void;
+    setSelectedPart: React.Dispatch<React.SetStateAction<Part | null>>;
+    isFlagged: boolean;
+    toggleFlag: () => void;
 }
 
 export default function PracticeQuestion({
@@ -21,7 +23,9 @@ export default function PracticeQuestion({
                                              question,
                                              section,
                                              index,
-                                             setSelectedPart
+                                             setSelectedPart,
+                                             isFlagged,
+                                             toggleFlag
                                          }: SectionUpdateProps) {
     const { t } = useTranslation();
 
@@ -41,7 +45,7 @@ export default function PracticeQuestion({
                 {i < parts.length - 1 && (
                     <input
                         type="text"
-                        className="inline w-40 rounded-md border border-blue-500 px-3 py-1.5 text-sm shadow-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        className="ielts-gap-input"
                         value={answer_text ?? (question.attempt_answer?.answer_text || '')}
                         onChange={(e) => handleChange(question.id, e.target.value)}
                     />
@@ -87,7 +91,7 @@ export default function PracticeQuestion({
                                 if (q.id !== qId) return q;
 
                                 if (value.trim() === '') {
-                                    return { ...q, attempt_answer: null };
+                                    return { ...q, attempt_answer: undefined };
                                 }
 
                                 return {
@@ -96,7 +100,7 @@ export default function PracticeQuestion({
                                         ...(q.attempt_answer ?? { id: Date.now(), question_id: qId }),
                                         answer_text: value,
                                         attempt_answer_options: q.attempt_answer?.attempt_answer_options ?? []
-                                    }
+                                    } as any
                                 };
                             })
                         };
@@ -176,7 +180,7 @@ export default function PracticeQuestion({
                                     if (q.id !== question.id) return q;
 
                                     if (updated.length === 0) {
-                                        return { ...q, attempt_answer: null };
+                                        return { ...q, attempt_answer: undefined };
                                     }
 
                                     return {
@@ -189,7 +193,7 @@ export default function PracticeQuestion({
                                                 attempt_answer_options: []
                                             }),
                                             attempt_answer_options: updated
-                                        }
+                                        } as any
                                     };
                                 })
                             };
@@ -204,7 +208,7 @@ export default function PracticeQuestion({
                             ? error.message
                             : typeof error === 'string'
                                 ? error
-                                : 'Xatolik yuz berdi';
+                                : t('error_occurred');
 
                     toast.error(message);
                 });
@@ -214,9 +218,9 @@ export default function PracticeQuestion({
     };
 
     return (
-        <div key={question.id} className="p-4 border rounded-lg shadow-sm">
-            <h2 className="font-medium text-lg">
-                <span className="font-semibold">
+        <div id={`question-${question.id}`} key={question.id} className={`p-1 mb-1 ${section.question_type.type === 'matching' ? 'py-0.5' : 'py-1'}`}>
+            <h2 className="font-medium text-[16px] leading-relaxed ielts-question-text">
+                <span className="font-semibold flex items-center gap-2 group cursor-pointer" onClick={toggleFlag}>
                     {(() => {
                         const count = question.is_correct_count ?? 1;
                         return count > 1
@@ -224,6 +228,11 @@ export default function PracticeQuestion({
                             : order;
                     })()}
                     .
+                    <span className={`inline-flex items-center justify-center p-1 rounded transition-colors ${isFlagged ? 'text-orange-500' : 'text-gray-400 opacity-20 group-hover:opacity-100'}`} title={t('flag_for_review')}>
+                        <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                            <path d="M14.4,6L14,4H5V21H7V14H12.6L13,16H20V6H14.4Z" />
+                        </svg>
+                    </span>
                 </span>
                 {renderWithBlanks(question.textarea)}
 
@@ -236,7 +245,7 @@ export default function PracticeQuestion({
                                 setMatchingAnswer(e.target.value);
                                 debouncedSave(question.id, e.target.value);
                             }}
-                            className="ms-2 inline rounded-md border border-blue-500 px-3 py-1.5 text-sm shadow-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                            className="ms-2 inline-block rounded-md border border-blue-500 px-2 py-0.5 text-sm shadow-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white align-middle"
                         >
                             <option value="">{t('select')}</option>
                             {buildRange(section.from_option, section.to_option).map((opt) => (
@@ -256,14 +265,13 @@ export default function PracticeQuestion({
                             setMatchingAnswer(e.target.value);
                             debouncedSave(question.id, e.target.value);
                         }}
-                        className="w-full h-150 ms-2 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                        placeholder="Type your answer here..."
+                        className="w-full min-h-[400px] mt-4 rounded-sm border-2 border-black dark:border-gray-500 bg-white dark:bg-gray-800 p-4 text-[16px] leading-[1.6] font-sans shadow-inner focus:outline-none resize-y text-black dark:text-gray-100"
+                        placeholder={t('type_your_answer_here')}
                     />
-                    <div className="text-right text-xs text-gray-500 mt-1">
-                        {matchingAnswer.trim() === ''
+                    <div className="text-left text-sm font-semibold text-black dark:text-gray-300 mt-2">
+                        {t('word_count')}: {matchingAnswer.trim() === ''
                             ? 0
-                            : matchingAnswer.trim().split(/\s+/).length}{' '}
-                        words
+                            : matchingAnswer.trim().split(/\s+/).length}
                     </div>
                 </div>
             )}

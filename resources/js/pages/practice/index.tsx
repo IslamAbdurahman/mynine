@@ -11,6 +11,7 @@ import { CountdownTimer } from '@/components/practice/countdown-timer';
 import AppearanceTabs from '@/components/appearance-tabs';
 import { FaCirclePlay } from 'react-icons/fa6';
 import AudioEqualizer from '@/components/practice/audio-equalizer';
+import LanguageBar from '@/components/language';
 
 export default function Practice() {
     const { attempt } = usePage<{ attempt: Attempt }>().props;
@@ -21,6 +22,16 @@ export default function Practice() {
     const [selectedPart, setSelectedPart] = useState<Part | null>(null);
     const [isDisabled, setIsDisabled] = useState<boolean>(false);
     const [isTimeUp, setIsTimeUp] = useState<boolean>(false);
+    const [flaggedIds, setFlaggedIds] = useState<Set<number>>(new Set());
+
+    const toggleFlag = (id: number) => {
+        setFlaggedIds((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    };
 
     const getStatus = () => {
 
@@ -40,15 +51,22 @@ export default function Practice() {
         console.log(isDisabled, isTimeUp);
     };
 
-    const handleTestType = (test_type_id: number) => {
+    const handleTestType = (test_type_id: number, autoStart: boolean = false) => {
         fetch(route('practice-test-type', {
             test_type_id,
             attempt_id: attempt.id
         }))
             .then((res) => res.json())
             .then((res) => {
-                setTestType(res.data ?? res);
-                setSelectedPart(null);
+                const data = res.data ?? res;
+                setTestType(data);
+                
+                // If autoStart is true and there are parts, automatically load the first part
+                if (autoStart && data.parts && data.parts.length > 0) {
+                    handlePart(data.parts[0].id);
+                } else {
+                    setSelectedPart(null);
+                }
             })
             .catch((err) => console.error('handleTestType error:', err));
     };
@@ -65,6 +83,30 @@ export default function Practice() {
             .catch((err) => console.error('handlePart error:', err));
     };
 
+    const handleSubmitTestType = () => {
+        if (!testType) return;
+        if (confirm(t('confirm_finish_test_type') ?? `Finish ${testType.type?.name}?`)) {
+            fetch(route('practice-test-type-submit', {
+                attempt_id: attempt.id,
+                type_id: testType.type_id
+            }))
+                .then((res) => res.json())
+                .then((res) => {
+                    if (res.success) {
+                        setTestType(null);
+                        setSelectedPart(null);
+                        // Refresh attempt data
+                        fetch(route('practice-attempt', attempt.id))
+                            .then((res) => res.json())
+                            .then((res) => {
+                                setResAttempt(res.data ?? res);
+                            });
+                    }
+                })
+                .catch((err) => console.error('handleSubmitTestType error:', err));
+        }
+    };
+
     useEffect(() => {
         fetch(route('practice-attempt', attempt.id))
             .then((res) => res.json())
@@ -78,7 +120,7 @@ export default function Practice() {
     if (!resAttempt) {
         return (
             <div className="flex justify-center items-center h-full">
-                <p>{t('loading') ?? 'Loading...'}</p>
+                <p>{t('loading')}</p>
             </div>
         );
     }
@@ -86,114 +128,161 @@ export default function Practice() {
     let order = selectedPart?.order ?? 0;
 
     return (
-        <div className="relative min-h-screen pt-16 pb-24">
+        <div className="relative h-screen overflow-hidden bg-[#e5e7eb] dark:bg-gray-900 flex flex-col font-sans text-gray-900 dark:text-gray-100">
 
-            <Head title="Practice" />
+            <Head title="IELTS Practice" />
 
             {/* Fixed (TOP) */}
-            <div className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 shadow-md p-2">
-                <div className="flex flex-col sm:flex-row justify-around items-center">
+            <div className="flex-none h-14 bg-[#1a1a1a] dark:bg-black text-white flex justify-between items-center px-6 shadow-md z-50">
+                <div className="flex items-center gap-4">
+                    <span className="text-xl font-bold italic tracking-wider text-white">IELTS</span>
                     {testType && (
-                        <div className="flex flex-col sm:flex-row justify-around items-center">
-                            <h2 className="text-xl font-bold mb-1">
-                                {resAttempt.user?.name} <span> - </span>
-                                <CountdownTimer
-
-                                    finishedAt={resAttempt.attempt_types.find(
-                                        (t) => t.type_id === selectedPart?.test_type.type_id
-                                    )?.finished_at ?? null
-                                    }
-
-                                    onExpire={() => {
-                                        console.log('⏰ Time is up! Submitting attempt...');
-                                        getStatus();
-                                    }}
-                                />
-                            </h2>
-                        </div>
+                        <span className="text-sm font-semibold border-l pl-4 border-gray-600">
+                            {testType.type?.name}
+                        </span>
                     )}
-
-
-                    {
-                        (!isTimeUp &&
-                            testType?.type?.name?.toLowerCase() === 'listening') &&
-                        (() => {
-                            const finishedAtValue = resAttempt?.attempt_types.find(
-                                (t) => t.type_id === selectedPart?.test_type?.type_id
-                            )?.finished_at ?? null;
-
-                            if (!finishedAtValue) return null;
-
-                            const finishedAtDate = new Date(finishedAtValue);
-
-                            return finishedAtDate.getTime() > Date.now() && testType?.test?.audio_path ? (
-                                <div className="flex justify-between gap-4">
-                                    <AudioEqualizer
-                                        src={`/${testType?.test?.audio_path}`}
-                                        autoPlay
-                                        endTime={finishedAtDate.toISOString()}
-                                    />
-                                </div>
-                            ) : null;
-                        })()
-                    }
-
-                    <AppearanceTabs className={''} label={false} />
-
                 </div>
 
+                {testType && (
+                    <div className="flex items-center">
+                        <div className="flex flex-col items-center text-xl font-bold font-mono tracking-widest text-red-500 bg-black/50 px-3 py-1 rounded">
+                            <CountdownTimer
+                                finishedAt={resAttempt.attempt_types.find(
+                                    (t) => t.type_id === (selectedPart?.test_type?.type_id ?? testType.type_id)
+                                )?.finished_at ?? null}
+                                onExpire={() => {
+                                    console.log('⏰ Time is up! Returning to menu...');
+                                    setIsTimeUp(true);
+                                    setTestType(null);
+                                    setSelectedPart(null);
+                                }}
+                            />
+                        </div>
+                    </div>
+                )}
 
+                <div className="flex flex-row items-center gap-6">
+                    {testType && testType.type?.name?.toLowerCase() === 'listening' && !isTimeUp && (() => {
+                        const finishedAtValue = resAttempt?.attempt_types.find(
+                            (t) => t.type_id === selectedPart?.test_type?.type_id
+                        )?.finished_at ?? null;
+                        if (!finishedAtValue) return null;
+                        const finishedAtDate = new Date(finishedAtValue);
+                        return finishedAtDate.getTime() > Date.now() && testType?.test?.audio_path ? (
+                            <AudioEqualizer
+                                src={`/${testType?.test?.audio_path}`}
+                                autoPlay
+                                endTime={finishedAtDate.toISOString()}
+                            />
+                        ) : null;
+                    })()}
+                    
+                    <span className="text-sm font-medium mr-4">{resAttempt.user?.name}</span>
+                    <LanguageBar variant="dark" />
+                </div>
             </div>
 
             {!testType && (
-                <div className="flex flex-col items-center justify-center h-[80vh] space-y-8">
-                    <h1 className="text-3xl font-bold">{resAttempt.user?.name}</h1>
-                    <p className="text-gray-600 dark:text-gray-300">{t('select_test_type') ?? 'Choose a test module to begin your practice.'}</p>
+                <div className="flex flex-col items-center justify-center h-full flex-1 w-full bg-[#e5e7eb] dark:bg-gray-900 px-4 overflow-y-auto">
+                    <div className="bg-white dark:bg-gray-800 p-8 md:p-10 max-w-3xl w-full border border-gray-300 dark:border-gray-700 shadow-md text-gray-900 dark:text-gray-100">
+                        <div className="border-b-2 border-gray-200 dark:border-gray-700 pb-4 mb-6">
+                            <h1 className="text-3xl font-bold tracking-tight">{t('ielts_practice_test')}</h1>
+                            <p className="text-gray-600 dark:text-gray-400 mt-2 text-md">{t('confirm_details')}</p>
+                        </div>
+                        
+                        <div className="mb-8 p-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-y-3">
+                                <span className="font-semibold text-gray-600 dark:text-gray-400 col-span-1">{t('candidate_name')}</span>
+                                <span className="sm:col-span-2 font-medium">{resAttempt.user?.name}</span>
+                                <span className="font-semibold text-gray-600 dark:text-gray-400 col-span-1">{t('test_title')}</span>
+                                <span className="sm:col-span-2 font-medium">{resAttempt.test?.name || t('academic_general')}</span>
+                            </div>
+                        </div>
 
-                    <div className="grid grid-cols-2 gap-6 justify-center">
-                        {resAttempt.test?.types?.map((item) => (
-                            <button
-                                key={item.id}
-                                onClick={() => handleTestType(item.id)}
-                                className="w-40 h-28 flex flex-col items-center justify-center rounded-xl
-               border border-red-500 dark:border-blue-500
-               bg-gradient-to-br from-red-500 to-blue-500
-               dark:from-blue-600 dark:to-red-600
-               text-white font-semibold shadow-[0_4px_12px_rgba(0,0,0,0.3)]
-               hover:shadow-[0_6px_16px_rgba(0,0,0,0.4)]
-               hover:scale-105 transition-transform duration-200 ease-in-out"
-                            >
-                                <span className="text-base md:text-lg font-bold">{item.type?.name}</span>
-                                <span className="text-xs md:text-sm flex items-center gap-2 mt-2 font-medium">
-                                    <FaCirclePlay className="w-5 h-5 drop-shadow animate-pulse" aria-hidden="true" />
-                                    {t('start')}
-                                </span>
-                            </button>
+                        <h2 className="text-xl font-bold mb-4">{t('select_test_type') ?? 'Available Modules'}</h2>
+                        <div className="flex flex-col gap-3">
+                            {(() => {
+                                const activeTypeId = resAttempt.test?.types?.find(item => {
+                                    const at = resAttempt?.attempt_types?.find(a => a.type_id === item.type_id);
+                                    return at && (!at.finished_at || new Date(at.finished_at).getTime() > Date.now());
+                                })?.type_id;
 
-                        ))}
+                                return resAttempt.test?.types?.map((item) => {
+                                    const at = resAttempt?.attempt_types?.find(a => a.type_id === item.type_id);
+                                    const finishedAt = at?.finished_at;
+                                    const isExpired = finishedAt ? new Date(finishedAt).getTime() <= Date.now() : false;
+                                    const isLocked = !!(activeTypeId && activeTypeId !== item.type_id && !isExpired);
+
+                                    return (
+                                        <button
+                                            key={item.id}
+                                            disabled={isExpired || isLocked}
+                                            onClick={() => handleTestType(item.id, true)}
+                                            className={`flex justify-between items-center w-full p-4 border transition-colors text-left group ${
+                                                isExpired || isLocked
+                                                ? 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800 opacity-60 cursor-not-allowed' 
+                                                : 'border-gray-400 dark:border-gray-600 hover:border-black dark:hover:border-white bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
+                                            }`}
+                                        >
+                                            <div className="flex flex-col">
+                                                <span className="text-lg font-bold">{item.type?.name}</span>
+                                                {isExpired && <span className="text-[10px] text-red-500 font-bold uppercase tracking-widest mt-0.5">{t('test_finished')}</span>}
+                                                {isLocked && <span className="text-[10px] text-orange-500 font-bold uppercase tracking-widest mt-0.5">{t('locked_active_test')}</span>}
+                                            </div>
+                                            
+                                            {!(isExpired || isLocked) && (
+                                                <span className="px-6 py-2 bg-black dark:bg-gray-700 group-hover:bg-gray-800 dark:group-hover:bg-gray-600 text-white font-semibold rounded-[2px] transition-colors uppercase tracking-wide text-sm flex items-center gap-2 pointer-events-none">
+                                                    {at ? (t('continue') ?? 'Davom etish') : (t('start') ?? 'Start')} <span>➔</span>
+                                                </span>
+                                            )}
+                                        </button>
+                                    );
+                                });
+                            })()}
+                        </div>
+
+                        {/* Complete Test Submission Button (Shown when all tests are done) */}
+                        {(() => {
+                            const allFinished = resAttempt.test?.types?.every(item => {
+                                const at = resAttempt?.attempt_types?.find(a => a.type_id === item.type_id);
+                                return at?.finished_at ? new Date(at.finished_at).getTime() <= Date.now() : false;
+                            });
+
+                            if (allFinished) {
+                                return (
+                                    <div className="mt-8 flex justify-end border-t border-gray-200 dark:border-gray-700 pt-6">
+                                        <button
+                                            className="bg-black dark:bg-gray-100 hover:bg-gray-800 dark:hover:bg-white text-white dark:text-gray-900 font-bold py-3 px-8 rounded transition-colors uppercase tracking-wide text-lg flex items-center gap-2"
+                                            onClick={() => {
+                                                if (confirm(t('confirm_submit_test'))) {
+                                                    window.location.href = route('practice-attempt-submit', attempt.id);
+                                                }
+                                            }}
+                                        >
+                                            {t('submit_test')} <CheckIcon className="w-6 h-6 ml-2 text-green-500" />
+                                        </button>
+                                    </div>
+                                );
+                            }
+                            return null;
+                        })()}
                     </div>
                 </div>
             )}
 
 
             {selectedPart && (
-
-                <div>
-
+                <div className="flex-1 overflow-hidden">
                     <div
-                        className={`grid gap-4 p-6 mb-10
-                            grid-cols-1
-                            sm:h-[calc(100vh-100px)]
-                            ${
+                        className={`h-full flex flex-col sm:flex-row bg-white dark:bg-gray-900 ${
                             selectedPart.test_type.type.name === 'Listening'
-                                ? ''
-                                : 'sm:grid-cols-2'
+                                ? 'justify-center items-start'
+                                : ''
                         }`}
                     >
                         {/* Left side scroll */}
-
                         {selectedPart.test_type.type.name !== 'Listening' && (
-                            <div className="overflow-y-auto border border-gray-200 rounded-lg p-4">
+                            <div className="flex-1 h-full overflow-y-auto w-full sm:w-1/2 p-6 border-r-2 border-gray-300 dark:border-gray-700">
                                 <PracticePart
                                     attempt={attempt}
                                     part={selectedPart} />
@@ -202,11 +291,8 @@ export default function Practice() {
 
                         {/* Right side scroll */}
                         {selectedPart.test_type.type.name !== 'Writing' && (
-
-                            <div className="overflow-y-auto border border-gray-200 rounded-lg p-4">
-                                <div className="mt-4 divide-y divide-gray-200 dark:divide-gray-700">
-
-
+                            <div className="flex-1 h-full overflow-y-auto w-full sm:w-1/2 p-6 bg-gray-50 dark:bg-gray-900">
+                                <div className="max-w-3xl mx-auto">
                                     {selectedPart?.sections?.reduce((acc: ReactElement[], section: Section, sectionIndex: number) => {
                                         const sectionSum = section.questions.reduce(
                                             (sum: number, q: Question) => sum + Number(q.is_correct_count ?? 1),
@@ -224,6 +310,8 @@ export default function Practice() {
                                                 partIndex={sectionIndex}
                                                 sectionIndex={sectionIndex}
                                                 setSelectedPart={setSelectedPart}
+                                                flaggedIds={flaggedIds}
+                                                toggleFlag={toggleFlag}
                                             />
                                         );
 
@@ -231,16 +319,12 @@ export default function Practice() {
 
                                         return acc;
                                     }, [])}
-
-
                                 </div>
                             </div>
-
                         )}
 
-
                         {selectedPart.test_type.type.name === 'Writing' && (
-                            <div className="overflow-y-auto border border-gray-200 rounded-lg p-4">
+                            <div className="flex-1 h-full overflow-y-auto w-full sm:w-1/2 p-6 bg-gray-50 dark:bg-gray-900">
                                 <PracticeEssay
                                     order={order}
                                     part={selectedPart}
@@ -255,135 +339,89 @@ export default function Practice() {
 
 
             {testType && !selectedPart && (
-                <div className="flex flex-col items-center justify-center h-[80vh] space-y-8">
-                    <h1 className="text-2xl font-bold">{testType.type?.name}</h1>
-                    <p className="text-gray-600 dark:text-gray-300">
-                        {t('select_part') ?? 'Select a part to begin this module.'}
-                    </p>
-
-                    <div className="grid grid-cols-2 gap-6 justify-center">
-                        {testType.parts?.map((item) => (
-                            <button
-                                key={item.id}
-                                onClick={() => handlePart(item.id)}
-                                className="w-40 h-28 flex flex-col items-center justify-center rounded-xl
-               border border-red-500 dark:border-blue-500
-               bg-gradient-to-br from-red-500 to-blue-500
-               dark:from-blue-600 dark:to-red-600
-               text-white font-semibold shadow-[0_4px_12px_rgba(0,0,0,0.3)]
-               hover:shadow-[0_6px_16px_rgba(0,0,0,0.4)]
-               hover:scale-105 transition-transform duration-200 ease-in-out"
-                            >
-                                {/* Gloss shine */}
-                                <span
-                                    className="absolute top-0 left-0 w-full h-1/3 bg-white/20 blur-md rounded-t-xl pointer-events-none"></span>
-
-                                <span className="text-lg font-bold tracking-wide drop-shadow">
-        {item.name}
-    </span>
-                                <span className="text-xs md:text-sm flex items-center gap-2 mt-2 font-medium">
-                                    <FaCirclePlay className="w-5 h-5 drop-shadow animate-pulse" aria-hidden="true" />
-                                    {t('start')}
-                                </span>
-                            </button>
-
-                        ))}
+                <div className="flex flex-col items-center justify-center h-full flex-1 w-full bg-[#e5e7eb] dark:bg-gray-900 px-4 overflow-y-auto">
+                    <div className="bg-white dark:bg-gray-800 p-8 md:p-10 max-w-3xl w-full border border-gray-300 dark:border-gray-700 shadow-md text-gray-900 dark:text-gray-100">
+                        <div className="border-b-2 border-gray-200 dark:border-gray-700 pb-4 mb-6">
+                            <h1 className="text-3xl font-bold tracking-tight">{testType.type?.name}</h1>
+                            <p className="text-gray-600 dark:text-gray-400 mt-2 text-md">Please ensure your sound is working (if applicable) and select a component.</p>
+                        </div>
+                        
+                        <h2 className="text-xl font-bold mb-4">{t('select_part') ?? 'Select a Part'}</h2>
+                        <div className="flex flex-col gap-3">
+                            {testType.parts?.map((item) => (
+                                <button
+                                    key={item.id}
+                                    onClick={() => handlePart(item.id)}
+                                    className="flex justify-between items-center w-full p-4 border border-gray-400 dark:border-gray-600 hover:border-black dark:hover:border-white bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left group"
+                                >
+                                    <span className="text-lg font-bold">{item.name}</span>
+                                    <span className="px-6 py-2 bg-black dark:bg-gray-700 group-hover:bg-gray-800 dark:group-hover:bg-gray-600 text-white font-semibold rounded-[2px] transition-colors uppercase tracking-wide text-sm flex items-center gap-2">
+                                        {t('start')} <span>➔</span>
+                                    </span>
+                                </button>
+                            ))}
+                        </div>
                     </div>
-
                 </div>
             )}
 
 
             {/* Fixed (BOTTOM) */}
-            <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 shadow-inner p-2">
+            <div className="flex-none bg-[#e5e7eb] dark:bg-gray-950 border-t-2 border-gray-300 dark:border-gray-800 px-4 py-2 flex flex-col sm:flex-row justify-between items-center h-auto sm:h-20 shrink-0 z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] text-gray-900 dark:text-gray-100">
+                
+                <div className="flex-1 flex overflow-x-auto pb-2 sm:pb-0 items-center hide-scrollbar">
+                    <PracticeNumberBar
+                        part={selectedPart as Part}
+                        flaggedIds={flaggedIds}
+                    />
+                </div>
 
+                <div className="flex items-center gap-4">
+                    {selectedPart && (
+                        <>
+                            {/* Previous button */}
+                            <button
+                                className="bg-black dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded transition-colors flex items-center gap-1 uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled={!testType || !selectedPart || (testType.parts?.findIndex(p => p.id === selectedPart.id) ?? -1) <= 0}
+                                onClick={() => {
+                                     if (!testType || !selectedPart) return;
+                                     const currentIndex = testType.parts?.findIndex(p => p.id === selectedPart.id) ?? -1;
+                                     if (currentIndex > 0 && testType.parts) {
+                                          handlePart(testType.parts[currentIndex - 1].id);
+                                     }
+                                }}
+                            >
+                                ⬅ {t('prev') ?? 'Prev'}
+                            </button>
 
-                <div className="flex flex-col sm:flex-row justify-around items-center">
+                            {/* Next button */}
+                            <button
+                                className="bg-black dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded transition-colors flex items-center gap-1 uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled={!testType || !selectedPart || (testType.parts?.findIndex(p => p.id === selectedPart.id) ?? -1) >= (testType.parts?.length ?? 0) - 1}
+                                onClick={() => {
+                                     if (!testType || !selectedPart) return;
+                                     const currentIndex = testType.parts?.findIndex(p => p.id === selectedPart.id) ?? -1;
+                                     if (currentIndex !== -1 && testType.parts && currentIndex < testType.parts.length - 1) {
+                                          handlePart(testType.parts[currentIndex + 1].id);
+                                     }
+                                }}
+                            >
+                                {t('next') ?? 'Next'} ➔
+                            </button>
+                        </>
+                    )}
 
-                    <div>
-                        <PracticeNumberBar
-                            part={selectedPart as Part}
-                        />
-                    </div>
-
-                    <div className={'mt-1'}>
-                        {(testType?.parts?.length ?? 0) > 0 && (
-                            <div className="flex justify-center pb-2">
-                                <div className="inline-flex rounded-md shadow-xs overflow-x-auto">
-                                    {testType?.parts.map((item, index) => {
-
-                                        return (
-                                            <button
-                                                key={item.id ?? index}
-                                                onClick={() => handlePart(item.id)}
-                                                className={`px-4 py-2 text-sm font-medium border border-gray-200
-                        ${selectedPart?.id === item.id
-                                                    ? 'bg-blue-600 text-white dark:bg-blue-500'
-                                                    : 'bg-white text-gray-900 hover:bg-gray-100 hover:text-blue-700 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700'}
-                        first:rounded-l-lg last:rounded-r-lg`}
-                                            >
-                                                {item.name}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        )}
-
-
-                        {/* 🔥 Test type switcher */}
-
-                        <div className="flex justify-center">
-                            <div className="inline-flex rounded-md shadow-xs overflow-x-auto">
-
-                                {resAttempt.test?.types?.map((item, index) => {
-
-
-                                    const isCurrentType = testType?.id === item.id;
-
-                                    // console.log(!!finishedAt);
-                                    // console.log(isDisabled,finishedAt,isTimeUp);
-
-                                    return (
-                                        <button
-                                            key={item.id ?? index}
-                                            disabled={isDisabled}
-                                            onClick={() => handleTestType(item.id)}
-                                            className={`px-4 py-2 text-sm font-medium border border-gray-200
-                ${isCurrentType
-                                                ? 'bg-blue-600 text-white dark:bg-blue-500'
-                                                : 'bg-white text-gray-900 hover:bg-gray-100 hover:text-blue-700 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700'}
-                first:rounded-l-lg last:rounded-r-lg`}
-                                        >
-                                            {item.type?.name}
-                                        </button>
-                                    );
-                                })}
-
-
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <div className={'mt-1'}>
-
+                    {testType && (
                         <button
-                            className={'inline-block align-middle bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 border border-red-700 rounded float-right'}
-                            onClick={() => {
-                                if (confirm(t('confirm_submit') ?? 'Are you sure you want to submit your answers?')) {
-                                    window.location.href = route('practice-attempt-submit', attempt.id);
-                                }
-                            }}
+                            onClick={handleSubmitTestType}
+                            className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded transition-colors flex items-center gap-2 uppercase tracking-wide"
                         >
-                            <CheckIcon className={'inline'} />
-
-                            {t('submit') ?? 'Submit'}
+                            {t('finish')} <CheckIcon className="w-5 h-5" />
                         </button>
-                    </div>
-
+                    )}
                 </div>
             </div>
+            
         </div>
     );
 }

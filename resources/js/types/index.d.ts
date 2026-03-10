@@ -42,7 +42,7 @@ export interface SharedData {
 
 export interface SearchData {
     search?: string;
-    per_page?: number;
+    per_page?: number | string;
     page?: number;
     total?: number;
     worker_id?: number;
@@ -50,11 +50,13 @@ export interface SearchData {
     firm_id?: number;
     from?: string;
     to?: string;
-    month?: string;
-    date?: string;
-    daysInMonth?: number;
+    user_id?: number | string;
+    mock_id?: number | string;
+    test_id?: number | string;
+    folder_id?: number | string;
+    role?: string;
 
-    [key: string]: string | number; // Allow dynamic keys
+    [key: string]: any; // Allow dynamic keys
 }
 
 
@@ -266,6 +268,7 @@ export interface MockPaginate {
 
 export interface Attempt {
     id: number;
+    name: string;
     mock_id: number;
     user_id: number;
     test_id: number;

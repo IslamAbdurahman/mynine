@@ -105,6 +105,13 @@
             color: #718096;
         }
     </style>
+    @php
+        if (!function_exists('normalizeText')) {
+            function normalizeText($text) {
+                return trim(mb_strtolower($text ?? ''));
+            }
+        }
+    @endphp
 </head>
 <body>
 
@@ -184,13 +191,6 @@
             @php
                 $totalScore = 0;
                 $sumCorrect = 0;
-
-                if (!function_exists('normalizeText')) {
-                    function normalizeText($text) {
-                        return trim(mb_strtolower($text ?? ''));
-                    }
-                }
-
             @endphp
 
             @foreach($attempt_type->attempt_parts ?? [] as $attemptPart)

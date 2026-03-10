@@ -94,12 +94,16 @@ export function AppSidebar() {
     }, [isAdmin, i18n.language]);
 
     return (
-        <Sidebar collapsible="icon" variant="inset">
-            <SidebarHeader>
+        <Sidebar 
+            collapsible="icon" 
+            variant="inset"
+            className="border-r border-gray-100 dark:border-white/5 bg-sidebar/80 dark:bg-sidebar/50 backdrop-blur-xl"
+        >
+            <SidebarHeader className="border-b border-gray-100/50 dark:border-white/5 py-4 px-4">
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" asChild>
-                            <Link href="/" prefetch>
+                        <SidebarMenuButton size="lg" asChild className="hover:bg-transparent active:bg-transparent">
+                            <Link href="/" prefetch className="flex items-center justify-center w-full">
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>
@@ -107,12 +111,12 @@ export function AppSidebar() {
                 </SidebarMenu>
             </SidebarHeader>
 
-            <SidebarContent>
+            <SidebarContent className="py-4">
                 <NavMain items={filteredNavItems} />
             </SidebarContent>
 
-            <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
+            <SidebarFooter className="border-t border-gray-100/50 dark:border-gray-800/50 p-4">
+                <NavFooter items={footerNavItems} className="mb-4 opacity-70 hover:opacity-100 transition-opacity" />
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

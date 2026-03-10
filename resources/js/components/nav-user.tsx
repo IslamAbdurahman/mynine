@@ -17,9 +17,14 @@ export function NavUser() {
             <SidebarMenuItem>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <SidebarMenuButton size="lg" className="text-sidebar-accent-foreground data-[state=open]:bg-sidebar-accent group">
-                            <UserInfo user={auth.user} />
-                            <ChevronsUpDown className="ml-auto size-4" />
+                        <SidebarMenuButton 
+                            size="lg" 
+                            className="w-full justify-start p-2 rounded-xl transition-all duration-300 border border-transparent hover:border-gray-100 dark:hover:border-gray-800/50 hover:bg-white dark:hover:bg-gray-900/50 data-[state=open]:bg-white dark:data-[state=open]:bg-gray-900 shadow-sm hover:shadow-md"
+                        >
+                            <div className="flex items-center gap-3 w-full overflow-hidden">
+                                <UserInfo user={auth.user} />
+                                <ChevronsUpDown className="ml-auto size-3.5 text-gray-400 group-hover:text-primary transition-colors" />
+                            </div>
                         </SidebarMenuButton>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent

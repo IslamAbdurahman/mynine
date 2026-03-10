@@ -1,9 +1,10 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, usePage, useForm, Link } from '@inertiajs/react';
 import { type BreadcrumbItem, Part, QuestionType, SearchData, Section, TestType } from '@/types';
+import { Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { router } from '@inertiajs/react';
-import SearchForm from '@/components/search-form';
+import PremiumFilters from '@/components/premium-filters';
 import { useTranslation } from 'react-i18next';
 import MobileSearchModal from '@/components/MobileSearchModal';
 import CreateSectionModal from '@/components/section/create-section-modal';
@@ -53,37 +54,14 @@ export default function TestTypeShow() {
             <Head title="Part" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 {/* Search and Per-Page Selection */}
-                <div className="flex items-center justify-between">
-                    <div className={''}>
-                        <Link href={'/folder'} className={'underline'}>
-                            {t('folder')} /
-                        </Link>
-                        <Link href={`/folder/${testType.test.folder.id}`} className={'underline'}>
-                            {testType.test.folder.name} /
-                        </Link>
-
-                        <Link
-                            href={`/test-type/${testType.id}`}
-                            className="underline"
-                        >
-                            {testType.test?.name}
-                        </Link>
-                        / {testType.type?.name}
-                    </div>
-                    <Link href={`/part/create?test_type_id=${testType.id}`} className={'butt'}>
-                        <button type="button"
-                                className={'focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900'}>
-                            {t('create')} {t('part')}
-                        </button>
-                    </Link>
-
+                <div className="flex justify-end items-center mb-2">
                     <MobileSearchModal
                         data={data}
                         setData={setData}
                         handleSubmit={handleSubmit}
                     />
-                    <div className={'hidden lg:block'}>
-                        <SearchForm handleSubmit={handleSubmit} setData={setData} data={data} />
+                    <div className="hidden lg:block w-full">
+                        <PremiumFilters handleSubmit={handleSubmit} setData={setData} data={data} />
                     </div>
                 </div>
 
@@ -96,7 +74,7 @@ export default function TestTypeShow() {
                             <button
                                 key={part.id}
                                 onClick={() => setActiveTab(part.id)}
-                                className={`px-4 py-2 text-sm font-medium ${
+                                className={`px-4 py-2 text-sm font-medium transition-all ${
                                     activeTab === part.id
                                         ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400'
                                         : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
@@ -105,6 +83,14 @@ export default function TestTypeShow() {
                                 Part {partIndex + 1}
                             </button>
                         ))}
+                        
+                        <Link
+                            href={route('part.create', { test_type_id: testType.id })}
+                            className="ml-auto flex items-center gap-1.5 px-3 py-1.5 mb-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all font-semibold text-xs border border-blue-100 hover:border-blue-600 shadow-sm self-center mr-2 active:scale-95"
+                        >
+                            <Plus className="w-3.5 h-3.5" />
+                            {t('add_part') ?? 'Add Part'}
+                        </Link>
                     </div>
 
                     {/* Tab content */}

@@ -2,6 +2,7 @@
 namespace App\Jobs;
 
 use App\Models\AttemptAnswer;
+use App\Models\AttemptType;
 use App\Services\OpenAIService;
 use Exception;
 use Illuminate\Bus\Queueable;
@@ -51,9 +52,33 @@ class EvaluateEssayJob implements ShouldQueue
             $answer->review_note_ai = trim($resultText);
             $answer->save();
 
+            // Recalculate is_correct_count for the corresponding attempt_type
+            $this->recalculateAttemptTypeScore($answer);
+
         } catch (Exception $e) {
             $answer->review_note_ai = $e->getMessage();
             $answer->save();
         }
     }
+
+    /**
+     * Essay baholagandan keyin tegishli attempt_type uchun is_correct_count ni yangilash
+     */
+    private function recalculateAttemptTypeScore(AttemptAnswer $answer)
+    {
+        $attemptPart = $answer->attempt_part;
+        if (!$attemptPart) return;
+
+        $part = $attemptPart->part;
+        if (!$part || !$part->test_type) return;
+
+        $attemptType = AttemptType::where('attempt_id', $attemptPart->attempt_id)
+            ->where('type_id', $part->test_type->type_id)
+            ->first();
+
+        if ($attemptType) {
+            $attemptType->recalculateIsCorrectCount();
+        }
+    }
 }
+

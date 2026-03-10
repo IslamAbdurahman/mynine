@@ -107,7 +107,17 @@ class PracticeController extends Controller
                 }
             }
 
+            // Calculate and store is_correct_count for all attempt_types
+            $attempt_types = AttemptType::where('attempt_id', $attempt->id)->get();
+            foreach ($attempt_types as $attemptType) {
+                $attemptType->recalculateIsCorrectCount();
+            }
+
             DB::commit();
+
+            if ($attempt->mock_id && $attempt->mock?->slug) {
+                return redirect('/?slug=' . $attempt->mock->slug)->with('success', 'Test submitted successfully');
+            }
 
             return redirect(route('attempt.index'))->with('success', 'Test submitted successfully');
 
@@ -119,6 +129,59 @@ class PracticeController extends Controller
             ], 500);
         }
 
+    }
+
+    public function submit_test_type($attempt_id, $type_id)
+    {
+        try {
+            $attempt_type = AttemptType::where('attempt_id', $attempt_id)
+                ->where('type_id', $type_id)
+                ->firstOrFail();
+
+            if ($attempt_type->finished_at && $attempt_type->finished_at <= now()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Test type already submitted.',
+                ]);
+            }
+
+            DB::beginTransaction();
+
+            // Dispatch Essay Evaluation Jobs if any
+            $attempt_answers = \App\Models\AttemptAnswer::query()
+                ->whereHas('attempt_part', function ($query) use ($attempt_id, $type_id) {
+                    $query->where('attempt_id', $attempt_id)
+                        ->whereHas('part.test_type', function ($q) use ($type_id) {
+                            $q->where('type_id', $type_id);
+                        });
+                })
+                ->whereHas('question.section.question_type', function ($query) {
+                    $query->where('type', 'essay');
+                })
+                ->whereRaw('LENGTH(answer_text) > 200')
+                ->get();
+
+            foreach ($attempt_answers as $answer) {
+                EvaluateEssayJob::dispatch($answer->id);
+            }
+
+            $attempt_type->finish();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Test type submitted successfully.',
+                'data' => $attempt_type
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -137,7 +200,7 @@ class PracticeController extends Controller
                 'test' => function ($query) {
                     $query->with([
                         'types' => function ($query) {
-//                            $query->whereHas('parts');
+                            $query->whereHas('parts');
                         }
                     ]);
                 },

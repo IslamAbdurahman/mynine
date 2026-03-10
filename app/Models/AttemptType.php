@@ -16,6 +16,7 @@ class AttemptType extends Model
         'attempt_id',
         'type_id',
         'score',
+        'is_correct_count',
         'comment',
         'started_at',
         'finished_at',
@@ -36,19 +37,20 @@ class AttemptType extends Model
     }
 
 
-    protected $appends = [
-        'is_correct_count',
-        'attempt_parts'
-    ];
 
 
 // AttemptType modelida
     public function getAttemptPartsAttribute()
     {
         $attempt_parts = AttemptPart::query()
-            ->where('attempt_id', $this->attempt_id)
-            ->whereHas('part.test_type', fn($q) => $q->where('type_id', $this->type_id)
-            )
+            ->where(function ($query) {
+                $query->where('attempt_id', $this->attempt_id);
+            })
+            ->whereHas('part.test_type', function ($q) {
+                $q->where(function ($query) {
+                    $query->where('type_id', $this->type_id);
+                });
+            })
             ->with([
                 'part.test_type',
                 'part.attempt_part' => fn($q) => $q->where('attempt_id', $this->attempt_id),
@@ -67,7 +69,11 @@ class AttemptType extends Model
         return $attempt_parts;
     }
 
-    public function getIsCorrectCountAttribute()
+    /**
+     * is_correct_count ni hisoblash uchun static method
+     * Submit qilganda va essay baholaganda chaqiriladi
+     */
+    public static function calculateIsCorrectCount($attempt_id, $type_id)
     {
         return DB::table('attempt_answers as aa')
             ->join('attempt_parts as ap', 'aa.attempt_part_id', '=', 'ap.id')
@@ -76,8 +82,8 @@ class AttemptType extends Model
             ->join('parts as p', 's.part_id', '=', 'p.id')
             ->join('test_types as tt', 'p.test_type_id', '=', 'tt.id')
             ->leftJoin('attempt_answer_options as aao', 'aa.id', '=', 'aao.attempt_answer_id')
-            ->where('ap.attempt_id', $this->attempt_id)
-            ->where('tt.type_id', $this->type_id)
+            ->where('ap.attempt_id', $attempt_id)
+            ->where('tt.type_id', $type_id)
             ->selectRaw("
         SUM(
             IF(
@@ -96,41 +102,36 @@ class AttemptType extends Model
         ) AS is_correct_count
     ")
             ->value('is_correct_count');
-
-//
-//        return DB::table('attempt_answers as aa')
-//            ->join('questions as q', 'aa.question_id', '=', 'q.id')
-//            ->join('sections as s', 'q.section_id', '=', 's.id')
-//            ->join('question_types as qt', 's.question_type_id', '=', 'qt.id')
-//            ->leftJoin('attempt_answer_options as aao', 'aa.id', '=', 'aao.attempt_answer_id')
-//            ->leftJoin('options as o', 'aao.option_id', '=', 'o.id')
-//            ->join('attempt_parts as ap', 'aa.attempt_part_id', '=', 'ap.id')
-//            ->join('parts as p', 'ap.part_id', '=', 'p.id')
-//            ->join('test_types as tt', 'p.test_type_id', '=', 'tt.id')
-//            ->join('types as t', 'tt.type_id', '=', 't.id')
-//            ->where('ap.attempt_id', $this->attempt_id)
-//            ->where('tt.type_id', $this->type_id)
-//            ->selectRaw("
-//                        SUM(
-//                            IF(
-//                                t.name IN ('Listening', 'Reading'),
-//                                IF(
-//                                    o.id,
-//                                    o.is_correct,
-//                                    IF(
-//                                        TRIM(LOWER(aa.answer_text)) = TRIM(LOWER(q.answer_text)),
-//                                        1,
-//                                        0
-//                                    )
-//                                ),
-//                                aa.score
-//                            )
-//                        ) AS is_correct_count
-//                    ")
-//
-//            ->value('is_correct_count');
-
-
     }
 
+    /**
+     * Bu attempt_type uchun is_correct_count ni qayta hisoblash va DB ga yozish
+     */
+    public function recalculateIsCorrectCount()
+    {
+        $this->is_correct_count = static::calculateIsCorrectCount($this->attempt_id, $this->type_id) ?? 0;
+        $this->save();
+        return $this->is_correct_count;
+    }
+
+    /**
+     * AttemptType ni vaqtidan oldin yakunlash
+     */
+    public function finish()
+    {
+        $this->finished_at = now();
+        $this->save();
+
+        // Bog'liq AttemptPartlarni ham yakunlash
+        AttemptPart::query()
+            ->where('attempt_id', $this->attempt_id)
+            ->whereHas('part.test_type', fn($q) => $q->where('type_id', $this->type_id))
+            ->where(fn($q) => $q->whereNull('finished_at')->orWhere('finished_at', '>', now()))
+            ->update(['finished_at' => now()]);
+
+        // Ballarni hisoblash
+        $this->recalculateIsCorrectCount();
+
+        return $this;
+    }
 }

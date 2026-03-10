@@ -68,93 +68,92 @@ const TestTable = ({ ...folder }: Folder) => {
             </div>
 
             {/* Cards Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {folder.tests.map((item, index) => {
                     const globalIndex = index + 1;
+                    const isActive = item.active == 1;
+
                     return (
                         <div
                             key={item.id}
-                            className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-md p-4 flex flex-col justify-between hover:shadow-lg transition"
+                            className="group flex flex-col justify-between rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900"
                         >
                             {/* Header */}
-                            <div className="flex justify-between items-start">
-                                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                            <div className="mb-4">
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-blue-500 opacity-70">
+                                        #{globalIndex}
+                                    </span>
+                                    <div className="flex gap-1">
+                                        {isActive ? (
+                                            <span className="inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-bold text-green-700 dark:bg-green-900/20 dark:text-green-400">
+                                                {t('active')}
+                                            </span>
+                                        ) : (
+                                            <span className="inline-flex items-center rounded-full bg-gray-50 px-2 py-0.5 text-[10px] font-bold text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                                                {t('inactive')}
+                                            </span>
+                                        )}
+                                        {isAdmin && (
+                                            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold ${item.open == 1 ? 'bg-blue-50 text-blue-700' : 'bg-amber-50 text-amber-700'}`}>
+                                                {item.open == 1 ? t('open') : t('closed') ?? 'Closed'}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                                <h3 className="line-clamp-1 text-lg font-bold text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">
                                     {item.name}
                                 </h3>
-                                <span className="text-xs text-gray-500">#{globalIndex}</span>
                             </div>
 
                             {/* Comment */}
-                            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-                                {item.comment || t('no_comment')}
-                            </p>
-
-                            {/* Types */}
-                            <div className="my-3">
-                                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    {t('types')}:
-                                </h4>
-                                <ol className="list-decimal ml-4 space-y-1 text-sm text-blue-600 dark:text-blue-400">
-                                    {item.types.map((i, idx) => (
-                                        <li key={idx}>
-                                            <Link href={`/test-type/${i.id}`}>
-                                                {i.type?.name}
-                                            </Link>
-                                        </li>
-                                    ))}
-                                </ol>
+                            <div className="mb-4">
+                                <p className="line-clamp-2 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
+                                    {item.comment || t('no_comment')}
+                                </p>
                             </div>
 
-                            {item.audio_path && (
+                            {/* Types Tags */}
+                            <div className="mb-6">
+                                <div className="flex flex-wrap gap-1.5">
+                                    {item.types.map((i, idx) => (
+                                        <Link 
+                                            key={idx} 
+                                            href={`/test-type/${i.id}`}
+                                            className="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 dark:bg-gray-800 text-[10px] font-semibold text-gray-600 dark:text-gray-300 border border-gray-100 dark:border-gray-700 hover:border-blue-500 hover:text-blue-600 transition-all"
+                                        >
+                                            {i.type?.name}
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
 
-                                <div>
-                                    <audio controls>
+                            {/* Audio Player */}
+                            {item.audio_path && (
+                                <div className="mb-6 p-2 rounded-xl bg-gray-50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-700">
+                                    <audio className="w-full h-8" controls>
                                         <source src={`/${item.audio_path}`} type="audio/mpeg" />
-                                        Your browser does not support the audio element.
                                     </audio>
                                 </div>
-
                             )}
-
-
-                            {/* Status + Open */}
-                            <div className="mt-3 flex flex-col gap-1 text-sm text-gray-700 dark:text-gray-300">
-                                <div className="flex items-center gap-2">
-                                    {item.active == 1 ? (
-                                        <CheckCircle className="text-green-500 w-5 h-5" />
-                                    ) : (
-                                        <MinusCircle className="text-gray-400 w-5 h-5" />
-                                    )}
-                                    <span>{t('status')}: {item.active == 1 ? t('active') : t('inactive')}</span>
-                                </div>
-
-                                {(isAdmin || isTeacher) && (
-                                    <div className="flex items-center gap-2">
-                                        {item.open == 1 ? (
-                                            <CheckCircle className="text-green-500 w-5 h-5" />
-                                        ) : (
-                                            <MinusCircle className="text-gray-400 w-5 h-5" />
-                                        )}
-                                        <span>{t('open')}: {item.open == 1 ? t('yes') : t('no')}</span>
-
-                                    </div>)}
-                            </div>
 
                             {/* Actions */}
                             {(isAdmin || isTeacher) && (
-                                <div className="mt-4 flex gap-2">
+                                <div className="flex items-center gap-2 pt-2 mt-auto border-t border-gray-50 dark:border-gray-800">
                                     <button
                                         onClick={() => handleUpdateClick(item)}
-                                        className={`${baseButton} bg-green-600 hover:bg-green-700 focus:ring-green-300 flex-1 rounded-md`}
+                                        className="flex-1 flex h-9 items-center justify-center gap-2 rounded-xl bg-gray-50 text-gray-600 transition-all hover:bg-green-600 hover:text-white dark:bg-gray-800 font-bold text-xs"
                                     >
-                                        <PencilIcon className="w-4 h-4" />
+                                        <PencilIcon className="h-4 w-4" />
+                                        {t('edit')}
                                     </button>
 
                                     <button
                                         onClick={() => handleDeleteClick(item)}
-                                        className={`${baseButton} bg-red-600 hover:bg-red-700 focus:ring-red-300 flex-1 rounded-md`}
+                                        className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-600 transition-colors hover:bg-red-600 hover:text-white dark:bg-red-900/10"
+                                        title={t('delete')}
                                     >
-                                        <TrashIcon className="w-4 h-4" />
+                                        <TrashIcon className="h-4 w-4" />
                                     </button>
                                 </div>
                             )}

@@ -4,14 +4,16 @@ import { type BreadcrumbItem, type UserPaginate, SearchData, Role } from '@/type
 import { useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import UserTable from '@/components/user/user-table';
-import SearchForm from '@/components/search-form';
+import PremiumFilters from '@/components/premium-filters';
 import { useTranslation } from 'react-i18next';
 import MobileSearchModal from '@/components/MobileSearchModal';
 
 export default function User() {
-    const { user, roles } = usePage<{
+    const { user, roles, filters, isAdmin } = usePage<{
         user: UserPaginate,
-        roles: Role[]
+        roles: Role[],
+        filters: any,
+        isAdmin: boolean
     }>().props;
     const { t } = useTranslation();  // Using the translation hook
 
@@ -24,9 +26,11 @@ export default function User() {
 
     // Form handling for search and per_page
     const { data, setData } = useForm<SearchData>({
-        search: '',
-        role: '',
-        per_page: user.per_page,
+        search: filters?.search || '',
+        role: filters?.role || '',
+        from: filters?.from || '',
+        to: filters?.to || '',
+        per_page: filters?.per_page || user.per_page,
         page: user.current_page,
         total: user.total
     });
@@ -37,19 +41,6 @@ export default function User() {
     };
 
 
-    useEffect(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-
-        const roleQuery = urlParams.get('role') ?? '';
-        setData('role', roleQuery);
-
-        const searchQuery = urlParams.get('search') ?? '';
-        setData('search', searchQuery);
-
-        // Agar nom va qiymatni ko‘rmoqchi bo‘lsangiz
-        urlParams.forEach((value, key) => {
-            console.log(key, value);
-        });    }, []); // roles array ni dependency qilib qo‘yish
 
 
     return (
@@ -57,17 +48,22 @@ export default function User() {
             <Head title="User" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 {/* Search and Per-Page Selection */}
-                <div className="flex justify-end items-center">
+                <div className="flex justify-end items-center mb-2">
                     <MobileSearchModal
                         data={data}
                         setData={setData}
                         handleSubmit={handleSubmit}
+                        roles={roles}
+                        isAdmin={isAdmin}
                     />
-                    <div className={'hidden lg:block'}>
-                        <SearchForm handleSubmit={handleSubmit}
-                                    roles={roles}
-                                    setData={setData}
-                                    data={data} />
+                    <div className="hidden lg:block w-full">
+                        <PremiumFilters 
+                            handleSubmit={handleSubmit} 
+                            setData={setData} 
+                            data={data} 
+                            roles={roles}
+                            isAdmin={isAdmin}
+                        />
                     </div>
                 </div>
 

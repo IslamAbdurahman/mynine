@@ -68,12 +68,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('practice-attempt-submit/{attempt_id}', [\App\Http\Controllers\PracticeController::class, 'submit'])->name('practice-attempt-submit');
     Route::get('practice-attempt/{attempt_id}', [\App\Http\Controllers\PracticeController::class, 'practice_attempt'])->name('practice-attempt');
     Route::get('practice-test-type/{test_type_id}', [\App\Http\Controllers\PracticeController::class, 'practice_test_type'])->name('practice-test-type');
+    Route::get('practice-test-type-submit/{attempt_id}/{type_id}', [\App\Http\Controllers\PracticeController::class, 'submit_test_type'])->name('practice-test-type-submit');
     Route::get('practice-part/{part_id}', [\App\Http\Controllers\PracticeController::class, 'practice_part'])->name('practice-part');
 
     Route::resource('mock', \App\Http\Controllers\MockController::class);
 });
 
-Route::get('attempt-pdf/{attempt}', [\App\Http\Controllers\AttemptController::class, 'pdf'])->name('attempt-pdf');
+Route::get('attempt-pdf/{attempt}', [\App\Http\Controllers\AttemptController::class, 'pdf'])->name('attempt.pdf');
 
 
 require __DIR__ . '/settings.php';

@@ -40,6 +40,9 @@ class AttemptTypeController extends Controller
                 $request->validated()
             );
 
+            // Recalculate is_correct_count after score update
+            $attemptType->recalculateIsCorrectCount();
+
             return back()->with('success', 'Folder created successfully.');
         } catch (\Exception $e) {
             // Proper Inertia error response

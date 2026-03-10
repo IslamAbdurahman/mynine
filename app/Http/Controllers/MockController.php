@@ -28,11 +28,7 @@ class MockController extends Controller
 
         $this->authorize('viewAny', Mock::class); // ✅ add this
 
-        if ($request->per_page) {
-            $per_page = $request->per_page;
-        } else {
-            $per_page = 10;
-        }
+        $per_page = $request->per_page === 'all' ? 99999 : ($request->per_page ?? 10);
 
         $mock = Mock::with([
 
@@ -40,30 +36,67 @@ class MockController extends Controller
 
         if ($request->search) {
             $mock->where(function ($query) use ($request) {
-                $query->whereLike('name', "%$request->search%")
-                    ->orWhereLike('comment', "%$request->search%");
+                $query->where('name', 'like', "%$request->search%")
+                    ->orWhere('comment', 'like', "%$request->search%")
+                    ->orWhereHas('user', function ($q) use ($request) {
+                        $q->where('name', 'like', "%$request->search%");
+                    })
+                    ->orWhereHas('test', function ($q) use ($request) {
+                        $q->where('name', 'like', "%$request->search%");
+                    });
             });
         }
 
-        if (!Auth::user()->hasRole('Admin')) {
-            $mock->where('user_id', Auth::id());
+        if ($request->from && $request->to) {
+            $mock->whereBetween('created_at', [$request->from, $request->to]);
+        }
+
+        if ($request->user_id) {
+            $mock->where(function ($query) use ($request) {
+                $query->where('user_id', $request->user_id);
+            });
+        }
+
+        if ($request->test_id) {
+            $mock->where(function ($query) use ($request) {
+                $query->where('test_id', $request->test_id);
+            });
+        }
+
+        if (Auth::user()->hasRole('Admin')) {
+            // Admin can see everything
+        } elseif (Auth::user()->hasRole('Teacher')) {
+            // Teacher can see their own mocks
+            $mock->where(fn($q) => $q->where('user_id', Auth::id()));
+        } else {
+            // Students see active mocks
+            $mock->where(fn($q) => $q->where('active', 1));
         }
 
         $mock = $mock->paginate($per_page);
 
-        $tests = Test::query();
+        // Filter tests and users based on role for search dropdowns
+        $tests_query = Test::query()->select('id', 'name', 'folder_id')->with('folder:id,name');
+        $users_query = \App\Models\User\User::select('id', 'name');
 
-        if (!Auth::user()->hasRole('Admin')) {
-            $tests->whereHas('folder', function ($query) {
-                $query->where('user_id', Auth::id());
+        if (Auth::user()->hasRole('Teacher')) {
+            $tests_query->whereHas('folder', function ($q) {
+                $q->where('user_id', Auth::id());
             });
+            $users_query->where(fn($q) => $q->where('user_id', Auth::id())
+                ->orWhere('ref_telegram_id', Auth::user()->telegram_id)
+                ->orWhere('id', Auth::id()));
+        } elseif (!Auth::user()->hasRole('Admin')) {
+            $tests_query->where('active', 1)->where('open', 1);
+            $users_query->where('id', Auth::id());
         }
-
-        $tests = $tests->get();
 
         return Inertia::render('mock/index', [
             'mock' => $mock,
-            'tests' => $tests
+            'tests' => $tests_query->get(),
+            'users' => $users_query->get(),
+            'isAdmin' => Auth::user()->hasRole('Admin'),
+            'filters' => $request->only(['search', 'user_id', 'test_id', 'from', 'to', 'per_page']),
         ]);
     }
 

@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import AuthLayout from '@/layouts/auth-layout';
 import { useTranslation } from 'react-i18next';
 import LanguageBar from '@/components/language';
@@ -14,7 +14,9 @@ export default function Register() {
         <AuthLayout title={t('register.title')} description={t('register.description')}>
             <Head title={t('register.title')} />
 
-            <LanguageBar />
+            <div className="absolute top-6 right-6">
+                <LanguageBar />
+            </div>
 
             <RegisterCard />
 

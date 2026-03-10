@@ -163,7 +163,7 @@ export default function PracticePart({ attempt, part }: PartUpdateProps) {
 
             <div
                 ref={textRef}
-                className="prose dark:prose-invert break-words text-base/8 max-w-full"
+                className="prose dark:prose-invert text-base/8 leading-[1.8] break-words max-w-full ielts-passage"
                 onMouseUp={handleMouseUp}
             />
 

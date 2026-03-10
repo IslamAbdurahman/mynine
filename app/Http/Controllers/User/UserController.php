@@ -26,11 +26,7 @@ class UserController extends Controller
 
         $this->authorize('viewAny', User::class);
 
-        if ($request->per_page) {
-            $per_page = $request->per_page;
-        } else {
-            $per_page = 10;
-        }
+        $per_page = $request->per_page === 'all' ? 99999 : ($request->per_page ?? 10);
 
         $user = User::with([
             'roles',
@@ -46,6 +42,22 @@ class UserController extends Controller
                     ->orWhereLike('telegram_id', "%$request->search%")
                     ->orWhereLike('email', "%$request->search%");
             });
+        }
+
+        if ($request->from && $request->to) {
+            $user->whereBetween('created_at', [$request->from, $request->to]);
+        }
+
+        if (Auth::user()->hasRole('Admin')) {
+            // Admin sees all excluding self
+        } elseif (Auth::user()->hasRole('Teacher')) {
+            $user->where(function ($query) {
+                $query->where('user_id', '=', Auth::id())
+                    ->orWhere('ref_telegram_id', '=', Auth::user()->telegram_id);
+            });
+        } else {
+            // Students shouldn't even be here, but just in case:
+            $user->where('id', Auth::id());
         }
 
         if ($request->role) {
@@ -67,7 +79,9 @@ class UserController extends Controller
 
         return Inertia::render('user/index', [
             'user' => $user,
-            'roles' => $roles,
+            'roles' => Role::all(),
+            'isAdmin' => Auth::user()->hasRole('Admin'),
+            'filters' => $request->only(['search', 'role', 'from', 'to', 'per_page']),
         ]);
     }
 

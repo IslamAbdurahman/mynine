@@ -1,4 +1,4 @@
-import AppLogoIcon from '@/components/app-logo-icon';
+import AppLogo from '@/components/app-logo';
 import { Link } from '@inertiajs/react';
 import { type PropsWithChildren } from 'react';
 
@@ -10,24 +10,38 @@ interface AuthLayoutProps {
 
 export default function AuthSimpleLayout({ children, title, description }: PropsWithChildren<AuthLayoutProps>) {
     return (
-        <div className="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
-            <div className="w-full max-w-sm">
-                <div className="flex flex-col gap-8">
-                    <div className="flex flex-col items-center gap-4">
-                        <Link href={route('home')} className="flex flex-col items-center gap-2 font-medium">
-                            <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-md">
-                                <AppLogoIcon className="size-9 fill-current text-[var(--foreground)] dark:text-white" />
-                            </div>
+        <div className="relative min-h-svh flex flex-col items-center justify-center p-6 md:p-10 overflow-hidden bg-white dark:bg-gray-950 transition-colors duration-500">
+            {/* Premium Background Elements */}
+            <div className="absolute inset-0 overflow-hidden z-0">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/10 dark:bg-blue-600/10 blur-[120px] rounded-full animate-pulse" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/10 dark:bg-purple-600/10 blur-[120px] rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
+                
+                {/* Subtle Grid Pattern */}
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] dark:opacity-[0.05]" />
+            </div>
+
+            <div className="relative z-10 w-full max-w-sm">
+                <div className="flex flex-col gap-10">
+                    <div className="flex flex-col items-center gap-6">
+                        <Link href={route('home')} className="flex flex-col items-center gap-2 transform transition-transform hover:scale-105 active:scale-95">
+                            <AppLogo />
                             <span className="sr-only">{title}</span>
                         </Link>
 
                         <div className="space-y-2 text-center">
-                            <h1 className="text-xl font-medium">{title}</h1>
-                            <p className="text-muted-foreground text-center text-sm">{description}</p>
+                            <h1 className="text-3xl font-black tracking-tight text-gray-900 dark:text-white">{title}</h1>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">{description}</p>
                         </div>
                     </div>
                     {children}
                 </div>
+            </div>
+            
+            {/* Footer rights in auth layout */}
+            <div className="relative z-10 mt-12 text-center">
+                <p className="text-gray-400 dark:text-gray-600 text-[10px] uppercase tracking-widest font-bold">
+                    &copy; 2025 Mynine Academy. All Rights Reserved.
+                </p>
             </div>
         </div>
     );

@@ -64,60 +64,79 @@ const MockTable = ({ tests, searchData, ...mock }: MockTableProps) => {
             </div>
 
             {/* Cards Grid */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {mock.data.map((item, index) => {
                     const globalIndex = (mock.current_page - 1) * mock.per_page + index + 1;
+                    const isActive = item.active == 1;
 
                     return (
                         <div
                             key={item.id}
-                            className="flex flex-col justify-between rounded-lg border border-gray-300 bg-white p-4 shadow-md transition hover:shadow-lg dark:border-gray-700 dark:bg-gray-800"
+                            className="group flex flex-col justify-between rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900"
                         >
                             {/* Header */}
-                            <div className="flex items-start justify-between">
-                                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                            <div className="mb-4">
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-blue-500 opacity-70">
+                                        #{globalIndex}
+                                    </span>
+                                    {isActive ? (
+                                        <span className="inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-bold text-green-700 dark:bg-green-900/20 dark:text-green-400">
+                                            <CheckCircle className="mr-1 h-3 w-3" /> {t('active')}
+                                        </span>
+                                    ) : (
+                                        <span className="inline-flex items-center rounded-full bg-gray-50 px-2 py-0.5 text-[10px] font-bold text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                                            <MinusCircle className="mr-1 h-3 w-3" /> {t('inactive')}
+                                        </span>
+                                    )}
+                                </div>
+                                <h3 className="line-clamp-1 text-xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">
                                     <Link href={`/mock/${item.id}`}>{item.name}</Link>
                                 </h3>
-                                <span className="text-xs text-gray-500">#{globalIndex}</span>
+                                <div className="mt-1 flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                    <span className="font-semibold text-blue-600/70">{item.test?.folder?.name}</span>
+                                    <span className="mx-2 opacity-30">/</span>
+                                    <span className="truncate">{item.test?.name}</span>
+                                </div>
                             </div>
-
-                            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-                                {item.test.folder.name} / {item.test.name}
-                            </h3>
 
                             {/* Comment */}
-                            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{item.comment || t('no_comment')}</p>
+                            <div className="mb-6 flex-grow">
+                                <p className="line-clamp-3 text-sm leading-relaxed text-gray-600 dark:text-gray-400 italic">
+                                    {item.comment || t('no_comment')}
+                                </p>
+                            </div>
 
-                            <div>
-                                <div>
-                                    <span>{t('started_at')}</span> : {format(item.started_at, 'yyyy-MMM-dd HH:mm')}
+                            {/* Dates */}
+                            <div className="mb-6 space-y-2 rounded-xl bg-gray-50 p-3 dark:bg-gray-800/50">
+                                <div className="flex justify-between text-[11px]">
+                                    <span className="text-gray-500">{t('started_at')}</span>
+                                    <span className="font-mono font-medium text-gray-700 dark:text-gray-300">
+                                        {format(new Date(item.started_at), 'MMM dd, HH:mm')}
+                                    </span>
                                 </div>
-                                <div>
-                                    <span>{t('finished_at')}</span> : {format(item.finished_at, 'yyyy-MMM-dd HH:mm')}
+                                <div className="flex justify-between text-[11px]">
+                                    <span className="text-gray-500">{t('finished_at')}</span>
+                                    <span className="font-mono font-medium text-gray-700 dark:text-gray-300">
+                                        {format(new Date(item.finished_at), 'MMM dd, HH:mm')}
+                                    </span>
                                 </div>
                             </div>
 
-                            {/* Status */}
-                            <div className="mt-3 flex items-center gap-2">
-                                {item.active == 1 ? (
-                                    <CheckCircle className="h-5 w-5 text-green-500" />
-                                ) : (
-                                    <MinusCircle className="h-5 w-5 text-gray-400" />
-                                )}
-                                <span className="text-sm text-gray-700 dark:text-gray-300">{item.active == 1 ? t('active') : t('inactive')}</span>
-                            </div>
-
-                            <div className="mt-4 flex gap-2">
+                            {/* Actions */}
+                            <div className="flex items-center gap-2 pt-2">
                                 <button
                                     onClick={() => handleUpdateClick(item)}
-                                    className={`${baseButton} flex-1 rounded-md bg-green-600 hover:bg-green-700 focus:ring-green-300`}
+                                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-50 text-green-600 transition-colors hover:bg-green-600 hover:text-white dark:bg-green-900/10"
+                                    title={t('edit')}
                                 >
                                     <PencilIcon className="h-4 w-4" />
                                 </button>
 
                                 <button
                                     onClick={() => handleDeleteClick(item)}
-                                    className={`${baseButton} flex-1 rounded-md bg-red-600 hover:bg-red-700 focus:ring-red-300`}
+                                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-600 transition-colors hover:bg-red-600 hover:text-white dark:bg-red-900/10"
+                                    title={t('delete')}
                                 >
                                     <TrashIcon className="h-4 w-4" />
                                 </button>
@@ -127,10 +146,10 @@ const MockTable = ({ tests, searchData, ...mock }: MockTableProps) => {
                                         navigator.clipboard.writeText(`${item.slug}`);
                                         toast.success(t('link_copied'));
                                     }}
-                                    className={`${baseButton} flex-1 rounded-md bg-blue-600 hover:bg-blue-700 focus:ring-blue-300`}
+                                    className="flex h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 font-bold text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md active:scale-95"
                                 >
-                                    {t('common.code')}
-                                    <Copy />
+                                    <Copy className="h-4 w-4" />
+                                    <span className="text-xs uppercase tracking-wider">{t('copy_link')}</span>
                                 </button>
                             </div>
                         </div>

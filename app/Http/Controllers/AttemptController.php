@@ -18,11 +18,7 @@ class AttemptController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->per_page) {
-            $per_page = $request->per_page;
-        } else {
-            $per_page = 10;
-        }
+        $per_page = $request->per_page === 'all' ? 99999 : ($request->per_page ?? 10);
 
         $data = Attempt::with([
 
@@ -39,6 +35,24 @@ class AttemptController extends Controller
 
         if ($request->from && $request->to) {
             $data->whereBetween('created_at', [$request->from, $request->to]);
+        }
+
+        if ($request->user_id) {
+            $data->where(function ($query) use ($request) {
+                $query->where('user_id', $request->user_id);
+            });
+        }
+
+        if ($request->mock_id) {
+            $data->where(function ($query) use ($request) {
+                $query->where('mock_id', $request->mock_id);
+            });
+        }
+
+        if ($request->test_id) {
+            $data->where(function ($query) use ($request) {
+                $query->where('test_id', $request->test_id);
+            });
         }
 
         if ($request->search) {
@@ -58,8 +72,32 @@ class AttemptController extends Controller
 
         $data = $data->paginate($per_page);
 
+        // Filter dropdown options for search
+        $users_query = \App\Models\User\User::select('id', 'name');
+        $mocks_query = \App\Models\Mock::select('id', 'name');
+        $tests_query = \App\Models\Test::select('id', 'name');
+
+        if (Auth::user()->hasRole('Teacher')) {
+            $users_query->where('user_id', Auth::id())
+                ->orWhere('ref_telegram_id', Auth::user()->telegram_id)
+                ->orWhere('id', Auth::id());
+            $mocks_query->where('user_id', Auth::id());
+            $tests_query->whereHas('folder', function ($q) {
+                $q->where('user_id', Auth::id());
+            });
+        } elseif (!Auth::user()->hasRole('Admin')) {
+            $users_query->where('id', Auth::id());
+            $mocks_query->where('active', 1);
+            $tests_query->where('active', 1)->where('open', 1);
+        }
+
         return Inertia::render('attempt/index', [
-            'attempt' => $data
+            'attempt' => $data,
+            'users' => $users_query->get(),
+            'mocks' => $mocks_query->get(),
+            'tests' => $tests_query->get(),
+            'isAdmin' => Auth::user()->hasRole('Admin'),
+            'filters' => $request->only(['search', 'user_id', 'mock_id', 'test_id', 'from', 'to', 'per_page']),
         ]);
     }
 
@@ -78,12 +116,14 @@ class AttemptController extends Controller
     {
         try {
 
-            $active = Attempt::where('user_id', Auth::id())
-                ->where('finished_at', null)
-                ->first();
+            if (!$request->mock_id) {
+                $active = Attempt::where('user_id', Auth::id())
+                    ->where('finished_at', null)
+                    ->first();
 
-            if ($active) {
-                throw new \Exception('You have an active attempt. Please finish it before starting a new one. Check menu `My result`.');
+                if ($active) {
+                    throw new \Exception('You have an active attempt. Please finish it before starting a new one. Check menu `My result`.');
+                }
             }
 
             $data = $request->validated();
@@ -108,6 +148,10 @@ class AttemptController extends Controller
      */
     public function show(Attempt $attempt)
     {
+        // Append attempt_parts only for detail view
+        $attempt->attempt_types->each(function ($attemptType) {
+            $attemptType->append('attempt_parts');
+        });
 
         return Inertia::render('attempt/show', [
             'attempt' => $attempt
@@ -134,6 +178,11 @@ class AttemptController extends Controller
             }
         ]);
 
+        // Append attempt_parts for PDF view
+        $attempt->attempt_types->each(function ($attemptType) {
+            $attemptType->append('attempt_parts');
+        });
+
 //        dd($attempt->attempt_types[0]->attempt_parts);
 
 
@@ -159,7 +208,7 @@ class AttemptController extends Controller
         $canvas = $dompdf->getCanvas();
         $canvas->page_text(520, 800, "{PAGE_NUM} / {PAGE_COUNT}", null, 12, array(0, 0, 0));
 
-        $filename = "Attempt_$attempt->id_$attempt->created_at";
+        $filename = "Attempt_{$attempt->id}_" . $attempt->created_at->format('Y-m-d_H-i');
 
         $dompdf->stream($filename . '.pdf');
 

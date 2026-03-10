@@ -225,3 +225,166 @@ mark.highlight {
         @apply bg-background text-foreground;
     }
 }
+
+/* Fix TinyMCE inline styles in dark mode */
+.dark .ielts-passage * {
+    color: var(--color-foreground) !important;
+    background-color: transparent !important;
+}
+
+.dark .ielts-passage mark.highlight,
+.dark .ielts-passage mark.highlight * {
+    color: black !important;
+    background-color: yellowgreen !important;
+}
+
+/* ===== TinyMCE Table Borders (override prose + both light & dark) ===== */
+.ielts-passage table,
+.ielts-gap-section table,
+.prose.ielts-passage table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+    margin: 12px 0 !important;
+    font-size: 15px !important;
+}
+
+.ielts-passage table,
+.ielts-passage th,
+.ielts-passage td,
+.ielts-gap-section table,
+.ielts-gap-section th,
+.ielts-gap-section td,
+.prose.ielts-passage table,
+.prose.ielts-passage th,
+.prose.ielts-passage td,
+.prose.ielts-passage :where(table) *,
+.prose.ielts-passage :where(thead th),
+.prose.ielts-passage :where(tbody td) {
+    border: 1px solid #555 !important;
+    border-style: solid !important;
+    border-width: 1px !important;
+    border-color: #555 !important;
+}
+
+.ielts-passage th,
+.ielts-gap-section th,
+.prose.ielts-passage th,
+.prose.ielts-passage :where(thead th) {
+    background-color: #f3f4f6 !important;
+    font-weight: 700 !important;
+    padding: 8px 12px !important;
+    text-align: left !important;
+}
+
+.ielts-passage td,
+.ielts-gap-section td,
+.prose.ielts-passage td,
+.prose.ielts-passage :where(tbody td) {
+    padding: 6px 12px !important;
+}
+
+.dark .ielts-passage table,
+.dark .ielts-passage th,
+.dark .ielts-passage td,
+.dark .ielts-gap-section table,
+.dark .ielts-gap-section th,
+.dark .ielts-gap-section td,
+.dark .prose.ielts-passage table,
+.dark .prose.ielts-passage th,
+.dark .prose.ielts-passage td {
+    border-color: #6b7280 !important;
+}
+
+.dark .ielts-passage th,
+.dark .ielts-gap-section th,
+.dark .prose.ielts-passage th {
+    background-color: #374151 !important;
+    color: #f3f4f6 !important;
+}
+
+.dark .ielts-passage td,
+.dark .ielts-gap-section td,
+.dark .prose.ielts-passage td {
+    background-color: transparent !important;
+}
+
+/* ===== IELTS Gap Filling Inputs (inside gap-fill sections) ===== */
+.ielts-gap-section input[type="text"],
+.ielts-question-text input[type="text"] {
+    display: inline-block !important;
+    vertical-align: baseline !important;
+    white-space: nowrap !important;
+    width: 120px !important;
+    border: none !important;
+    border-bottom: 2px solid #000 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    outline: none !important;
+    padding: 2px 4px !important;
+    margin: 0 4px !important;
+    font-size: inherit !important;
+    font-family: inherit !important;
+    color: inherit !important;
+    line-height: 1.4 !important;
+    box-shadow: none !important;
+}
+
+.ielts-gap-section input[type="text"]:focus,
+.ielts-question-text input[type="text"]:focus {
+    border-bottom-color: #2563eb !important;
+}
+
+.dark .ielts-gap-section input[type="text"],
+.dark .ielts-question-text input[type="text"] {
+    border-bottom-color: #9ca3af !important;
+}
+
+.dark .ielts-gap-section input[type="text"]:focus,
+.dark .ielts-question-text input[type="text"]:focus {
+    border-bottom-color: #60a5fa !important;
+}
+
+/* Force inline flow ONLY for gap-filling paragraphs (NOT reading passage) */
+.ielts-gap-section p,
+.ielts-question-text p {
+    display: inline !important;
+}
+
+/* Dark mode text for gap-filling sections */
+.dark .ielts-gap-section * {
+    color: var(--color-foreground) !important;
+    background-color: transparent !important;
+}
+
+/* Standalone gap-fill input class (used outside .ielts-passage containers) */
+.ielts-gap-input {
+    display: inline-block !important;
+    vertical-align: baseline !important;
+    white-space: nowrap !important;
+    width: 10em;
+    border: none !important;
+    border-bottom: 2px solid #000 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    outline: none !important;
+    padding: 2px 4px !important;
+    margin: 0 4px !important;
+    font-size: inherit !important;
+    font-family: inherit !important;
+    color: inherit !important;
+    line-height: 1.4 !important;
+    box-shadow: none !important;
+}
+
+.ielts-gap-input:focus {
+    border-bottom-color: #2563eb !important;
+}
+
+.dark .ielts-gap-input {
+    border-bottom-color: #9ca3af !important;
+}
+
+.dark .ielts-gap-input:focus {
+    border-bottom-color: #60a5fa !important;
+}
+

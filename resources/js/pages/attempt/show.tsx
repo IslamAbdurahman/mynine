@@ -3,7 +3,7 @@ import { Head, usePage, useForm } from '@inertiajs/react';
 import { type BreadcrumbItem, SearchData, Attempt, Auth } from '@/types';
 import React, { useEffect } from 'react';
 import { router } from '@inertiajs/react';
-import SearchForm from '@/components/search-form';
+import PremiumFilters from '@/components/premium-filters';
 import { useTranslation } from 'react-i18next';
 import MobileSearchModal from '@/components/MobileSearchModal';
 import AttemptTypeComponent from '@/components/attempt/attempt-type-component';
@@ -48,17 +48,14 @@ export default function AttemptShow() {
             <Head title="Attempt" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 {/* Search and Per-Page Selection */}
-                <div className="flex items-center justify-between">
-                    <div className={''}>
-
-                    </div>
+                <div className="flex justify-end items-center mb-2">
                     <MobileSearchModal
                         data={data}
                         setData={setData}
                         handleSubmit={handleSubmit}
                     />
-                    <div className={'hidden lg:block'}>
-                        <SearchForm handleSubmit={handleSubmit} setData={setData} data={data} />
+                    <div className="hidden lg:block w-full">
+                        <PremiumFilters handleSubmit={handleSubmit} setData={setData} data={data} />
                     </div>
                 </div>
 

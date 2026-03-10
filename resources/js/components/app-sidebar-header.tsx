@@ -6,13 +6,13 @@ import LanguageBar from '@/components/language';
 export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: BreadcrumbItemType[] }) {
     return (
         <div className="fixed top-0 z-50 block w-full dark:bg-black bg-white">
-            <header className="flex justify-between items-center h-14 px-6 border-b border-sidebar-border/50">
+            <header className="flex justify-between items-center h-14 px-6 border-b-2 border-gray-200 dark:border-gray-800">
                 <div className="flex items-center gap-2">
                     <SidebarTrigger className="-ml-1" />
                     <Breadcrumbs breadcrumbs={breadcrumbs} />
                 </div>
                 <div className="flex-1"></div>
-                <div className="fixed top-0 right-0 md:right-30 p-3">
+                <div className="fixed top-0 right-0 md:right-28 p-2">
                     <LanguageBar />
                 </div>
             </header>

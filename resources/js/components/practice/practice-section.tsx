@@ -14,7 +14,9 @@ interface SectionUpdateProps {
     attempt: Attempt;
     partIndex: number;
     sectionIndex: number;
-    setSelectedPart: (part: Part | null) => void;
+    setSelectedPart: React.Dispatch<React.SetStateAction<Part | null>>;
+    flaggedIds: Set<number>;
+    toggleFlag: (id: number) => void;
 }
 
 export default function PracticeSection({
@@ -23,7 +25,9 @@ export default function PracticeSection({
                                             attempt,
                                             partIndex,
                                             sectionIndex,
-                                            setSelectedPart
+                                            setSelectedPart,
+                                            flaggedIds,
+                                            toggleFlag
                                         }: SectionUpdateProps) {
     const { t } = useTranslation();
 
@@ -77,7 +81,7 @@ export default function PracticeSection({
                     (o) => normalize(o.label) === normalize(attemptText)
                 );
                 if (match) {
-                    selected[slot.id] = { optionId: match.id, text: match.label };
+                    selected[slot.id] = { optionId: match.id as any, text: match.label };
                     const idx = avail.findIndex((a) => a.id === match.id);
                     if (idx >= 0) avail.splice(idx, 1);
                 } else {
@@ -86,7 +90,7 @@ export default function PracticeSection({
             }
         });
 
-        setAvailableOptions(avail);
+        setAvailableOptions(avail as any);
         setSelectedAnswers(selected);
     }, [allOptions, section.questions]);
 
@@ -131,12 +135,12 @@ export default function PracticeSection({
                                                 ...q,
                                                 attempt_answer:
                                                     value.trim() === ''
-                                                        ? null
+                                                        ? undefined
                                                         : {
                                                             id: data?.data?.attempt_answer_id ?? Date.now(),
                                                             question_id: qId,
                                                             answer_text: value.trim()
-                                                        }
+                                                        } as any
                                             }
                                             : q
                                     )
@@ -150,7 +154,7 @@ export default function PracticeSection({
                             ? error.message
                             : typeof error === 'string'
                                 ? error
-                                : 'Xatolik yuz berdi';
+                                : t('error_occurred');
 
                     toast.error(message);
                 }
@@ -279,11 +283,11 @@ export default function PracticeSection({
                                                 />
                                             );
                                         return (
-                                            <span key={question.id} className="inline-flex items-center gap-1">
-                                                <span className="text-blue-600 font-semibold">{number}.</span>
+                                            <span key={question.id} className="inline-block whitespace-nowrap align-middle">
+                                                <span className="text-blue-600 font-semibold mr-1">{number}.</span>
                                                 <input
                                                     type="text"
-                                                    className="inline w-40 rounded-md border border-blue-500 px-3 py-1.5 text-sm shadow-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                                                    className="ielts-gap-input"
                                                     value={
                                                         selectedAnswers[question.id]?.text ??
                                                         question.attempt_answer?.answer_text ??
@@ -306,8 +310,8 @@ export default function PracticeSection({
         });
 
     return (
-        <div key={section.id} className="p-1">
-            <div className="prose dark:prose-invert break-words max-w-full">
+        <div key={section.id} className="p-1 mb-6">
+            <div className="prose dark:prose-invert text-[16px] leading-[1.7] break-words max-w-full prose-p:my-1.5 prose-ul:my-1.5 prose-li:my-0 prose-headings:my-2 prose-table:my-2">
                 {section.question_type.type === 'drag_and_drop' ? (
                     <DndContext onDragEnd={handleDragEnd}>
                         {parsedContent}
@@ -318,7 +322,7 @@ export default function PracticeSection({
                         </div>
                     </DndContext>
                 ) : section.question_type.type === 'complete_section' ? (
-                    parsedContent
+                    <div className="ielts-gap-section">{parsedContent}</div>
                 ) : (
                     <div
                         className="text-base/8"
@@ -331,7 +335,7 @@ export default function PracticeSection({
                 section.question_type.type !== 'drag_and_drop' &&
                 section.question_type.type !== 'essay') && (
                 <div className="px-3 pb-4 text-sm text-gray-600 dark:text-gray-400">
-                    <div className="space-y-6">
+                    <div className="space-y-3">
                         {section.questions.map((question, qIndex) => {
                             const increment = question.is_correct_count
                                 ? Number(question.is_correct_count)
@@ -347,6 +351,8 @@ export default function PracticeSection({
                                     question={question}
                                     index={qIndex}
                                     setSelectedPart={setSelectedPart}
+                                    isFlagged={flaggedIds.has(question.id)}
+                                    toggleFlag={() => toggleFlag(question.id)}
                                 />
                             );
                         })}

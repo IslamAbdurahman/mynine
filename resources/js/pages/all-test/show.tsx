@@ -4,7 +4,7 @@ import { type BreadcrumbItem, SearchData, Folder } from '@/types';
 import { useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import TestTable from '@/components/test/test-table';
-import SearchForm from '@/components/search-form';
+import PremiumFilters from '@/components/premium-filters';
 import { useTranslation } from 'react-i18next';
 import MobileSearchModal from '@/components/MobileSearchModal';
 
@@ -41,23 +41,14 @@ export default function Test() {
             <Head title="Test" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 {/* Search and Per-Page Selection */}
-                <div className="flex items-center justify-between">
-                    <div className={''}>
-                        <Link href={'/folder'} className={'underline'}>
-                            {t('folder')} /
-                        </Link>
-                        {/*<Link href={`/firm/${branch.firm_id}`} className={'underline'}>*/}
-                        {/*    {branch.firm?.name} /*/}
-                        {/*</Link>*/}
-                        {folder.name}
-                    </div>
+                <div className="flex justify-end items-center mb-2">
                     <MobileSearchModal
                         data={data}
                         setData={setData}
                         handleSubmit={handleSubmit}
                     />
-                    <div className={'hidden lg:block'}>
-                        <SearchForm handleSubmit={handleSubmit} setData={setData} data={data} />
+                    <div className="hidden lg:block w-full">
+                        <PremiumFilters handleSubmit={handleSubmit} setData={setData} data={data} />
                     </div>
                 </div>
 

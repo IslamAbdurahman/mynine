@@ -10,8 +10,10 @@ import HeaderLink from '../Header/Navigation/HeaderLink';
 import { headerData } from '../Header/Navigation/menuData';
 import MobileHeaderLink from '../Header/Navigation/MobileHeaderLink';
 import Logo from './Logo';
+import { useTranslation } from 'react-i18next';
 
 const Header: React.FC = () => {
+    const { t } = useTranslation();
     const [navbarOpen, setNavbarOpen] = useState(false);
     const [sticky, setSticky] = useState(false);
     const [isSignInOpen, setIsSignInOpen] = useState(false);
@@ -61,8 +63,8 @@ const Header: React.FC = () => {
                     <Logo />
 
                     {/* Desktop Navigation */}
-                    <nav className="hidden items-center gap-8 lg:flex">
-                        <div className="flex items-center gap-8">
+                    <nav className="hidden items-center lg:gap-6 xl:gap-8 lg:flex">
+                        <div className="flex items-center lg:gap-6 xl:gap-8">
                             {headerData.map((item) => (
                                 <HeaderLink key={item.label} item={item} />
                             ))}
@@ -80,7 +82,7 @@ const Header: React.FC = () => {
                                     className="flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-slate-800 dark:bg-indigo-600"
                                 >
                                     <Icon icon="tabler:layout-dashboard" className="text-lg" />
-                                    Dashboard
+                                    {t('header.dashboard')}
                                 </Link>
                             ) : (
                                 <div className="flex items-center gap-4">
@@ -88,14 +90,14 @@ const Header: React.FC = () => {
                                         className="px-6 py-2.5 text-sm font-bold text-slate-600 transition-colors hover:text-indigo-600 dark:text-slate-400"
                                         onClick={() => setIsSignInOpen(true)}
                                     >
-                                        Sign In
+                                        {t('header.sign_in')}
                                     </button>
 
                                     <button
                                         className="rounded-xl bg-indigo-600 px-8 py-2.5 text-sm font-black text-white shadow-lg transition-all hover:bg-indigo-700 active:scale-95"
                                         onClick={() => setIsSignUpOpen(true)}
                                     >
-                                        Sign Up
+                                        {t('header.sign_up')}
                                     </button>
                                 </div>
                             )}
@@ -183,7 +185,7 @@ const Header: React.FC = () => {
                             href={route('dashboard')}
                             className="flex items-center justify-center gap-2 rounded-xl bg-slate-900 py-3 font-bold text-white dark:bg-indigo-600"
                         >
-                            Dashboard
+                            {t('header.dashboard')}
                         </Link>
                     ) : (
                         <div className="flex flex-col gap-3">
@@ -194,7 +196,7 @@ const Header: React.FC = () => {
                                     setNavbarOpen(false);
                                 }}
                             >
-                                Sign In
+                                {t('header.sign_in')}
                             </button>
                             <button
                                 className="w-full rounded-xl bg-indigo-600 py-3 font-bold text-white"
@@ -203,7 +205,7 @@ const Header: React.FC = () => {
                                     setNavbarOpen(false);
                                 }}
                             >
-                                Sign Up
+                                {t('header.sign_up')}
                             </button>
                         </div>
                     )}

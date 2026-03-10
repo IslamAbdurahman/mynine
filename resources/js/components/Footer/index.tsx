@@ -1,11 +1,12 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from '@inertiajs/react';
 import Logo from '../Header/Logo';
 import { Icon } from '@iconify/react';
 import { headerData } from '../Header/Navigation/menuData';
 
 const Footer: React.FC = () => {
-
+    const { t } = useTranslation();
     const domain =
         typeof window !== 'undefined' ? window.location.hostname : 'mynine.uz';
 
@@ -23,8 +24,7 @@ const Footer: React.FC = () => {
                     <div className="col-span-4 md:col-span-12 lg:col-span-4">
                         <Logo />
                         <p className="mt-4 text-black/60 dark:text-gray-400 text-sm max-w-xs">
-                            {capitalizeDomain} — Uzbekistan’s first computer-based IELTS simulator.
-                            Practice in a real exam-like environment and boost your band score.
+                            {capitalizeDomain} — {t('footer.description')}
                         </p>
                         <div className="flex items-center gap-4 mt-4">
                             <a target="_blank" href="https://t.me/livelongevity"
@@ -44,12 +44,12 @@ const Footer: React.FC = () => {
 
                     {/* Quick Links */}
                     <div className="col-span-4">
-                        <h3 className="mb-4 text-2xl font-medium text-black dark:text-white">Quick Links</h3>
+                        <h3 className="mb-4 text-2xl font-medium text-black dark:text-white">{t('footer.quick_links')}</h3>
                         <ul>
                             {headerData.map((item, index) => (
                                 <li key={index}
                                     className="mb-2 text-black/50 dark:text-gray-400 hover:text-primary w-fit">
-                                    <a href={item.href}>{item.label}</a>
+                                    <a href={item.href}>{t(item.label)}</a>
                                 </li>
                             ))}
                         </ul>
@@ -72,7 +72,7 @@ const Footer: React.FC = () => {
                         <div className="flex items-center gap-2">
                             <Icon icon="tabler:brand-google-maps" className="text-primary text-3xl" />
                             <span className="text-lg text-black/60 dark:text-gray-400">
-                                Fergana, Uzbekistan
+                                {t('footer.address')}
                             </span>
                         </div>
                         <div className="flex items-center gap-2">
@@ -85,7 +85,7 @@ const Footer: React.FC = () => {
                             <Icon icon="tabler:mail" className="text-primary text-3xl" />
 
                             <a href={'https://t.me/livelongevity'} target="_blank">
-                                <span className="text-lg text-black/60 dark:text-gray-400">Support Telegram</span>
+                                <span className="text-lg text-black/60 dark:text-gray-400">{t('footer.support_telegram')}</span>
                             </a>
 
                         </div>
@@ -95,7 +95,7 @@ const Footer: React.FC = () => {
                 {/* Footer Bottom */}
                 <div className="mt-10 lg:flex items-center justify-between flex-wrap gap-4">
                     <span className="text-black/50 dark:text-gray-400 text-sm text-center lg:text-start">
-                        © 2025 <strong>{capitalizeDomain}</strong>. All Rights Reserved.
+                        © 2025 <strong>{capitalizeDomain}</strong>. {t('footer.rights')}
                     </span>
                 </div>
             </div>

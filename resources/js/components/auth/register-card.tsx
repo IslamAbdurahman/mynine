@@ -1,13 +1,12 @@
-import {  useForm } from '@inertiajs/react';
+import { Link, useForm } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
 import { FormEventHandler } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Icon } from '@iconify/react';
 
 import InputError from '@/components/input-error';
-import TextLink from '@/components/text-link';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useTranslation } from 'react-i18next';
 import SocialSignIn from '@/components/auth/SocialSignIn';
 
 type RegisterForm = {
@@ -37,18 +36,15 @@ export default function RegisterCard() {
     };
 
     return (
-        <>
-
-
+        <div className="group relative w-full overflow-hidden rounded-[2.5rem] bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl p-8 shadow-2xl transition-all duration-500 hover:shadow-primary/10 border border-white/20 dark:border-white/5">
             <SocialSignIn />
 
-            <div className={'text-center'}>OR</div>
-
-
-            <form className="flex flex-col gap-6" onSubmit={submit}>
-                <div className="grid gap-6">
+            <form className="mt-8 flex flex-col gap-6" onSubmit={submit}>
+                <div className="grid gap-5">
                     <div className="grid gap-2">
-                        <Label htmlFor="name">{t('register.name')}</Label>
+                        <Label htmlFor="name" className="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">
+                            {t('register.name')}
+                        </Label>
                         <Input
                             id="name"
                             type="text"
@@ -60,12 +56,15 @@ export default function RegisterCard() {
                             onChange={(e) => setData('name', e.target.value)}
                             disabled={processing}
                             placeholder={t('register.name_placeholder')}
+                            className="h-12 rounded-2xl border-gray-100 bg-white/50 dark:bg-gray-800/50 dark:border-white/5 focus:ring-2 focus:ring-primary/20 transition-all font-medium"
                         />
-                        <InputError message={errors.name} className="mt-2" />
+                        <InputError message={errors.name} />
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="phone">{t('phone')}</Label>
+                        <Label htmlFor="phone" className="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">
+                            {t('phone')}
+                        </Label>
                         <Input
                             id="phone"
                             type="number"
@@ -76,82 +75,94 @@ export default function RegisterCard() {
                             onChange={(e) => setData('phone', e.target.value)}
                             disabled={processing}
                             placeholder={t('phone')}
+                            className="h-12 rounded-2xl border-gray-100 bg-white/50 dark:bg-gray-800/50 dark:border-white/5 focus:ring-2 focus:ring-primary/20 transition-all font-medium"
                         />
                         <InputError message={errors.phone} />
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="email">{t('register.email')}</Label>
+                        <Label htmlFor="email" className="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">
+                            {t('register.email')}
+                        </Label>
                         <Input
                             id="email"
                             type="email"
-
-                            tabIndex={2}
+                            tabIndex={3}
                             autoComplete="email"
                             value={data.email}
                             onChange={(e) => setData('email', e.target.value)}
                             disabled={processing}
                             placeholder={t('register.email_placeholder')}
+                            className="h-12 rounded-2xl border-gray-100 bg-white/50 dark:bg-gray-800/50 dark:border-white/5 focus:ring-2 focus:ring-primary/20 transition-all font-medium"
                         />
                         <InputError message={errors.email} />
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="password">{t('register.password')}</Label>
+                        <Label htmlFor="password" className="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">
+                            {t('register.password')}
+                        </Label>
                         <Input
                             id="password"
                             type="password"
                             required
-                            tabIndex={3}
+                            tabIndex={4}
                             autoComplete="new-password"
                             value={data.password}
                             onChange={(e) => setData('password', e.target.value)}
                             disabled={processing}
                             placeholder={t('register.password_placeholder')}
+                            className="h-12 rounded-2xl border-gray-100 bg-white/50 dark:bg-gray-800/50 dark:border-white/5 focus:ring-2 focus:ring-primary/20 transition-all font-medium"
                         />
                         <InputError message={errors.password} />
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="password_confirmation">{t('register.password_confirmation')}</Label>
+                        <Label htmlFor="password_confirmation" className="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">
+                            {t('register.password_confirmation')}
+                        </Label>
                         <Input
                             id="password_confirmation"
                             type="password"
                             required
-                            tabIndex={4}
+                            tabIndex={5}
                             autoComplete="new-password"
                             value={data.password_confirmation}
                             onChange={(e) => setData('password_confirmation', e.target.value)}
                             disabled={processing}
                             placeholder={t('register.password_confirmation_placeholder')}
+                            className="h-12 rounded-2xl border-gray-100 bg-white/50 dark:bg-gray-800/50 dark:border-white/5 focus:ring-2 focus:ring-primary/20 transition-all font-medium"
                         />
                         <InputError message={errors.password_confirmation} />
                     </div>
 
-                    <Button type="submit" className="mt-2 w-full" tabIndex={5} disabled={processing}>
-                        {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                        {t('register.submit')}
-                    </Button>
+                    <button
+                        type="submit"
+                        className="group/btn relative mt-4 h-12 w-full overflow-hidden rounded-2xl bg-primary font-black tracking-tight text-white shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                        tabIndex={6}
+                        disabled={processing}
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
+                        <div className="relative flex items-center justify-center gap-2">
+                            {processing ? (
+                                <LoaderCircle className="h-5 w-5 animate-spin" />
+                            ) : (
+                                <>
+                                    <span>{t('register.submit')}</span>
+                                    <Icon icon="solar:user-plus-bold-duotone" className="text-xl" />
+                                </>
+                            )}
+                        </div>
+                    </button>
                 </div>
 
-                <div className="text-muted-foreground text-center text-sm">
-                    {t('register.no_account')}{' '}
-                    <TextLink href={route('login')} tabIndex={6}>
+                <div className="text-center text-sm font-semibold">
+                    <span className="text-gray-400">{t('register.no_account')} </span>
+                    <Link href={route('login')} className="text-primary hover:underline transition-all underline-offset-4">
                         {t('register.login')}
-                    </TextLink>
+                    </Link>
                 </div>
             </form>
-
-            {/*<a*/}
-            {/*    href={route('google.redirect')}*/}
-            {/*    tabIndex={5}*/}
-            {/*    className="flex items-center gap-2 border p-2 rounded h-10 hover:bg-gray-100 hover:text-black transition"*/}
-            {/*>*/}
-            {/*    <FcGoogle className="text-xl" />*/}
-            {/*    <span className="text-sm font-medium">{t('register.google')}</span>*/}
-            {/*</a>*/}
-
-
-        </>
+        </div>
     );
 }

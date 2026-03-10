@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import { HeaderItem } from "@/types/menu";
 import { Link } from "@inertiajs/react";
 import { usePage } from "@inertiajs/react";
+import { useTranslation } from "react-i18next";
 
 const HeaderLink: React.FC<{ item: HeaderItem }> = ({ item }) => {
+    const { t } = useTranslation();
     const { url } = usePage();
     const currentUrl = new URL(url, window.location.origin);
 
@@ -44,7 +46,7 @@ const HeaderLink: React.FC<{ item: HeaderItem }> = ({ item }) => {
                         isActive ? activeClasses : inactiveClasses
                     }`}
                 >
-                    {item.label}
+                    {t(item.label)}
                 </a>
             ) : (
                 <Link
@@ -53,7 +55,7 @@ const HeaderLink: React.FC<{ item: HeaderItem }> = ({ item }) => {
                         isActive ? activeClasses : inactiveClasses
                     }`}
                 >
-                    {item.label}
+                    {t(item.label)}
                 </Link>
             )}
         </div>

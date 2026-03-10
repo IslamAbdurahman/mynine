@@ -20,8 +20,20 @@ const cleanTinyMce = (html: string): string => {
     // 4️⃣ Add space between closing and opening inline tags generally
     cleaned = cleaned.replace(/><(span|b|i|u|strong|em)/gi, '> <$1');
 
-    // 5️⃣ Remove inline styles that cause nowrap or break text wrapping
-    cleaned = cleaned.replace(/\s*style="[^"]*"/gi, '');
+    // 5️⃣ Remove only problematic inline style properties (nowrap, fixed widths)
+    // but PRESERVE formatting styles (font-weight, font-size, text-align, color, etc.)
+    cleaned = cleaned.replace(/(<[a-z][a-z0-9]*\s+[^>]*?)style="([^"]*)"([^>]*?>)/gi, (match, before, styleVal, after) => {
+        const cleanedStyle = styleVal
+            .replace(/white-space\s*:\s*nowrap;?/gi, '')
+            .replace(/word-break\s*:\s*[^;]+;?/gi, '')
+            .replace(/overflow-wrap\s*:\s*[^;]+;?/gi, '')
+            .trim();
+
+        if (cleanedStyle) {
+            return `${before}style="${cleanedStyle}"${after}`;
+        }
+        return `${before}${after}`.replace(/\s{2,}/g, ' ');
+    });
 
     // 6️⃣ Collapse multiple spaces but keep one
     cleaned = cleaned.replace(/[ \t]{2,}/g, ' ');

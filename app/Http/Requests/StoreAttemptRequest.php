@@ -22,6 +22,7 @@ class StoreAttemptRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'name' => 'required_with:mock_id|nullable|string|max:255',
             'mock_id' => 'nullable|exists:mocks,id',
             'test_id' => 'required|exists:tests,id'
         ];

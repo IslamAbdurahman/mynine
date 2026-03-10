@@ -36,19 +36,22 @@ export default function AttemptsChart({ attempts }: { attempts: Attempt[] }) {
     ];
 
     const datasets = types.map(type => ({
-        label: type,
+        label: t(type.toLowerCase()) || type,
         data: attempts.map(
             a =>
                 a.attempt_types.find(t => t.type.name === type)?.is_correct_count ?? 0
         ),
         backgroundColor:
             type === 'Reading'
-                ? 'rgba(59, 130, 246, 0.7)'   // blue-500
+                ? 'rgba(59, 130, 246, 0.8)'   // blue-500
                 : type === 'Writing'
-                    ? 'rgba(239, 68, 68, 0.7)'  // red-500
+                    ? 'rgba(139, 92, 246, 0.8)'  // violet-500
                     : type === 'Listening'
-                        ? 'rgba(34, 197, 94, 0.7)' // green-500
-                        : 'rgba(147, 197, 253, 0.7)' // lighter blue (fallback)
+                        ? 'rgba(16, 185, 129, 0.8)' // emerald-500
+                        : 'rgba(245, 158, 11, 0.8)', // amber-500
+        borderRadius: 8,
+        barThickness: 12,
+        maxBarThickness: 20,
     }));
 
 
@@ -59,17 +62,58 @@ export default function AttemptsChart({ attempts }: { attempts: Attempt[] }) {
 
     const options = {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
             legend: {
-                position: 'top' as const
+                position: 'bottom' as const,
+                labels: {
+                    usePointStyle: true,
+                    padding: 20,
+                    font: {
+                        size: 12,
+                        weight: '500'
+                    }
+                }
             },
             title: {
-                display: true,
-                text: t('chartTitle'), // faqat bu tarjimada bo‘ladi
+                display: false,
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                padding: 12,
+                borderRadius: 12,
+                titleFont: { size: 14, weight: 'bold' },
+                bodyFont: { size: 13 },
+                displayColors: true,
+                usePointStyle: true,
+            }
+        },
+        scales: {
+            x: {
+                grid: {
+                    display: false
+                },
+                ticks: {
+                    font: { size: 11 }
+                }
+            },
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.05)',
+                },
+                ticks: {
+                    stepSize: 10,
+                    font: { size: 11 }
+                }
             }
         }
     };
 
-    return <Bar data={data} options={options} height={100} />;
+    return (
+        <div className="w-full h-full min-h-[300px]">
+            <Bar data={data} options={options as any} />
+        </div>
+    );
 
 }

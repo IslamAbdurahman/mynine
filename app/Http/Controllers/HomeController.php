@@ -15,23 +15,33 @@ class HomeController extends Controller
 
         $user = User::query()
             ->with([
-                'last_attempt',
+                'last_attempt.attempt_types',
                 'attempts' => function ($query) {
                     $query->whereYear('finished_at', now()->year)
                         ->whereMonth('finished_at', now()->month)
                         ->orderBy('finished_at', 'asc');
                 },
+                'attempts.attempt_types.type',
             ])
             ->withCount([
                 'attempts as attempts_count_this_month' => function ($query) {
                     $query->whereYear('finished_at', now()->year)
                         ->whereMonth('finished_at', now()->month);
-                }
+                },
+                'attempts as total_attempts_count'
             ])
             ->find(Auth::id());
 
+        // Get recent 5 attempts
+        $recent_attempts = \App\Models\Attempt::where('user_id', Auth::id())
+            ->whereNotNull('finished_at')
+            ->orderBy('finished_at', 'desc')
+            ->limit(5)
+            ->get();
+
         return Inertia::render('dashboard', [
-            'user' => $user
+            'user' => $user,
+            'recent_attempts' => $recent_attempts
         ]);
 
     }

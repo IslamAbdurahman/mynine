@@ -29,20 +29,23 @@ class PracticeController extends Controller
         ]);
 
         try {
-        $attempt = Attempt::query()
-            ->where('id', $request->attempt_id)
-            ->where('user_id', Auth::id())
-            ->where('finished_at', null)
-            ->first();
+            $attempt = Attempt::find($request->attempt_id);
 
             if (!$attempt) {
                 return back()->with('error', __('error.attempt_not_found'));
             }
 
+            if ($attempt->user_id !== Auth::id()) {
+                return back()->with('error', __('error.unauthorized_attempt'));
+            }
 
-        return Inertia::render('practice/index', [
-            'attempt' => $attempt
-        ]);
+            if ($attempt->finished_at !== null) {
+                return back()->with('error', __('error.attempt_already_finished'));
+            }
+
+            return Inertia::render('practice/index', [
+                'attempt' => $attempt
+            ]);
             
 
         } catch (\Exception $e) {

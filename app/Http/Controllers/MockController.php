@@ -67,10 +67,14 @@ class MockController extends Controller
             // Admin can see everything
         } elseif (Auth::user()->hasRole('Teacher')) {
             // Teacher can see their own mocks
-            $mock->where(fn($q) => $q->where('user_id', Auth::id()));
+            $mock->where(function ($q) {
+                $q->where('user_id', Auth::id());
+            });
         } else {
             // Students see active mocks
-            $mock->where(fn($q) => $q->where('active', 1));
+            $mock->where(function ($q) {
+                $q->where('active', 1);
+            });
         }
 
         $mock = $mock->paginate($per_page);

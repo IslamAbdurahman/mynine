@@ -14,7 +14,7 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
             </SidebarGroupLabel>
             <SidebarMenu className="gap-1.5">
                 {items.map((item) => {
-                    const isActive = item.href === page.url;
+                    const isActive = page.url.startsWith(item.href) || (item.href === '/dashboard' && page.url === '/');
 
                     return (
                         <SidebarMenuItem key={item.title}>

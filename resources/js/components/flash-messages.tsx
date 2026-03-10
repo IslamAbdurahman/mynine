@@ -1,27 +1,29 @@
+import { type SharedData } from '@/types';
 import { usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { type SharedData } from '@/types';
 
 export default function FlashMessages() {
     const { props } = usePage<SharedData>();
     const { flash, errors } = props;
+    const { t } = useTranslation();
 
     useEffect(() => {
         if (flash.success) {
-            toast.success(flash.success);
+            toast.success(t(flash.success));
         }
 
         if (flash.error) {
-            toast.error(flash.error);
+            toast.error(t(flash.error));
         }
 
         if (flash.warning) {
-            toast.warning(flash.warning);
+            toast.warning(t(flash.warning));
         }
 
         if (flash.info) {
-            toast.info(flash.info);
+            toast.info(t(flash.info));
         }
 
         // Also handle validation errors from forms if they are passed as flash-like errors
@@ -29,14 +31,20 @@ export default function FlashMessages() {
         if (errorKeys.length > 0) {
             // If it's a general error key, we show it
             if (errors.error) {
-                toast.error(errors.error);
+                // If errors.error is an array, take the first one
+                const errorMessage = Array.isArray(errors.error) ? errors.error[0] : errors.error;
+                toast.error(t(errorMessage));
             } else if (errorKeys.length === 1) {
-                // If there's only one error (e.g., from a field) and no specific flash error,
-                // we might want to show it as a toast if it's not handled by InputError locally.
-                // But for now, let's focus on session errors and the 'error' validation key used in PracticeController.
+                // Handle cases where validation errors for specific fields are returned
+                // and we want to show the first one as a toast.
+                const firstErrorKey = errorKeys[0];
+                const firstErrorMessage = Array.isArray(errors[firstErrorKey]) ? errors[firstErrorKey][0] : errors[firstErrorKey];
+                
+                // Only toast if it's not a standard field error (optional strategy)
+                // For now, let's keep it safe and only toast if we specifically want to.
             }
         }
-    }, [flash, errors]);
+    }, [flash, errors, t]);
 
     return null;
 }

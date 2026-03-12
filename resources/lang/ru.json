@@ -485,6 +485,9 @@
         "password": "Пароль",
         "appearance": "Внешний вид"
     },
+    "seo.welcome_title": "MyNine - Платформа для IELTS пробных тестов и учета посещаемости",
+    "seo.welcome_description": "Практикуйте IELTS онлайн с помощью пробных тестов, оценки ИИ и мгновенных результатов. Отслеживайте посещаемость студентов с помощью Face ID и уведомлений в Telegram.",
+    "seo.welcome_keywords": "пробный тест IELTS, IELTS онлайн, IELTS на компьютере, проверка IELTS ИИ, система учета посещаемости, посещаемость Face ID, уведомления Telegram, платформа для тестирования, MyNine, управление образованием",
     "settings_layout.description": "Управление настройками аккаунта.",
     "settings_layout.title": "Настройки",
     "shortSerialNumber": "Короткий серийный номер",

@@ -24,7 +24,13 @@ Route::get('landing-page-tests', [\App\Http\Controllers\LandingPageController::c
 Route::get('fix-views', function () {
     \Illuminate\Support\Facades\Artisan::call('view:clear');
     \Illuminate\Support\Facades\Artisan::call('cache:clear');
-    return 'Views and Cache cleared successfully! The permission error should now be fixed.';
+
+    $logFile = storage_path('logs/laravel.log');
+    if (file_exists($logFile)) {
+        chmod($logFile, 0666);
+    }
+
+    return 'Views, Cache, and Log permissions cleared and fixed successfully!';
 });
 
 Route::get('sendmail', function () {

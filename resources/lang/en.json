@@ -478,6 +478,11 @@
     "select_test_type": "Select test type",
     "select_user": "Select user",
     "select_worker": "Select Worker",
+    "seo": {
+        "welcome_title": "IELTS Mock Test Platform | AI Evaluation, Attendance & Face ID",
+        "welcome_description": "The best computer-based real IELTS simulator software. Features AI-powered speaking and writing evaluation, Face ID attendance system, Telegram notifications, and real-time student monitoring.",
+        "welcome_keywords": "IELTS mock test software, AI evaluation system, computer-based IELTS, Face ID attendance, learning center CRM, monitoring system, Telegram bot notifications, AI speaking, AI writing, IELTS exam simulator"
+    },
     "settings_layout": {
         "title": "Settings",
         "description": "Manage your profile and account settings",
@@ -485,9 +490,6 @@
         "password": "Password",
         "appearance": "Appearance"
     },
-    "seo.welcome_title": "MyNine - Best IELTS Mock Test & Online Attendance Platform",
-    "seo.welcome_description": "Practice IELTS online with computer-based mock tests, AI evaluation, and instant results. Track student attendance with Face ID and Telegram notifications.",
-    "seo.welcome_keywords": "IELTS practice test, online IELTS mock, computer-based IELTS, IELTS AI evaluation, student attendance system, Face ID attendance, Telegram notifications, online testing platform, MyNine, education management",
     "settings_layout.description": "Manage your account settings.",
     "settings_layout.title": "Settings",
     "shortSerialNumber": "Short Serial Number",

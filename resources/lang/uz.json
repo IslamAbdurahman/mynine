@@ -478,6 +478,11 @@
     "select_test_type": "Test turini tanlang",
     "select_user": "Foydalanuvchini tanlang",
     "select_worker": "Xodimni tanlang",
+    "seo": {
+        "welcome_title": "IELTS Mock Test Platformi | AI Baholash, Davomat va Face ID",
+        "welcome_description": "O'zbekistondagi eng yaxshi kompyuterlashtirilgan real IELTS simulyatori. Sun'iy intellekt (AI) orqali speaking va writing baholash, Face ID davomat tizimi, Telegram bildirishnomalar va real vaqtda monitoring qilish dasturi.",
+        "welcome_keywords": "IELTS mock test dasturi, AI baholash, kompyuterlashgan IELTS, Face ID davomat, o'quv markaz dasturi, monitoring tizimi, Telegram bot xabarnoma, Speaking AI, Writing AI, IELTS imtihon simulyatori"
+    },
     "settings_layout": {
         "title": "Sozlamalar",
         "description": "Profil va hisob sozlamalarini boshqaring",
@@ -485,9 +490,6 @@
         "password": "Parol",
         "appearance": "Ko‘rinish"
     },
-    "seo.welcome_title": "MyNine - IELTS Mock testlari va davomatni hisobga olish platformasi",
-    "seo.welcome_description": "IELTS ni kompyuterda onlayn mock testlar orqali mashq qiling, AI tekshiruvi va tezkor natijalarga ega bo'ling. O'quvchilar davomatini Face ID va Telegram xabarnomalari orqali kuzatib boring.",
-    "seo.welcome_keywords": "IELTS mock test, onlayn IELTS, kompyuterda IELTS, IELTS AI tekshiruvi, o'quvchilar davomati tizimi, Face ID davomat, Telegram xabarnomalar, onlayn test platformasi, MyNine, ta'limni boshqarish",
     "settings_layout.description": "Hisob sozlamalarini boshqarish.",
     "settings_layout.title": "Sozlamalar",
     "shortSerialNumber": "Qisqa seriya raqam",

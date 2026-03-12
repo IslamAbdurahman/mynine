@@ -48,7 +48,8 @@ export default function Welcome() {
 
     return (
         <>
-            <Head title={t('seo.welcome_title')}>
+            <Head>
+                <title>{t('seo.welcome_title')}</title>
                 <meta name="description" content={t('seo.welcome_description')} />
                 <meta name="keywords" content={t('seo.welcome_keywords')} />
                 <link rel="preconnect" href="https://fonts.bunny.net" />

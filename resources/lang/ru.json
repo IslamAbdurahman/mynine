@@ -478,6 +478,11 @@
     "select_test_type": "Выберите тип теста",
     "select_user": "Выберите пользователя",
     "select_worker": "Выберите сотрудника",
+    "seo": {
+        "welcome_title": "Платформа IELTS Mock Test | ИИ Оценка, Посещаемость и Face ID",
+        "welcome_description": "Лучший компьютерный симулятор реального IELTS. Оценка Speaking и Writing с помощью искусственного интеллекта, система посещаемости Face ID, уведомления в Telegram и программа мониторинга студентов в реальном времени.",
+        "welcome_keywords": "Программа IELTS mock test, система оценки ИИ, компьютерный IELTS, Face ID посещаемость, программа для учебного центра, система мониторинга, Telegram бот уведомлений, ИИ Speaking, ИИ Writing, симулятор экзамена IELTS"
+    },
     "settings_layout": {
         "title": "Настройки",
         "description": "Управляйте профилем и аккаунтом",
@@ -485,9 +490,6 @@
         "password": "Пароль",
         "appearance": "Внешний вид"
     },
-    "seo.welcome_title": "MyNine - Платформа для IELTS пробных тестов и учета посещаемости",
-    "seo.welcome_description": "Практикуйте IELTS онлайн с помощью пробных тестов, оценки ИИ и мгновенных результатов. Отслеживайте посещаемость студентов с помощью Face ID и уведомлений в Telegram.",
-    "seo.welcome_keywords": "пробный тест IELTS, IELTS онлайн, IELTS на компьютере, проверка IELTS ИИ, система учета посещаемости, посещаемость Face ID, уведомления Telegram, платформа для тестирования, MyNine, управление образованием",
     "settings_layout.description": "Управление настройками аккаунта.",
     "settings_layout.title": "Настройки",
     "shortSerialNumber": "Короткий серийный номер",

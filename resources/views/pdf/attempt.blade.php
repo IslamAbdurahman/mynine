@@ -117,16 +117,16 @@
 
 <div class="header">
     <h1>{{ __('Exam Report') }}</h1>
-    <p>{{ $attempt->user->name }} | {{ $attempt->mock->name ?? '' }}</p>
+    <p>{{ optional($attempt->user)->name }} | {{ optional($attempt->mock)->name ?? '' }}</p>
 </div>
 
 <div class="card">
     <h2>{{ __('Attempt Details') }}</h2>
     <p><strong>{{ __('ID') }}:</strong> {{ $attempt->id }}</p>
-    <p><strong>{{ __('User') }}:</strong> {{ $attempt->user->name }}
-        ({{ $attempt->user->phone ?? $attempt->user->email }})</p>
-    <p><strong>{{ __('Mock') }}:</strong> {{ $attempt->mock->name ?? '-' }}</p>
-    <p><strong>{{ __('Test') }}:</strong> {{ $attempt->test->folder->name ." ".$attempt->test->name }}</p>
+    <p><strong>{{ __('User') }}:</strong> {{ optional($attempt->user)->name }}
+        ({{ optional($attempt->user)->phone ?? optional($attempt->user)->email }})</p>
+    <p><strong>{{ __('Mock') }}:</strong> {{ optional($attempt->mock)->name ?? '-' }}</p>
+    <p><strong>{{ __('Test') }}:</strong> {{ optional(optional($attempt->test)->folder)->name ." ".optional($attempt->test)->name }}</p>
     <p><strong>{{ __('Started at') }}:</strong> {{ $attempt->started_at }}</p>
     <p><strong>{{ __('Finished at') }}:</strong> {{ $attempt->finished_at }}</p>
 </div>
@@ -152,8 +152,8 @@
                     </span>
                 </td>
                 <td>
-                    @if($type->type->name === 'Writing')
-                        {{ number_format($type->is_correct_count ?? 0) / 2 }}
+                    @if(optional($type->type)->name === 'Writing')
+                        {{ number_format(((float)($type->is_correct_count ?? 0)) / 2, 1) }}
                     @elseif($type->type->name === 'Speaking')
                         {{ $type->score }}
                     @else
@@ -220,7 +220,7 @@
                                 @if(optional($question->attempt_answer)->attempt_answer_options)
                                     @if(count($question->attempt_answer->attempt_answer_options) > 0)
                                         @foreach($question->attempt_answer->attempt_answer_options as $opt)
-                                            <div>- {{ $opt->option->textarea }}</div>
+                                            <div>- {{ optional($opt->option)->textarea }}</div>
                                         @endforeach
                                     @endif
                                 @endif

@@ -60,10 +60,12 @@ class AttemptType extends Model
             ->get();
 
         $attempt_parts->each(function ($attempt_part) {
-            $attempt_part->part->sections->load([
-                'questions.attempt_answer' => fn($q) => $q->where('attempt_part_id', $attempt_part->id)
-                    ->with('attempt_answer_options')
-            ]);
+            if ($attempt_part->part && $attempt_part->part->sections) {
+                $attempt_part->part->sections->load([
+                    'questions.attempt_answer' => fn($q) => $q->where('attempt_part_id', $attempt_part->id)
+                        ->with('attempt_answer_options.option')
+                ]);
+            }
         });
 
         return $attempt_parts;

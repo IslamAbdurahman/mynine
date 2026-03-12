@@ -206,7 +206,7 @@ class MynineUzBotService
     public function setPersistentMenuButton(): void
     {
         try {
-            $this->telegram->setChatMenuButton([
+            $this->telegram->post('setChatMenuButton', [
                 'menu_button' => [
                     'type' => 'web_app',
                     'text' => 'Open Mynine 🎓',

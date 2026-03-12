@@ -21,6 +21,12 @@ Route::get('/', [\App\Http\Controllers\HomeController::class, 'home'])->name('ho
 
 Route::get('landing-page-tests', [\App\Http\Controllers\LandingPageController::class, 'tests'])->name('landing-page-tests');
 
+Route::get('fix-views', function () {
+    \Illuminate\Support\Facades\Artisan::call('view:clear');
+    \Illuminate\Support\Facades\Artisan::call('cache:clear');
+    return 'Views and Cache cleared successfully! The permission error should now be fixed.';
+});
+
 Route::get('sendmail', function () {
 
     $attempts = \App\Models\Attempt::query()

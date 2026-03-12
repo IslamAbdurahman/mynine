@@ -467,6 +467,11 @@
     "search_and_filters": "Qidiruv va filtrlar",
     "search_placeholder": "Qidirish...",
     "section": "Bo‘lim",
+    "seo": {
+        "welcome_title": "Mynine - IELTS Mock Testlar va O'quv Markazini Boshqarish",
+        "welcome_description": "Mynine - haqiqiy IELTS muhitida mock testlar topshirish, AI aralashuvi orqali baholash, Face ID davomat tizimi va Telegram xabarnomalar. O'z natijangizni yaxshilang!",
+        "welcome_keywords": "Mynine, IELTS mock test, AI baholash, Face ID davomat, telegram xabarnoma, o'quv markazini boshqarish, IELTS online test, mynine tizimi, elektron davomat"
+    },
     "select": "Tanlash",
     "select_branch": "Filialni tanlang",
     "select_firm": "Firmani tanlang",
@@ -478,11 +483,6 @@
     "select_test_type": "Test turini tanlang",
     "select_user": "Foydalanuvchini tanlang",
     "select_worker": "Xodimni tanlang",
-    "seo": {
-        "welcome_title": "IELTS Mock Test Platformi | AI Baholash, Davomat va Face ID",
-        "welcome_description": "O'zbekistondagi eng yaxshi kompyuterlashtirilgan real IELTS simulyatori. Sun'iy intellekt (AI) orqali speaking va writing baholash, Face ID davomat tizimi, Telegram bildirishnomalar va real vaqtda monitoring qilish dasturi.",
-        "welcome_keywords": "IELTS mock test dasturi, AI baholash, kompyuterlashgan IELTS, Face ID davomat, o'quv markaz dasturi, monitoring tizimi, Telegram bot xabarnoma, Speaking AI, Writing AI, IELTS imtihon simulyatori"
-    },
     "settings_layout": {
         "title": "Sozlamalar",
         "description": "Profil va hisob sozlamalarini boshqaring",

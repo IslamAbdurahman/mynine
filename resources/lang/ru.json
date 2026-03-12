@@ -467,6 +467,11 @@
     "search_and_filters": "Поиск и фильтры",
     "search_placeholder": "Поиск...",
     "section": "Раздел",
+    "seo": {
+        "welcome_title": "Mynine - Пробные тесты IELTS и Центр Управления",
+        "welcome_description": "Mynine — сдавайте пробные тесты в реальной среде IELTS с оценкой ИИ, отслеживание посещаемости по Face ID и уведомлениями в Telegram. Улучшите свой балл!",
+        "welcome_keywords": "Mynine, пробный тест IELTS, оценка ИИ, посещаемость Face ID, уведомления Telegram, управление учебным центром, IELTS онлайн, система mynine, электронная посещаемость"
+    },
     "select": "Выбрать",
     "select_branch": "Выберите филиал",
     "select_firm": "Выберите фирму",
@@ -478,11 +483,6 @@
     "select_test_type": "Выберите тип теста",
     "select_user": "Выберите пользователя",
     "select_worker": "Выберите сотрудника",
-    "seo": {
-        "welcome_title": "Платформа IELTS Mock Test | ИИ Оценка, Посещаемость и Face ID",
-        "welcome_description": "Лучший компьютерный симулятор реального IELTS. Оценка Speaking и Writing с помощью искусственного интеллекта, система посещаемости Face ID, уведомления в Telegram и программа мониторинга студентов в реальном времени.",
-        "welcome_keywords": "Программа IELTS mock test, система оценки ИИ, компьютерный IELTS, Face ID посещаемость, программа для учебного центра, система мониторинга, Telegram бот уведомлений, ИИ Speaking, ИИ Writing, симулятор экзамена IELTS"
-    },
     "settings_layout": {
         "title": "Настройки",
         "description": "Управляйте профилем и аккаунтом",

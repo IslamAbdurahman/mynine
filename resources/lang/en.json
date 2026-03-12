@@ -467,6 +467,11 @@
     "search_and_filters": "Search and filters",
     "search_placeholder": "Search...",
     "section": "Section",
+    "seo": {
+        "welcome_title": "Mynine - IELTS Mock Tests & Learning Center Management",
+        "welcome_description": "Mynine - take mock tests in a real IELTS environment with AI evaluation, Face ID attendance tracking, and Telegram notifications. Boost your score today!",
+        "welcome_keywords": "Mynine, IELTS mock test, AI evaluation, Face ID attendance, Telegram notification, learning center management, IELTS online test, mynine system, digital attendance"
+    },
     "select": "Select",
     "select_branch": "Select Branch",
     "select_firm": "Select Firm",
@@ -478,11 +483,6 @@
     "select_test_type": "Select test type",
     "select_user": "Select user",
     "select_worker": "Select Worker",
-    "seo": {
-        "welcome_title": "IELTS Mock Test Platform | AI Evaluation, Attendance & Face ID",
-        "welcome_description": "The best computer-based real IELTS simulator software. Features AI-powered speaking and writing evaluation, Face ID attendance system, Telegram notifications, and real-time student monitoring.",
-        "welcome_keywords": "IELTS mock test software, AI evaluation system, computer-based IELTS, Face ID attendance, learning center CRM, monitoring system, Telegram bot notifications, AI speaking, AI writing, IELTS exam simulator"
-    },
     "settings_layout": {
         "title": "Settings",
         "description": "Manage your profile and account settings",

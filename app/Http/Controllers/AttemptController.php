@@ -118,11 +118,11 @@ class AttemptController extends Controller
 
             if (!$request->mock_id) {
                 $active = Attempt::where('user_id', Auth::id())
-                    ->where('finished_at', null)
+                    ->whereNull('finished_at')
                     ->first();
 
                 if ($active) {
-                    throw new \Exception('You have an active attempt. Please finish it before starting a new one. Check menu `My result`.');
+                    $active->finish();
                 }
             }
 

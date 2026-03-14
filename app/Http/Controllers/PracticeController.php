@@ -98,41 +98,7 @@ class PracticeController extends Controller
                 return redirect(route('attempt.index'))->with('success', __('success.test_submitted'));
             }
 
-            DB::beginTransaction();
-
-            $attempt_answers = AttemptAnswer::query()
-                ->whereHas('attempt_part', function ($query) use ($attempt) {
-                    $query->where('attempt_id', $attempt->id);
-                })
-                ->whereHas('question.section.question_type', function ($query) {
-                    $query->where('type', 'essay');
-                })
-                ->whereRaw('LENGTH(answer_text) > 200')
-                ->get();
-
-            foreach ($attempt_answers as $answer) {
-                EvaluateEssayJob::dispatch($answer->id);
-            }
-
-            // Mark the attempt as finished
-            $attempt->finished_at = now();
-            $attempt->save();
-
-            // Mark all attempt parts as finished
-            foreach ($attempt->attempt_parts as $attempt_part) {
-                if (!$attempt_part->finished_at) {
-                    $attempt_part->finished_at = now();
-                    $attempt_part->save();
-                }
-            }
-
-            // Calculate and store is_correct_count for all attempt_types
-            $attempt_types = AttemptType::where('attempt_id', $attempt->id)->get();
-            foreach ($attempt_types as $attemptType) {
-                $attemptType->recalculateIsCorrectCount();
-            }
-
-            DB::commit();
+            $attempt->finish();
 
             if ($attempt->mock_id && $attempt->mock?->slug) {
                 return redirect('/?slug=' . $attempt->mock->slug)->with('success', __('success.test_submitted'));

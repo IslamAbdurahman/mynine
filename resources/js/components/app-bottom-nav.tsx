@@ -1,5 +1,5 @@
 import { router, usePage } from '@inertiajs/react';
-import { LayoutGrid, Building2, Settings, Calendar, CalculatorIcon, ListCheck, Calculator } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, BarChart3, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export function AppBottomNav() {
@@ -10,22 +10,22 @@ export function AppBottomNav() {
         {
             title: t('sidebar.dashboard'), // Asosiy
             href: '/dashboard',
-            icon: LayoutGrid
+            icon: LayoutDashboard
         },
         {
             title: t('sidebar.all_tests'),
             href: '/all-test',
-            icon: ListCheck
+            icon: ClipboardList
         },
         {
             title: t('sidebar.my_result'),
             href: '/attempt',
-            icon: Calculator
+            icon: BarChart3
         },
         {
             title: t('sidebar.profile'), // Oylik
             href: '/settings/profile',
-            icon: Settings
+            icon: User
         }
     ];
 

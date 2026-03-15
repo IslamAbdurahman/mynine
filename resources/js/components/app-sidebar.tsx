@@ -15,7 +15,6 @@ import { Link } from '@inertiajs/react';
 import {
     LayoutDashboard,
     Users,
-    FolderIcon,
     GraduationCap,
     ClipboardList,
     BarChart3,
@@ -68,7 +67,7 @@ export function AppSidebar() {
             {
                 title: t('sidebar.folder'),
                 href: '/folder',
-                icon: FolderIcon
+                icon: Folder
             },
             {
                 title: t('sidebar.mock'),

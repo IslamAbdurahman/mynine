@@ -13,13 +13,15 @@ import {
 import { Auth, type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import {
-    BookOpen,
-    Folder,
-    LayoutGrid,
+    LayoutDashboard,
     Users,
     FolderIcon,
-    Calculator,
-    ListCheck, Clock
+    GraduationCap,
+    ClipboardList,
+    BarChart3,
+    GithubIcon as Github,
+    Send,
+    Folder
 } from 'lucide-react';
 import AppLogo from './app-logo';
 import { usePage } from '@inertiajs/react';
@@ -35,12 +37,12 @@ export function AppSidebar() {
         {
             title: t('sidebar.repository'),
             href: 'https://github.com/islamabdurahman',
-            icon: Folder
+            icon: Github
         },
         {
             title: t('sidebar.telegram'),
             href: 'https://t.me/livelongevity',
-            icon: BookOpen
+            icon: Send
         }
     ];
 
@@ -55,7 +57,8 @@ export function AppSidebar() {
         const items: NavItem[] = [
             {
                 title: t('sidebar.dashboard'),
-                href: '/dashboard', icon: LayoutGrid
+                href: '/dashboard', 
+                icon: LayoutDashboard
             },
             {
                 title: t('sidebar.user'),
@@ -70,17 +73,17 @@ export function AppSidebar() {
             {
                 title: t('sidebar.mock'),
                 href: '/mock',
-                icon: Clock
+                icon: GraduationCap
             },
             {
                 title: t('sidebar.all_tests'),
                 href: '/all-test',
-                icon: ListCheck
+                icon: ClipboardList
             },
             {
                 title: t('sidebar.my_result'),
                 href: '/attempt',
-                icon: Calculator
+                icon: BarChart3
             }
         ];
 

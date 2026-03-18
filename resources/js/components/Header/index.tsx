@@ -128,13 +128,13 @@ const Header: React.FC = () => {
 
             {/* Modals for Auth */}
             {isSignInOpen && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
                     <div
                         ref={signInRef}
-                        className="relative mx-auto w-full max-w-md overflow-hidden rounded-lg bg-white px-8 pt-14 pb-8 text-center dark:bg-gray-800"
+                        className="relative mx-auto w-full max-w-md"
                     >
-                        <button onClick={() => setIsSignInOpen(false)} className="absolute top-4 right-4">
-                            <Icon icon="tabler:x" className="text-2xl text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white" />
+                        <button onClick={() => setIsSignInOpen(false)} className="absolute z-10 top-4 right-4 bg-gray-100/50 dark:bg-gray-800/50 rounded-full p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                            <Icon icon="tabler:x" className="text-xl text-gray-600 dark:text-gray-300" />
                         </button>
                         <LoginCard />
                     </div>
@@ -142,13 +142,13 @@ const Header: React.FC = () => {
             )}
 
             {isSignUpOpen && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
                     <div
                         ref={signUpRef}
-                        className="relative mx-auto w-full max-w-md overflow-hidden rounded-lg bg-white px-8 pt-14 pb-8 text-center dark:bg-gray-800"
+                        className="relative mx-auto w-full max-w-md"
                     >
-                        <button onClick={() => setIsSignUpOpen(false)} className="absolute top-4 right-4">
-                            <Icon icon="tabler:x" className="text-2xl text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white" />
+                        <button onClick={() => setIsSignUpOpen(false)} className="absolute z-10 top-4 right-4 bg-gray-100/50 dark:bg-gray-800/50 rounded-full p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                            <Icon icon="tabler:x" className="text-xl text-gray-600 dark:text-gray-300" />
                         </button>
                         <RegisterCard />
                     </div>

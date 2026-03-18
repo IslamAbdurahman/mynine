@@ -36,11 +36,11 @@ export default function RegisterCard() {
     };
 
     return (
-        <div className="group relative w-full overflow-hidden rounded-[2.5rem] bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl p-8 shadow-2xl transition-all duration-500 hover:shadow-primary/10 border border-white/20 dark:border-white/5">
+        <div className="group relative w-full overflow-hidden rounded-[2.5rem] bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl p-5 sm:p-6 shadow-2xl transition-all duration-500 hover:shadow-primary/10 border border-white/20 dark:border-white/5">
             <SocialSignIn />
 
-            <form className="mt-8 flex flex-col gap-6" onSubmit={submit}>
-                <div className="grid gap-5">
+            <form className="mt-5 flex flex-col gap-4" onSubmit={submit}>
+                <div className="grid gap-3">
                     <div className="grid gap-2">
                         <Label htmlFor="name" className="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">
                             {t('register.name')}

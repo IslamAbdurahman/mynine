@@ -5,9 +5,10 @@ import { cn } from '@/lib/utils';
 
 interface LanguageBarProps {
     variant?: 'default' | 'dark' | 'glass';
+    placement?: 'top' | 'bottom';
 }
 
-const LanguageBar = ({ variant = 'default' }: LanguageBarProps) => {
+const LanguageBar = ({ variant = 'default', placement = 'bottom' }: LanguageBarProps) => {
     const { i18n, t } = useTranslation();
     const [open, setOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -47,7 +48,10 @@ const LanguageBar = ({ variant = 'default' }: LanguageBarProps) => {
 
             {open && (
                 <div
-                    className="absolute right-0 mt-3 w-64 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.2)] border-2 border-gray-200 bg-white dark:bg-gray-900 dark:border-gray-700 z-[100] p-2 flex flex-col gap-1.5 anim-fade-in backdrop-blur-xl">
+                    className={cn(
+                        "absolute right-0 w-64 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.2)] border-2 border-gray-200 bg-white dark:bg-gray-900 dark:border-gray-700 z-[100] p-2 flex flex-col gap-1.5 anim-fade-in backdrop-blur-xl",
+                        placement === 'top' ? "bottom-full mb-3" : "top-full mt-3"
+                    )}>
                     <div className="px-3 py-2.5 text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest border-b-2 border-gray-100 dark:border-gray-800 mb-1 flex items-center gap-2">
                         <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
                         {t('lang.title') ?? 'Select Language'}

@@ -1,4 +1,5 @@
 import AppLogo from '@/components/app-logo';
+import LanguageBar from '@/components/language';
 import { Link } from '@inertiajs/react';
 import { type PropsWithChildren } from 'react';
 
@@ -20,6 +21,10 @@ export default function AuthSimpleLayout({ children, title, description }: Props
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] dark:opacity-[0.05]" />
             </div>
 
+            <div className="absolute top-6 right-6 z-50 hidden sm:block">
+                <LanguageBar />
+            </div>
+
             <div className="relative z-10 w-full max-w-sm">
                 <div className="flex flex-col gap-10">
                     <div className="flex flex-col items-center gap-6">
@@ -38,7 +43,10 @@ export default function AuthSimpleLayout({ children, title, description }: Props
             </div>
             
             {/* Footer rights in auth layout */}
-            <div className="relative z-10 mt-12 text-center">
+            <div className="relative z-10 mt-12 flex flex-col items-center gap-6 text-center">
+                <div className="sm:hidden">
+                    <LanguageBar placement="top" />
+                </div>
                 <p className="text-gray-400 dark:text-gray-600 text-[10px] uppercase tracking-widest font-bold">
                     &copy; 2025 Mynine Academy. All Rights Reserved.
                 </p>

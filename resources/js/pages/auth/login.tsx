@@ -1,7 +1,6 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 
-import LanguageBar from '@/components/language';
 import TextLink from '@/components/text-link';
 import { Label } from '@/components/ui/label';
 import AuthLayout from '@/layouts/auth-layout';
@@ -51,10 +50,6 @@ export default function Login({ status, canResetPassword }: LoginProps) {
     return (
         <AuthLayout title={t('login.title')} description={t('login.description')}>
             <Head title={t('login.submit')} />
-
-            <div className="absolute top-6 right-6">
-                <LanguageBar />
-            </div>
 
             <LoginCard />
 

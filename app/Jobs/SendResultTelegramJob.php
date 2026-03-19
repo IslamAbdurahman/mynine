@@ -42,7 +42,10 @@ class SendResultTelegramJob implements ShouldQueue
             $document = InputFile::create($pdfUrl, "TestResult_{$this->attempt->id}.pdf");
 
             // Caption
-            $caption = "Hello {$this->user->name},\nYour test attempt is complete! 🎉";
+            $caption = "Hello {$this->user->name},\nYour test attempt is complete! 🎉\n\n" .
+                       "💳 Bizni Qo'llab-quvvatlang:\n\n" .
+                       "9860600402432220\n\n" .
+                       "Donat qilishingiz mumkin.";
 
             Log::info("Telegram PDF sent to user {$this->user->telegram_id}");
 

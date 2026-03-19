@@ -75,6 +75,12 @@
             <a href="{{ url('/attempt/'.$result->id) }}" class="btn btn-secondary">View Full Results</a>
         </p>
 
+        <div style="margin-top: 20px; padding: 15px; background-color: #f9f9f9; border-left: 4px solid #4CAF50;">
+            <p><strong>💳 Bizni Qo'llab-quvvatlang:</strong></p>
+            <p style="font-size: 18px; letter-spacing: 1px;">9860600402432220</p>
+            <p>Donat qilishingiz mumkin.</p>
+        </div>
+
         <p>Thanks,<br>{{ config('app.name') }}</p>
     </div>
 </div>

@@ -39,9 +39,57 @@ class HomeController extends Controller
             ->limit(5)
             ->get();
 
+        $startDate = now()->subDays(30)->toDateString();
+        $daily_users = User::query()
+            ->selectRaw('DATE(created_at) as day_date, count(*) as items_count')
+            ->whereDate('created_at', '>=', $startDate)
+            ->groupBy('day_date')
+            ->havingRaw('count(*) > 0')
+            ->orderBy('day_date', 'asc')
+            ->get();
+
+        $daily_attempts = \App\Models\Attempt::query()
+            ->selectRaw('DATE(finished_at) as day_date, count(*) as items_count, count(distinct user_id) as unique_users_count')
+            ->whereNotNull('finished_at')
+            ->whereDate('finished_at', '>=', $startDate)
+            ->groupBy('day_date')
+            ->havingRaw('count(*) > 0')
+            ->orderBy('day_date', 'asc')
+            ->get();
+
+        $hourly_attempts = \App\Models\Attempt::query()
+            ->selectRaw('HOUR(finished_at) as hour, count(*) as items_count')
+            ->whereNotNull('finished_at')
+            ->groupBy('hour')
+            ->havingRaw('count(*) > 0')
+            ->orderBy('hour', 'asc')
+            ->get();
+
+        $today_hourly_attempts = \App\Models\Attempt::query()
+            ->selectRaw('HOUR(finished_at) as hour, count(*) as items_count')
+            ->whereNotNull('finished_at')
+            ->whereDate('finished_at', now()->toDateString())
+            ->groupBy('hour')
+            ->havingRaw('count(*) > 0')
+            ->orderBy('hour', 'asc')
+            ->get();
+
+        $weekly_attempts = \App\Models\Attempt::query()
+            ->selectRaw('(WEEKDAY(finished_at) + 1) as weekday, count(*) as items_count')
+            ->whereNotNull('finished_at')
+            ->groupBy('weekday')
+            ->havingRaw('count(*) > 0')
+            ->orderBy('weekday', 'asc')
+            ->get();
+
         return Inertia::render('dashboard', [
             'user' => $user,
-            'recent_attempts' => $recent_attempts
+            'recent_attempts' => $recent_attempts,
+            'daily_users' => $daily_users,
+            'daily_attempts' => $daily_attempts,
+            'hourly_attempts' => $hourly_attempts,
+            'today_hourly_attempts' => $today_hourly_attempts,
+            'weekly_attempts' => $weekly_attempts,
         ]);
 
     }

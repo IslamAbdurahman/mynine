@@ -1,10 +1,13 @@
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, User, Attempt } from '@/types';
+import { type BreadcrumbItem, User, Attempt, StatItem, HourlyStatItem, WeeklyStatItem } from '@/types';
 import { Head, usePage, Link } from '@inertiajs/react';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTranslation } from 'react-i18next';
-import AttemptsChart from '@/components/attempt/attempt-chart';
+import AttemptsChart from '@/components/dashboard/AttemptsChart';
+import DailyStatsChart from '@/components/dashboard/DailyStatsChart';
+import HourlyAttemptsChart from '@/components/dashboard/HourlyAttemptsChart';
+import WeeklyAttemptsChart from '@/components/dashboard/WeeklyAttemptsChart';
 import { 
     Trophy, 
     Target, 
@@ -25,7 +28,23 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Dashboard() {
-    const { user, recent_attempts = [] } = usePage<{ user: User & { total_attempts_count: number }, recent_attempts: Attempt[] }>().props;
+    const { 
+        user, 
+        recent_attempts = [],
+        daily_users = [],
+        daily_attempts = [],
+        hourly_attempts = [],
+        today_hourly_attempts = [],
+        weekly_attempts = []
+    } = usePage<{ 
+        user: User & { total_attempts_count: number }, 
+        recent_attempts: Attempt[],
+        daily_users: StatItem[],
+        daily_attempts: StatItem[],
+        hourly_attempts: HourlyStatItem[],
+        today_hourly_attempts: HourlyStatItem[],
+        weekly_attempts: WeeklyStatItem[]
+    }>().props;
     const { t } = useTranslation();
 
     // Calculate averages if available
@@ -49,6 +68,10 @@ export default function Dashboard() {
 
     const readingAvg = calculateAverage('Reading');
     const listeningAvg = calculateAverage('Listening');
+
+    const isAdmin = Array.isArray(user.roles) 
+        ? user.roles.some((r: any) => r.name.toLowerCase() === 'admin') 
+        : false;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -144,25 +167,9 @@ export default function Dashboard() {
                     </Card>
                 </div>
 
-                {/* Content Sections */}
-                <div className="grid gap-6 lg:grid-cols-7">
-                    {/* Analytics Chart */}
-                    <Card className="lg:col-span-4 border-none bg-white dark:bg-neutral-900 shadow-sm rounded-3xl overflow-hidden">
-                        <CardHeader className="flex flex-row items-center justify-between border-b border-gray-100 dark:border-neutral-800 pb-4">
-                            <CardTitle className="text-lg font-bold flex items-center gap-2">
-                                <TrendingUp className="size-5 text-primary" />
-                                {t('performance_overview')}
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-6">
-                            <div className="h-[350px] w-full">
-                                <AttemptsChart attempts={user.attempts || []} />
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Recent Activity */}
-                    <Card className="lg:col-span-3 border-none bg-white dark:bg-neutral-900 shadow-sm rounded-3xl overflow-hidden">
+                {/* Recent Activity */}
+                <div className="mb-6">
+                    <Card className="border-none bg-white dark:bg-neutral-900 shadow-sm rounded-3xl overflow-hidden">
                         <CardHeader className="flex flex-row items-center justify-between border-b border-gray-100 dark:border-neutral-800 pb-4">
                             <CardTitle className="text-lg font-bold flex items-center gap-2">
                                 <History className="size-5 text-primary" />
@@ -231,6 +238,53 @@ export default function Dashboard() {
                         </CardContent>
                     </Card>
                 </div>
+
+                {/* Charts Section (Admins Only) */}
+                {isAdmin && (
+                    <div className="grid gap-6 grid-cols-1 mt-6">
+                        {/* Analytics Chart */}
+                        <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
+                            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                                <TrendingUp className="size-5 text-primary" />
+                                {t('performance_overview')}
+                            </h3>
+                            <div className="w-full">
+                                <AttemptsChart attempts={user.attempts || []} />
+                            </div>
+                        </div>
+
+                        {/* Daily Stats */}
+                        {(daily_users.length > 0 || daily_attempts.length > 0) && (
+                            <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
+                                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                                    <TrendingUp className="size-5 text-primary" /> Daily Activity
+                                </h3>
+                                <DailyStatsChart dailyUsers={daily_users} dailyAttempts={daily_attempts} />
+                            </div>
+                        )}
+
+                        {/* Today Hourly Stats */}
+                        {today_hourly_attempts.length > 0 && (
+                            <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
+                                <HourlyAttemptsChart title="Today's hourly stats" data={today_hourly_attempts} />
+                            </div>
+                        )}
+
+                        {/* All-time Hourly Stats */}
+                        {hourly_attempts.length > 0 && (
+                            <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
+                                <HourlyAttemptsChart title="All-time hourly distribution" data={hourly_attempts} />
+                            </div>
+                        )}
+
+                        {/* Weekly Stats */}
+                        {weekly_attempts.length > 0 && (
+                            <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
+                                <WeeklyAttemptsChart title="All-time Weekly Attempts Distribution" data={weekly_attempts} />
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
         </AppLayout>
     );

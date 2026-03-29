@@ -37,7 +37,7 @@ class TelegramLoginController extends Controller
 
         Auth::login($user);
 
-        return redirect()->route('home');
+        return redirect()->route('dashboard');
     }
 
     private function isTelegramDataValid(array $data): bool

@@ -46,9 +46,9 @@ class GoogleAuthController extends Controller
             Auth::login($user);
 
             // Redirect to the dashboard or home
-            return redirect()->route('home');
+            return redirect()->route('dashboard');
         } catch (\Exception $exception) {
-            return redirect()->route('home');
+            return redirect()->route('dashboard');
         }
     }
 }

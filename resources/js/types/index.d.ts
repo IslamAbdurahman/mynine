@@ -348,6 +348,21 @@ export interface AttemptAnswerOptions {
     option: Option;
 }
 
+export interface StatItem {
+    day_date: string;
+    items_count: number;
+    unique_users_count?: number;
+}
+
+export interface HourlyStatItem {
+    hour: number;
+    items_count: number;
+}
+
+export interface WeeklyStatItem {
+    weekday: number;
+    items_count: number;
+}
 
 
 

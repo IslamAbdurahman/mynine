@@ -25,7 +25,7 @@ class StorePartRequest extends FormRequest
             'name' => 'required|string|max:255',
             'test_type_id' => 'required|exists:test_types,id',
             'textarea' => 'nullable|string',
-            'audio_path' => ['nullable', 'file', 'max:20240'],
+            'audio_path' => ['nullable', 'file', 'mimes:mp3,wav,ogg,m4a,aac,mpeg,mpga', 'max:24576'],
             'minute' => 'nullable|integer|min:0|max:60',
             'comment' => 'nullable|string|max:500',
         ];

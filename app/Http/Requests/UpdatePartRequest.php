@@ -24,7 +24,7 @@ class UpdatePartRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'textarea' => 'nullable|string',
-            'audio_path' => ['nullable', 'file', 'max:20240'],
+            'audio_path' => ['nullable', 'file', 'mimes:mp3,wav,ogg,m4a,aac,mpeg,mpga', 'max:24576'],
             'minute' => 'nullable|integer|min:0|max:180',
             'comment' => 'nullable|string|max:500',
         ];

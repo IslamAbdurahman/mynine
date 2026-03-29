@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Editor } from "@tinymce/tinymce-react";
 import InputError from "@/components/input-error";
 
-// Relying on tinymceScriptSrc for self-hosted scripts
+
 import type { Editor as TinyMCEEditorInstance } from "tinymce";
 
 interface TextareaEditorProps {

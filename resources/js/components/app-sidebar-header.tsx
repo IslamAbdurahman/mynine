@@ -12,7 +12,7 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
                     <Breadcrumbs breadcrumbs={breadcrumbs} />
                 </div>
                 <div className="flex-1"></div>
-                <div className="fixed top-0 right-0 md:right-28 p-2">
+                <div className="fixed top-0 right-0 p-3 md:right-30">
                     <LanguageBar />
                 </div>
             </header>

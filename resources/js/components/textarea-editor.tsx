@@ -108,6 +108,7 @@ export default function TextareaEditor({
                 value={value}
                 onEditorChange={(content) => onChange(content)}
                 init={{
+                    license_key: 'gpl',
                     base_url: '/vendor/tinymce',
                     suffix: '.min',
                     height,

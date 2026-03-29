@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->integer('create_test_limit')->default(5)->after('remember_token');
+            $table->integer('create_test_limit')->default(0)->after('remember_token');
         });
     }
 

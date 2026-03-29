@@ -30,7 +30,8 @@ export default function CreateUserModal() {
         name: '',
         phone: '',
         email: '',
-        password: ''
+        password: '',
+        create_test_limit: 5
     });
 
     const submit: FormEventHandler = (e) => {
@@ -112,6 +113,18 @@ export default function CreateUserModal() {
                             onChange={(e) => setData('password', e.target.value)}
                         />
                         <InputError message={errors.password} />
+                    </div>
+
+                    <div>
+                        <Label htmlFor="create_test_limit">Test yaratish limiti</Label>
+                        <Input
+                            id="create_test_limit"
+                            type="number"
+                            min="0"
+                            value={data.create_test_limit}
+                            onChange={(e) => setData('create_test_limit', parseInt(e.target.value) || 0)}
+                        />
+                        <InputError message={errors.create_test_limit as string} />
                     </div>
 
 

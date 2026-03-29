@@ -90,6 +90,9 @@ export interface User {
     name: string;
     username: string;
     google_id: string;
+    ref_telegram_id?: string;
+    github_id?: string;
+    create_test_limit?: number;
     telegram_id: string;
     email: string;
     phone: string;

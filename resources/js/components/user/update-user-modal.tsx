@@ -31,11 +31,12 @@ export default function UpdateUserModal({ roles, user, open, setOpen }: UpdateUs
     const nameInput = useRef<HTMLInputElement>(null);
 
     const { data, setData, put, processing, reset, errors, clearErrors } = useForm({
-        name: user.name,
-        phone: user.phone,
+        name: user.name || '',
+        phone: user.phone || '',
         role: (user.roles ?? [])[0]?.name || '',
-        email: user.email,
-        password: user.password
+        email: user.email || '',
+        password: user.password || '',
+        create_test_limit: user.create_test_limit ?? 5
     });
 
     const { auth } = usePage().props as unknown as { auth?: Auth };
@@ -47,11 +48,12 @@ export default function UpdateUserModal({ roles, user, open, setOpen }: UpdateUs
 
     useEffect(() => {
         setData({
-            name: user.name,
-            phone: user.phone,
+            name: user.name || '',
+            phone: user.phone || '',
             role: (user.roles ?? [])[0]?.name || '',
-            email: user.email,
-            password: ''
+            email: user.email || '',
+            password: '',
+            create_test_limit: user.create_test_limit ?? 5
         });
     }, [user, setData]);
 
@@ -160,6 +162,20 @@ export default function UpdateUserModal({ roles, user, open, setOpen }: UpdateUs
                         />
                         <InputError message={errors.password} />
                     </div>
+
+                    {isAdmin && (
+                        <div>
+                            <Label htmlFor="create_test_limit">Test yaratish limiti</Label>
+                            <Input
+                                id="create_test_limit"
+                                type="number"
+                                min="0"
+                                value={data.create_test_limit}
+                                onChange={(e) => setData('create_test_limit', parseInt(e.target.value) || 0)}
+                            />
+                            <InputError message={errors.create_test_limit as string} />
+                        </div>
+                    )}
 
 
                     <DialogFooter className="gap-2">

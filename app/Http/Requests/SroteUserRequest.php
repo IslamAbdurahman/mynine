@@ -36,6 +36,7 @@ class SroteUserRequest extends FormRequest
             'role'     => 'nullable|string',
             'email'    => 'nullable|email|unique:users,email',
             'password' => 'nullable|string|min:6',
+            'create_test_limit' => 'nullable|integer|min:0',
         ];
     }
 

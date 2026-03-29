@@ -87,7 +87,7 @@ export function AppSidebar() {
         ];
 
         return items.filter(item => {
-            if (item.href === '/user' && !(isAdmin || isTeacher)) return false;
+            if (item.href === '/user' && !isAdmin) return false;
             if (item.href === '/folder' && isStudent) return false;
             if (item.href === '/mock' && isStudent) return false;
 

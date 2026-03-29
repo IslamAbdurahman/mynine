@@ -30,7 +30,8 @@ class User extends Authenticatable
         'google_id',
         'telegram_id',
         'ref_telegram_id',
-        'github_id'
+        'github_id',
+        'create_test_limit'
     ];
 
     protected $with = [

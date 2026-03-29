@@ -64,6 +64,23 @@ class TestController extends Controller
     public function store(StoreTestRequest $request)
     {
         try {
+            $user = Auth::user();
+
+            if (!$user->hasRole('Admin')) {
+                // Foydalanuvchi joriy testlar sonini hisoblash 
+                // Foydalanuvchining hamma papkalaridagi testlarni sanaymiz
+                $userTestsCount = DB::table('tests')
+                    ->join('folders', 'tests.folder_id', '=', 'folders.id')
+                    ->where('folders.user_id', $user->id)
+                    ->count();
+
+                if ($userTestsCount >= $user->create_test_limit) {
+                    throw ValidationException::withMessages([
+                        'error' => [__('Sizning test yaratish limitingiz tugagan. Jami ruxsat: :limit ta', ['limit' => $user->create_test_limit])],
+                    ]);
+                }
+            }
+
             $data = $request->validated();
 
             if ($request->hasFile('audio_path')) {

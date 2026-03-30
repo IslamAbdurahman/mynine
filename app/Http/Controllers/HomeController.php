@@ -39,7 +39,7 @@ class HomeController extends Controller
             ->limit(5)
             ->get();
 
-        $isAdmin = Auth::user()->hasRole('admin');
+        $isAdmin = Auth::user()->hasRole('Admin');
 
         $daily_users = collect();
         $daily_attempts = collect();

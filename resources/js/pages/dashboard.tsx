@@ -263,17 +263,20 @@ export default function Dashboard() {
                             </div>
                         )}
 
-                        {/* Today Hourly Stats */}
-                        <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
-                            <HourlyAttemptsChart title="Today's hourly stats" data={today_hourly_attempts} />
-                        </div>
-
-                        {/* All-time Hourly Stats */}
-                        {hourly_attempts.length > 0 && (
+                        {/* Hourly Stats Row (Today vs All-time) */}
+                        <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+                            {/* Today Hourly Stats */}
                             <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
-                                <HourlyAttemptsChart title="All-time hourly distribution" data={hourly_attempts} />
+                                <HourlyAttemptsChart title="Today's hourly stats" data={today_hourly_attempts} />
                             </div>
-                        )}
+
+                            {/* All-time Hourly Stats */}
+                            {hourly_attempts.length > 0 && (
+                                <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
+                                    <HourlyAttemptsChart title="All-time hourly distribution" data={hourly_attempts} />
+                                </div>
+                            )}
+                        </div>
 
                         {/* Weekly Stats */}
                         {weekly_attempts.length > 0 && (

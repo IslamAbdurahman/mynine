@@ -264,11 +264,9 @@ export default function Dashboard() {
                         )}
 
                         {/* Today Hourly Stats */}
-                        {today_hourly_attempts.length > 0 && (
-                            <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
-                                <HourlyAttemptsChart title="Today's hourly stats" data={today_hourly_attempts} />
-                            </div>
-                        )}
+                        <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
+                            <HourlyAttemptsChart title="Today's hourly stats" data={today_hourly_attempts} />
+                        </div>
 
                         {/* All-time Hourly Stats */}
                         {hourly_attempts.length > 0 && (

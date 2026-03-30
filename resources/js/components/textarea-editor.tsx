@@ -15,12 +15,12 @@ interface TextareaEditorProps {
 }
 
 export default function TextareaEditor({
-                                           value = "",
-                                           onChange = () => {},
-                                           error = null,
-                                           height = 600,
-                                           className,
-                                       }: TextareaEditorProps) {
+    value = "",
+    onChange = () => { },
+    error = null,
+    height = 600,
+    className,
+}: TextareaEditorProps) {
     const editorRef = useRef<TinyMCEEditorInstance | null>(null);
     const [mounted, setMounted] = useState(false);
 

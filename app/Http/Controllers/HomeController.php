@@ -6,6 +6,7 @@ use App\Models\Mock;
 use App\Models\User\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class HomeController extends Controller
@@ -63,38 +64,41 @@ class HomeController extends Controller
                 ->orderBy('day_date', 'asc')
                 ->get();
 
-            $daily_attempts = \App\Models\Attempt::query()
+            // NOTE: DB::table() is used intentionally here instead of Attempt::query()
+            // to bypass the Attempt model's $with (attempt_types, test, user, mock)
+            // which can interfere with COUNT(*) aggregations and return inflated numbers.
+            $daily_attempts = DB::table('attempts')
                 ->selectRaw('DATE(finished_at) as day_date, count(*) as items_count, count(distinct user_id) as unique_users_count')
                 ->whereNotNull('finished_at')
                 ->whereDate('finished_at', '>=', $startDate)
-                ->groupBy('day_date')
+                ->groupByRaw('DATE(finished_at)')
                 ->havingRaw('count(*) > 0')
                 ->orderBy('day_date', 'asc')
                 ->get();
 
-            $hourly_attempts = \App\Models\Attempt::query()
+            $hourly_attempts = DB::table('attempts')
                 ->selectRaw('HOUR(finished_at) as hour, count(*) as items_count')
                 ->whereNotNull('finished_at')
-                ->groupBy('hour')
+                ->groupByRaw('HOUR(finished_at)')
                 ->havingRaw('count(*) > 0')
-                ->orderBy('hour', 'asc')
+                ->orderByRaw('HOUR(finished_at) asc')
                 ->get();
 
-            $today_hourly_attempts = \App\Models\Attempt::query()
+            $today_hourly_attempts = DB::table('attempts')
                 ->selectRaw('HOUR(finished_at) as hour, count(*) as items_count')
                 ->whereNotNull('finished_at')
                 ->whereDate('finished_at', now()->toDateString())
-                ->groupBy('hour')
+                ->groupByRaw('HOUR(finished_at)')
                 ->havingRaw('count(*) > 0')
-                ->orderBy('hour', 'asc')
+                ->orderByRaw('HOUR(finished_at) asc')
                 ->get();
 
-            $weekly_attempts = \App\Models\Attempt::query()
+            $weekly_attempts = DB::table('attempts')
                 ->selectRaw('(WEEKDAY(finished_at) + 1) as weekday, count(*) as items_count')
                 ->whereNotNull('finished_at')
-                ->groupBy('weekday')
+                ->groupByRaw('WEEKDAY(finished_at)')
                 ->havingRaw('count(*) > 0')
-                ->orderBy('weekday', 'asc')
+                ->orderByRaw('WEEKDAY(finished_at) asc')
                 ->get();
         }
 

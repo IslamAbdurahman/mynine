@@ -17,18 +17,24 @@ class HomeController extends Controller
             ->with([
                 'last_attempt.attempt_types',
                 'attempts' => function ($query) {
-                    $query->whereYear('finished_at', now()->year)
-                        ->whereMonth('finished_at', now()->month)
+                    // Filters to last 30 days finished attempts for the chart.
+                    // NOTE: 'attempts.attempt_types.type' is intentionally merged
+                    // here to avoid a conflict that would bypass this constraint.
+                    $query->whereNotNull('finished_at')
+                        ->where('finished_at', '>=', now()->subDays(30))
+                        ->with(['attempt_types.type'])
                         ->orderBy('finished_at', 'asc');
                 },
-                'attempts.attempt_types.type',
             ])
             ->withCount([
                 'attempts as attempts_count_this_month' => function ($query) {
-                    $query->whereYear('finished_at', now()->year)
+                    $query->whereNotNull('finished_at')
+                        ->whereYear('finished_at', now()->year)
                         ->whereMonth('finished_at', now()->month);
                 },
-                'attempts as total_attempts_count'
+                'attempts as total_attempts_count' => function ($query) {
+                    $query->whereNotNull('finished_at');
+                },
             ])
             ->find(Auth::id());
 

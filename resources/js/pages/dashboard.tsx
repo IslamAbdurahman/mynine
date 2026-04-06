@@ -243,15 +243,17 @@ export default function Dashboard() {
                 {isAdmin && (
                     <div className="grid gap-6 grid-cols-1 mt-6">
                         {/* Analytics Chart */}
+                        {(user.attempts?.length ?? 0) > 0 && (
                         <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
                             <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                                 <TrendingUp className="size-5 text-primary" />
-                                {t('performance_overview')}
+                                {t('performance_overview')} <span className="text-sm font-normal text-gray-400 ml-1">(so&apos;nggi 30 kun)</span>
                             </h3>
                             <div className="w-full">
                                 <AttemptsChart attempts={user.attempts || []} />
                             </div>
                         </div>
+                        )}
 
                         {/* Daily Stats */}
                         {(daily_users.length > 0 || daily_attempts.length > 0) && (

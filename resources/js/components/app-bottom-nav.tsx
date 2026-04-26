@@ -1,52 +1,60 @@
 import { router, usePage } from '@inertiajs/react';
-import { LayoutDashboard, ClipboardList, BarChart3, User } from 'lucide-react';
+import { BarChart3, ClipboardList, LayoutDashboard, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useTelegramHaptic } from '@/hooks/use-telegram';
 
 export function AppBottomNav() {
     const page = usePage();
     const { t } = useTranslation();
+    const haptic = useTelegramHaptic();
 
     const mainNavItems = [
         {
-            title: t('sidebar.dashboard'), // Asosiy
+            title: t('sidebar.dashboard'),
             href: '/dashboard',
-            icon: LayoutDashboard
+            icon: LayoutDashboard,
         },
         {
             title: t('sidebar.all_tests'),
             href: '/all-test',
-            icon: ClipboardList
+            icon: ClipboardList,
         },
         {
             title: t('sidebar.my_result'),
             href: '/attempt',
-            icon: BarChart3
+            icon: BarChart3,
         },
         {
-            title: t('sidebar.profile'), // Oylik
+            title: t('sidebar.profile'),
             href: '/settings/profile',
-            icon: User
-        }
+            icon: User,
+        },
     ];
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 shadow-lg z-50 md:hidden">
-            <div className="flex justify-around items-center py-2">
+        <div className="fixed right-4 left-4 bottom-[calc(1.2rem+env(safe-area-inset-bottom))] z-50 md:hidden">
+            <div className="flex p-1.5 items-center justify-around rounded-[2.5rem] border border-slate-200/80 bg-white/90 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-xl dark:border-white/15 dark:bg-slate-900/90 dark:shadow-[0_12px_48px_rgba(0,0,0,0.5)] gap-1">
                 {mainNavItems.map((item) => {
-                    const isActive = item.href === page.url;
+                    const isActive = page.url === item.href || (item.href !== '/dashboard' && page.url.startsWith(item.href));
 
                     return (
-                        <div key={item.title} className="flex-1">
-                            <button
-                                onClick={() => router.visit(item.href)}
-                                className={`flex flex-col items-center w-full ${isActive ? 'text-blue-500' : 'text-gray-800'} dark:${isActive ? 'text-blue-300' : 'text-white'}`}
-                            >
-                                <div className="mb-1">
-                                    {item.icon && <item.icon className="text-lg" />}
-                                </div>
-                                <span className="text-sm">{item.title}</span>
-                            </button>
-                        </div>
+                        <button
+                            key={item.href}
+                            onClick={() => {
+                                haptic.light();
+                                router.visit(item.href);
+                            }}
+                            className={`flex flex-1 flex-col items-center justify-center transition-all duration-300 py-2 px-1 rounded-[1.8rem] ${
+                                isActive 
+                                    ? 'bg-primary text-white shadow-lg shadow-primary/30' 
+                                    : 'text-slate-400 hover:text-slate-500 dark:hover:text-slate-300'
+                            }`}
+                        >
+                            <item.icon size={isActive ? 20 : 22} strokeWidth={isActive ? 2.5 : 2} />
+                            <span className={`text-[9px] font-black mt-1 tracking-tight leading-none uppercase ${isActive ? 'text-white' : 'text-slate-400'}`}>
+                                {item.title}
+                            </span>
+                        </button>
                     );
                 })}
             </div>

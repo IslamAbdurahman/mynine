@@ -12,6 +12,7 @@ import { createRoot } from 'react-dom/client';
 import { initializeTheme } from './hooks/use-appearance';
 import { Toaster } from 'sonner';
 import { initTelegramWebApp } from './hooks/use-telegram';
+import { TelegramThemeProvider } from './components/telegram-theme-provider';
 
 initTelegramWebApp();
 
@@ -24,10 +25,10 @@ createInertiaApp({
         const root = createRoot(el);
 
         root.render(
-            <>
+            <TelegramThemeProvider>
                 <App {...props} />
                 <Toaster richColors position="bottom-right" />
-            </>
+            </TelegramThemeProvider>
         );
     },
     progress: {

@@ -21,7 +21,11 @@ export default function SplashScreen() {
                             ease: 'easeInOut',
                         }}
                     >
-                        <img src="/images/logo/logo.png" alt="Logo" className="h-28 w-28 object-contain drop-shadow-2xl" />
+                        <img
+                            src="/images/logo/logo.png"
+                            alt="Logo"
+                            className="h-28 w-28 rounded-3xl object-contain drop-shadow-2xl"
+                        />
                     </motion.div>
                     
                     {/* Subtle glow effect behind logo */}

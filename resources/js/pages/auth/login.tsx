@@ -6,7 +6,8 @@ import { Label } from '@/components/ui/label';
 import AuthLayout from '@/layouts/auth-layout';
 import LoginCard from '@/components/auth/login-card';
 import {  User } from '@/types';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import SplashScreen from '@/components/splash-screen';
 
 interface LoginProps {
     status?: string;
@@ -17,6 +18,10 @@ export default function Login({ status, canResetPassword }: LoginProps) {
     const {  auth } = usePage<{
         auth: User
     }>().props;
+
+    const [isAutoLoggingIn, setIsAutoLoggingIn] = useState(() => {
+        return !!window.Telegram?.WebApp?.initDataUnsafe?.user && !auth?.user;
+    });
 
     const { t } = useTranslation();
 
@@ -29,6 +34,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
 
         // ✅ Prevent multiple login attempts if user already logged in
         if (!auth?.user && user) {
+            setIsAutoLoggingIn(true);
             fetch('/webapp-login', {
                 method: 'POST',
                 headers: {
@@ -41,11 +47,22 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                 .then(data => {
                     if (data.success && data.redirect) {
                         router.visit(data.redirect);
+                    } else {
+                        setIsAutoLoggingIn(false);
                     }
                 })
-                .catch(err => console.error('Telegram WebApp login error:', err));
+                .catch(err => {
+                    console.error('Telegram WebApp login error:', err);
+                    setIsAutoLoggingIn(false);
+                });
+        } else {
+            setIsAutoLoggingIn(false);
         }
     }, [auth?.user]);
+
+    if (isAutoLoggingIn) {
+        return <SplashScreen />;
+    }
 
     return (
         <AuthLayout title={t('login.title')} description={t('login.description')}>

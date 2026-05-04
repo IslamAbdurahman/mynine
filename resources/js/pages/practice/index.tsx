@@ -87,7 +87,7 @@ export default function Practice() {
 
     const safeConfirm = (message: string, callback: () => void) => {
         const tg = window.Telegram?.WebApp;
-        if (tg && typeof tg.showConfirm === 'function') {
+        if (isTelegramWebApp() && tg && typeof tg.showConfirm === 'function') {
             tg.showConfirm(message, (ok: boolean) => {
                 if (ok) callback();
             });
@@ -98,7 +98,7 @@ export default function Practice() {
 
     const safeAlert = (message: string) => {
         const tg = window.Telegram?.WebApp;
-        if (tg && typeof tg.showAlert === 'function') {
+        if (isTelegramWebApp() && tg && typeof tg.showAlert === 'function') {
             tg.showAlert(message);
         } else {
             toast.error(message);

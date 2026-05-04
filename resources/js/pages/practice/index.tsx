@@ -162,6 +162,8 @@ export default function Practice() {
                 )}
 
                 <div className="flex flex-row items-center gap-6">
+                    <div className="absolute top-0 right-0 p-3 lg:right-24 flex flex-row items-center gap-4">
+                        
                     {testType && testType.type?.name?.toLowerCase() === 'listening' && !isTimeUp && (() => {
                         const finishedAtValue = resAttempt?.attempt_types.find(
                             (t) => t.type_id === selectedPart?.test_type?.type_id
@@ -177,7 +179,6 @@ export default function Practice() {
                         ) : null;
                     })()}
 
-                    <div className="absolute top-0 right-0 p-3 lg:right-24 flex flex-row items-center gap-4">
                         <span className="text-sm font-medium">{resAttempt.user?.name}</span>
                         <LanguageBar variant="dark" />
                     </div>

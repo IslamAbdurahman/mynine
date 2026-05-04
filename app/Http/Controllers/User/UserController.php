@@ -127,15 +127,45 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(User $user)
+    public function show($id)
     {
-
         if (!Auth::user()->hasRole('Admin')) {
             return back()->with('error', __("error.unauthorized_access"));
         }
 
+        $user = clone User::query()
+            ->with([
+                'last_attempt.attempt_types',
+                'attempts' => function ($query) {
+                    $query->whereNotNull('finished_at')
+                        ->where('finished_at', '>=', now()->subDays(30))
+                        ->with(['attempt_types.type'])
+                        ->orderBy('finished_at', 'asc');
+                },
+            ])
+            ->withCount([
+                'attempts as attempts_count_this_month' => function ($query) {
+                    $query->whereNotNull('finished_at')
+                        ->whereYear('finished_at', now()->year)
+                        ->whereMonth('finished_at', now()->month);
+                },
+                'attempts as total_attempts_count' => function ($query) {
+                    $query->whereNotNull('finished_at');
+                },
+            ])
+            ->findOrFail($id);
+
+        // Get recent 5 attempts
+        $recent_attempts = \App\Models\Attempt::with(['test', 'attempt_types'])
+            ->where('user_id', $user->id)
+            ->whereNotNull('finished_at')
+            ->orderBy('finished_at', 'desc')
+            ->limit(5)
+            ->get();
+
         return Inertia::render('user/show', [
             'user' => $user,
+            'recent_attempts' => $recent_attempts,
         ]);
     }
 

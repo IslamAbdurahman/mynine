@@ -2,42 +2,238 @@ import AppLayout from '@/layouts/app-layout';
 import { Head, usePage, Link } from '@inertiajs/react';
 import {
     type BreadcrumbItem,
-    type User
+    type User,
+    type Attempt
 } from '@/types';
 import { useTranslation } from 'react-i18next';
-
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import AttemptsChart from '@/components/dashboard/AttemptsChart';
+import {
+    Trophy,
+    Target,
+    TrendingUp,
+    ArrowRight,
+    Clock,
+    CheckCircle2,
+    LayoutDashboard,
+    History
+} from 'lucide-react';
 
 export default function UserShow() {
-    const { user } = usePage<{
-        user: User,
+    const { user, recent_attempts = [] } = usePage<{
+        user: User & { total_attempts_count: number, attempts_count_this_month: number },
+        recent_attempts: Attempt[]
     }>().props;
     const { t } = useTranslation();  // Using the translation hook
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: `${t('user')} ( ${user.name} )`,
-            href: '/dashboard'
+            href: '/user'
         }
     ];
+
+    // Calculate averages if available
+    const calculateAverage = (typeName: string) => {
+        const attempts = user.attempts?.filter(a => a.finished_at) || [];
+        if (attempts.length === 0) return 0;
+
+        let total = 0;
+        let count = 0;
+
+        attempts.forEach(a => {
+            const type = a.attempt_types?.find(at => at.type?.name === typeName);
+            if (type) {
+                total += Number(type.is_correct_count || 0);
+                count++;
+            }
+        });
+
+        return count > 0 ? (total / count).toFixed(1) : 0;
+    };
+
+    const readingAvg = calculateAverage('Reading');
+    const listeningAvg = calculateAverage('Listening');
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`User ${user.name}`} />
-            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                {/* Search and Per-Page Selection */}
-                <div className="flex flex-col md:flex-row justify-between">
-                    <div className={'mb-4'}>
-                        <Link href={`/user`} className={'underline'}>
-                            {t('user')} /
+            <div className="flex h-full flex-1 flex-col gap-6 p-6 lg:p-8 max-w-7xl mx-auto w-full animate-in fade-in duration-500">
+                {/* Header Section with Welcome */}
+                <div className="relative overflow-hidden rounded-3xl bg-primary/5 p-8 border border-primary/10 backdrop-blur-sm">
+                    <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div>
+                            <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+                                {user.name}
+                            </h1>
+                            <p className="mt-2 text-gray-600 dark:text-gray-400 max-w-md">
+                                {user.email} | {user.phone}
+                            </p>
+                        </div>
+                        <Link
+                            href="/user"
+                            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-semibold shadow-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                        >
+                            {t('back')}
                         </Link>
-                        {user?.name}
                     </div>
+
+                    {/* Decorative Elements */}
+                    <div className="absolute -right-10 -top-10 size-40 bg-primary/10 rounded-full blur-3xl" />
+                    <div className="absolute -left-10 -bottom-10 size-40 bg-blue-500/10 rounded-full blur-3xl" />
                 </div>
 
-                {/* Table */}
-                <div className="overflow-x-auto">
+                {/* Main Stats Grid */}
+                <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                    {/* Total Attempts */}
+                    <Card className="border-none shadow-sm rounded-3xl overflow-hidden hover:shadow-md transition-shadow">
+                        <CardContent className="p-6">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 rounded-2xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                                    <Trophy className="size-6" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{t('total_tests')}</p>
+                                    <h3 className="text-2xl font-bold">{user.total_attempts_count || 0}</h3>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
 
+                    {/* Monthly Progress */}
+                    <Card className="border-none shadow-sm rounded-3xl overflow-hidden hover:shadow-md transition-shadow">
+                        <CardContent className="p-6">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 rounded-2xl bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400">
+                                    <TrendingUp className="size-6" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{t('totalAttempts')}</p>
+                                    <h3 className="text-2xl font-bold">{user.attempts_count_this_month || 0}</h3>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Reading Avg */}
+                    <Card className="border-none shadow-sm rounded-3xl overflow-hidden hover:shadow-md transition-shadow">
+                        <CardContent className="p-6">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 rounded-2xl bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                                    <Target className="size-6" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Reading Avg</p>
+                                    <h3 className="text-2xl font-bold">{readingAvg}</h3>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Listening Avg */}
+                    <Card className="border-none shadow-sm rounded-3xl overflow-hidden hover:shadow-md transition-shadow">
+                        <CardContent className="p-6">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                                    <Target className="size-6" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Listening Avg</p>
+                                    <h3 className="text-2xl font-bold">{listeningAvg}</h3>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
+
+                {/* Recent Activity */}
+                <div className="mb-6">
+                    <Card className="border-none shadow-sm rounded-3xl overflow-hidden">
+                        <CardHeader className="flex flex-row items-center justify-between border-b border-gray-100 dark:border-neutral-800 pb-4">
+                            <CardTitle className="text-lg font-bold flex items-center gap-2">
+                                <History className="size-5 text-primary" />
+                                {t('recent_activity')}
+                            </CardTitle>
+                            <Link
+                                href={`/attempt?user_id=${user.id}`}
+                                className="text-sm font-medium text-primary hover:underline flex items-center gap-1"
+                            >
+                                {t('view_all')}
+                                <ArrowRight className="size-3.5" />
+                            </Link>
+                        </CardHeader>
+                        <CardContent className="p-0">
+                            <div className="divide-y divide-gray-100 dark:divide-neutral-800">
+                                {recent_attempts.length > 0 ? (
+                                    recent_attempts.map((attempt) => (
+                                        <Link
+                                            key={attempt.id}
+                                            href={`/attempt/${attempt.id}`}
+                                            className="flex items-center justify-between p-5 hover:bg-gray-50 dark:hover:bg-neutral-800/50 transition-colors group"
+                                        >
+                                            <div className="flex items-center gap-4">
+                                                <div className="p-2.5 rounded-xl bg-gray-100 dark:bg-neutral-800 text-gray-500 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                                                    <Clock className="size-5" />
+                                                </div>
+                                                <div>
+                                                    <p className="font-semibold text-gray-900 dark:text-white line-clamp-1">
+                                                        {attempt.test?.name || attempt.name}
+                                                    </p>
+                                                    <p className="text-xs text-gray-500 mt-0.5">
+                                                        {new Date(attempt.finished_at!).toLocaleDateString(undefined, {
+                                                            month: 'short',
+                                                            day: 'numeric',
+                                                            hour: '2-digit',
+                                                            minute: '2-digit'
+                                                        })}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <div className="flex flex-col items-end">
+                                                    <span className="text-xs font-medium text-gray-400 capitalize">
+                                                        {attempt.status || 'Finished'}
+                                                    </span>
+                                                    <div className="flex items-center gap-1 text-green-600 dark:text-green-400 font-bold">
+                                                        <CheckCircle2 className="size-3" />
+                                                        <span>
+                                                            {attempt.attempt_types?.reduce((sum, t) => sum + (t.is_correct_count || 0), 0)} pts
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <ArrowRight className="size-4 text-gray-300 group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                                            </div>
+                                        </Link>
+                                    ))
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center p-12 text-center">
+                                        <div className="p-4 rounded-full bg-gray-50 dark:bg-neutral-800 mb-4">
+                                            <LayoutDashboard className="size-8 text-gray-300" />
+                                        </div>
+                                        <p className="text-gray-500 font-medium">{t('no_recent_activity')}</p>
+                                    </div>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Charts Section */}
+                <div className="grid gap-6 grid-cols-1 mt-6">
+                    {/* Analytics Chart */}
+                    {(user.attempts?.length ?? 0) > 0 && (
+                        <div className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
+                            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                                <TrendingUp className="size-5 text-primary" />
+                                {t('performance_overview')} <span className="text-sm font-normal text-gray-400 ml-1">(so&apos;nggi 30 kun)</span>
+                            </h3>
+                            <div className="w-full">
+                                <AttemptsChart attempts={user.attempts || []} />
+                            </div>
+                        </div>
+                    )}
+                </div>
+
             </div>
         </AppLayout>
     );

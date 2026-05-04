@@ -96,6 +96,15 @@ export default function Practice() {
         }
     };
 
+    const safeAlert = (message: string) => {
+        const tg = window.Telegram?.WebApp;
+        if (isTelegramWebApp() && tg && typeof tg.showAlert === 'function') {
+            tg.showAlert(message);
+        } else {
+            toast.error(message);
+        }
+    };
+
     const handleSubmitTestType = () => {
         if (!testType) return;
         
@@ -104,20 +113,28 @@ export default function Practice() {
                 attempt_id: attempt.id,
                 type_id: testType.type_id
             }))
-                .then((res) => res.json())
-                .then((res) => {
-                    if (res.success) {
-                        setTestType(null);
-                        setSelectedPart(null);
-                        // Refresh attempt data
-                        fetch(route('practice-attempt', attempt.id))
-                            .then((res) => res.json())
-                            .then((res) => {
-                                setResAttempt(res.data ?? res);
-                            });
+                .then(async (response) => {
+                    const res = await response.json();
+                    if (!response.ok || !res.success) {
+                        throw new Error(res.message || t('error_occurred') || 'Submission failed');
                     }
+                    return res;
                 })
-                .catch((err) => console.error('handleSubmitTestType error:', err));
+                .then((res) => {
+                    toast.success(t('success_submit') ?? 'Submitted successfully');
+                    setTestType(null);
+                    setSelectedPart(null);
+                    // Refresh attempt data
+                    fetch(route('practice-attempt', attempt.id))
+                        .then((res) => res.json())
+                        .then((res) => {
+                            setResAttempt(res.data ?? res);
+                        });
+                })
+                .catch((err) => {
+                    console.error('handleSubmitTestType error:', err);
+                    safeAlert(err.message || 'Error finishing test type');
+                });
         });
     };
 

@@ -48,7 +48,10 @@ export function initializeTheme() {
 }
 
 export function useAppearance() {
-    const [appearance, setAppearance] = useState<Appearance>('system');
+    const [appearance, setAppearance] = useState<Appearance>(() => {
+        if (typeof window === 'undefined') return 'system';
+        return (localStorage.getItem('appearance') as Appearance) || 'system';
+    });
 
     const updateAppearance = useCallback((mode: Appearance) => {
         setAppearance(mode);

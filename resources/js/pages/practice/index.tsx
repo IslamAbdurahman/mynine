@@ -23,6 +23,7 @@ export default function Practice() {
     const [isDisabled, setIsDisabled] = useState<boolean>(false);
     const [isTimeUp, setIsTimeUp] = useState<boolean>(false);
     const [flaggedIds, setFlaggedIds] = useState<Set<number>>(new Set());
+    const [serverTimeOffset, setServerTimeOffset] = useState<number>(0);
 
     const toggleFlag = (id: number) => {
         setFlaggedIds((prev) => {
@@ -39,8 +40,7 @@ export default function Practice() {
         const finishedAt = resAttempt?.attempt_types.find((t) => t.type_id === testType?.type_id)?.finished_at ?? null;
 
         // Timer check
-
-        const isTimeUp = finishedAt ? new Date(finishedAt).getTime() <= Date.now() : false;
+        const isTimeUp = finishedAt ? new Date(finishedAt).getTime() <= (Date.now() + serverTimeOffset) : false;
         setIsTimeUp(isTimeUp);
 
         // Disable all buttons if a Listening part is selected and time is not up
@@ -58,6 +58,9 @@ export default function Practice() {
         }))
             .then((res) => res.json())
             .then((res) => {
+                if (res.server_time) {
+                    setServerTimeOffset(new Date(res.server_time).getTime() - Date.now());
+                }
                 const data = res.data ?? res;
                 setTestType(data);
 
@@ -78,6 +81,9 @@ export default function Practice() {
         }))
             .then((res) => res.json())
             .then((res) => {
+                if (res.server_time) {
+                    setServerTimeOffset(new Date(res.server_time).getTime() - Date.now());
+                }
                 setSelectedPart(res.data ?? res);
             })
             .catch((err) => console.error('handlePart error:', err));
@@ -99,6 +105,9 @@ export default function Practice() {
                         fetch(route('practice-attempt', attempt.id))
                             .then((res) => res.json())
                             .then((res) => {
+                                if (res.server_time) {
+                                    setServerTimeOffset(new Date(res.server_time).getTime() - Date.now());
+                                }
                                 setResAttempt(res.data ?? res);
                             });
                     }
@@ -111,6 +120,9 @@ export default function Practice() {
         fetch(route('practice-attempt', attempt.id))
             .then((res) => res.json())
             .then((res) => {
+                if (res.server_time) {
+                    setServerTimeOffset(new Date(res.server_time).getTime() - Date.now());
+                }
                 setResAttempt(res.data ?? res);
             })
             .catch((err) => console.error('fetch attempt error:', err));
@@ -150,6 +162,7 @@ export default function Practice() {
                                 finishedAt={resAttempt.attempt_types.find(
                                     (t) => t.type_id === (selectedPart?.test_type?.type_id ?? testType.type_id)
                                 )?.finished_at ?? null}
+                                serverTimeOffset={serverTimeOffset}
                                 onExpire={() => {
                                     console.log('⏰ Time is up! Returning to menu...');
                                     setIsTimeUp(true);
@@ -170,7 +183,7 @@ export default function Practice() {
                         )?.finished_at ?? null;
                         if (!finishedAtValue) return null;
                         const finishedAtDate = new Date(finishedAtValue);
-                        return finishedAtDate.getTime() > Date.now() && testType?.test?.audio_path ? (
+                        return finishedAtDate.getTime() > (Date.now() + serverTimeOffset) && testType?.test?.audio_path ? (
                             <AudioEqualizer
                                 src={`/${testType?.test?.audio_path}`}
                                 autoPlay
@@ -207,13 +220,13 @@ export default function Practice() {
                             {(() => {
                                 const activeTypeId = resAttempt.test?.types?.find(item => {
                                     const at = resAttempt?.attempt_types?.find(a => a.type_id === item.type_id);
-                                    return at && (!at.finished_at || new Date(at.finished_at).getTime() > Date.now());
+                                    return at && (!at.finished_at || new Date(at.finished_at).getTime() > (Date.now() + serverTimeOffset));
                                 })?.type_id;
 
                                 return resAttempt.test?.types?.map((item) => {
                                     const at = resAttempt?.attempt_types?.find(a => a.type_id === item.type_id);
                                     const finishedAt = at?.finished_at;
-                                    const isExpired = finishedAt ? new Date(finishedAt).getTime() <= Date.now() : false;
+                                    const isExpired = finishedAt ? new Date(finishedAt).getTime() <= (Date.now() + serverTimeOffset) : false;
                                     const isLocked = !!(activeTypeId && activeTypeId !== item.type_id && !isExpired);
 
                                     return (
@@ -247,7 +260,7 @@ export default function Practice() {
                         {(() => {
                             const allFinished = resAttempt.test?.types?.every(item => {
                                 const at = resAttempt?.attempt_types?.find(a => a.type_id === item.type_id);
-                                return at?.finished_at ? new Date(at.finished_at).getTime() <= Date.now() : false;
+                                return at?.finished_at ? new Date(at.finished_at).getTime() <= (Date.now() + serverTimeOffset) : false;
                             });
 
                             if (allFinished) {

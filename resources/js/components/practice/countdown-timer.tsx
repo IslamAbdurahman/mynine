@@ -3,9 +3,11 @@ import { useEffect, useState } from "react";
 export function CountdownTimer({
                                    finishedAt,
                                    onExpire,
+                                   serverTimeOffset = 0,
                                }: {
     finishedAt: string | null;
     onExpire?: () => void;
+    serverTimeOffset?: number;
 }) {
     const [timeLeft, setTimeLeft] = useState<string>("");
 
@@ -15,7 +17,7 @@ export function CountdownTimer({
         const target = new Date(finishedAt).getTime();
 
         const updateTimeLeft = () => {
-            const now = new Date().getTime();
+            const now = Date.now() + serverTimeOffset;
             const diff = target - now;
 
             if (diff <= 0) {

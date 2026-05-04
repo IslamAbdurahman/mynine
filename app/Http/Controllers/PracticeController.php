@@ -157,7 +157,8 @@ class PracticeController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Test type submitted successfully.',
-                'data' => $attempt_type
+                'data' => $attempt_type,
+                'server_time' => now()->toIso8601String(),
             ]);
 
         } catch (\Exception $e) {
@@ -198,6 +199,7 @@ class PracticeController extends Controller
                 'data' => $attempt,
                 'success' => true,
                 'message' => 'Attempt retrieved successfully',
+                'server_time' => now()->toIso8601String(),
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -225,6 +227,7 @@ class PracticeController extends Controller
                 'data' => $test_type,
                 'success' => true,
                 'message' => 'Attempt retrieved successfully',
+                'server_time' => now()->toIso8601String(),
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -306,6 +309,7 @@ class PracticeController extends Controller
                 'data' => $part,
                 'success' => true,
                 'message' => 'Attempt retrieved successfully',
+                'server_time' => now()->toIso8601String(),
             ]);
         } catch (\Exception $e) {
             return response()->json([

@@ -24,6 +24,7 @@ export default function Practice() {
     const [isTimeUp, setIsTimeUp] = useState<boolean>(false);
     const [flaggedIds, setFlaggedIds] = useState<Set<number>>(new Set());
     const [serverTimeOffset, setServerTimeOffset] = useState<number>(0);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const toggleFlag = (id: number) => {
         setFlaggedIds((prev) => {
@@ -52,6 +53,7 @@ export default function Practice() {
     };
 
     const handleTestType = (test_type_id: number, autoStart: boolean = false) => {
+        setIsLoading(true);
         fetch(route('practice-test-type', {
             test_type_id,
             attempt_id: attempt.id
@@ -69,12 +71,17 @@ export default function Practice() {
                     handlePart(data.parts[0].id);
                 } else {
                     setSelectedPart(null);
+                    setIsLoading(false);
                 }
             })
-            .catch((err) => console.error('handleTestType error:', err));
+            .catch((err) => {
+                console.error('handleTestType error:', err);
+                setIsLoading(false);
+            });
     };
 
     const handlePart = (part_id: number) => {
+        setIsLoading(true);
         fetch(route('practice-part', {
             part_id,
             attempt_id: attempt.id
@@ -85,8 +92,12 @@ export default function Practice() {
                     setServerTimeOffset(new Date(res.server_time).getTime() - Date.now());
                 }
                 setSelectedPart(res.data ?? res);
+                setIsLoading(false);
             })
-            .catch((err) => console.error('handlePart error:', err));
+            .catch((err) => {
+                console.error('handlePart error:', err);
+                setIsLoading(false);
+            });
     };
 
     const handleSubmitTestType = () => {
@@ -129,10 +140,11 @@ export default function Practice() {
         getStatus();
     }, [attempt.id, selectedPart]);
 
-    if (!resAttempt) {
+    if (!resAttempt || (isLoading && !selectedPart && !testType)) {
         return (
-            <div className="flex justify-center items-center h-full">
-                <p>{t('loading')}</p>
+            <div className="flex flex-col justify-center items-center h-full bg-white dark:bg-gray-950">
+                <div className="w-12 h-12 border-4 border-black dark:border-white border-t-transparent rounded-full animate-spin mb-4"></div>
+                <p className="text-lg font-medium animate-pulse uppercase tracking-widest">{t('loading') ?? 'Loading...'}</p>
             </div>
         );
     }
@@ -352,7 +364,7 @@ export default function Practice() {
             )}
 
 
-            {testType && !selectedPart && (
+            {testType && !selectedPart && !isLoading && (
                 <div className="flex flex-col items-center justify-center h-full flex-1 w-full bg-[#e5e7eb] dark:bg-gray-900 px-4 overflow-y-auto">
                     <div className="bg-white dark:bg-gray-800 p-8 md:p-10 max-w-3xl w-full border border-gray-300 dark:border-gray-700 shadow-md text-gray-900 dark:text-gray-100">
                         <div className="border-b-2 border-gray-200 dark:border-gray-700 pb-4 mb-6">

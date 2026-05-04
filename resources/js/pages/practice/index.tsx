@@ -86,8 +86,9 @@ export default function Practice() {
     };
 
     const safeConfirm = (message: string, callback: () => void) => {
-        if (window.Telegram?.WebApp?.showConfirm) {
-            window.Telegram.WebApp.showConfirm(message, (ok: boolean) => {
+        const tg = window.Telegram?.WebApp;
+        if (tg && typeof tg.showConfirm === 'function') {
+            tg.showConfirm(message, (ok: boolean) => {
                 if (ok) callback();
             });
         } else if (confirm(message)) {
@@ -96,8 +97,9 @@ export default function Practice() {
     };
 
     const safeAlert = (message: string) => {
-        if (window.Telegram?.WebApp?.showAlert) {
-            window.Telegram.WebApp.showAlert(message);
+        const tg = window.Telegram?.WebApp;
+        if (tg && typeof tg.showAlert === 'function') {
+            tg.showAlert(message);
         } else {
             toast.error(message);
         }
@@ -276,13 +278,16 @@ export default function Practice() {
                             })()}
                         </div>
 
-                        {/* Complete Test Submission Button (Shown when all STARTED modules are done) */}
+                        {/* Complete Test Submission Button */}
                         {(() => {
-                            const anyStarted = resAttempt.attempt_types && resAttempt.attempt_types.length > 0;
-                            const allStartedFinished = resAttempt.attempt_types?.every(at => {
+                            const attemptTypes = resAttempt.attempt_types;
+                            const isArray = Array.isArray(attemptTypes);
+                            const anyStarted = isArray && attemptTypes.length > 0;
+                            
+                            // If anything is started, check if all started are finished
+                            const allStartedFinished = isArray && attemptTypes.every(at => {
                                 if (!at.finished_at) return false;
-                                // 2-second buffer for server-client clock sync
-                                return new Date(at.finished_at).getTime() <= (Date.now() + 2000);
+                                return new Date(at.finished_at).getTime() <= (Date.now() + 5000); // 5s buffer
                             });
 
                             if (anyStarted && allStartedFinished) {

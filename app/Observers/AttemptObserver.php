@@ -54,7 +54,7 @@ class AttemptObserver
         // Admin emas yoki test egasi ham emas bo'lsa -> taqiqlanadi
         if (
             !$authUser->hasRole('Admin') &&
-            $authUser->id !== $attempt->mock->user_id
+            $authUser->id !== $attempt->mock?->user_id
         ) {
             throw new \Exception('You are not allowed to access this page');
         }

@@ -16,8 +16,6 @@ export default function AppearanceToggleTab({
     const { appearance, updateAppearance } = useAppearance();
     const { t } = useTranslation();
 
-    console.log(props);
-
     const tabs: { value: Appearance; icon: LucideIcon; label: string }[] = [
         { value: 'light', icon: Sun, label: t('appearance_toggle.light') },  // Translation key
         { value: 'dark', icon: Moon, label: t('appearance_toggle.dark') },  // Translation key

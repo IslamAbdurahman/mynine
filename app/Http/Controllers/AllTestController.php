@@ -15,7 +15,7 @@ class AllTestController extends Controller
      */
     public function index(Request $request)
     {
-        $per_page = $request->per_page === 'all' ? 99999 : ($request->per_page ?? 10);
+        $per_page = $request->per_page === 'all' ? 100 : min((int)($request->per_page ?? 10), 100);
 
         $folder = Folder::with([
             'tests' => function ($query) {
@@ -24,6 +24,7 @@ class AllTestController extends Controller
                         $query->whereHas('parts');
                     }
                 ])
+                    ->withCount('attempts')
                     ->where('active', 1)
                     ->where('open', 1);
             }

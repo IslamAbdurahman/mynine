@@ -40,7 +40,8 @@ class HomeController extends Controller
             ->find(Auth::id());
 
         // Get recent 5 attempts
-        $recent_attempts = \App\Models\Attempt::where('user_id', Auth::id())
+        $recent_attempts = \App\Models\Attempt::with(['test', 'attempt_types'])
+            ->where('user_id', Auth::id())
             ->whereNotNull('finished_at')
             ->orderBy('finished_at', 'desc')
             ->limit(5)

@@ -32,8 +32,6 @@ export default function QuestionOption(
     const { delete: deleteFolder, reset, errors: deleteError, clearErrors } = useForm();
 
     const handleDelete = () => {
-        console.log(deleteError);  // Log to see if errors are populated
-
         deleteFolder(route('option.destroy', option.id), {
             preserveScroll: true,
             onSuccess: () => {

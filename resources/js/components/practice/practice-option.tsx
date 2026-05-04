@@ -23,7 +23,7 @@ export default function PracticeOption({
     const isChecked = selectedOptionIds.includes(option.id);
 
     return (
-        <label className={`flex items-start gap-3 cursor-pointer p-3 border rounded-md transition-colors ${isChecked ? 'bg-[#f4f8fc] dark:bg-blue-900 border-[#a0c4e8] dark:border-blue-700 shadow-sm' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'}`}>
+        <label className={`flex items-start gap-3 cursor-pointer p-3 border rounded-md transition-all duration-200 ${isChecked ? 'bg-primary/5 dark:bg-primary/10 border-primary/50 dark:border-primary/40 shadow-sm' : 'bg-white dark:bg-gray-800/50 border-border dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50'}`}>
             <input
                 className="mt-1 w-4 h-4 cursor-pointer accent-black focus:ring-black border-gray-400 dark:border-gray-500"
                 type={section.question_type.input_type}

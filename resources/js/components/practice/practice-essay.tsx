@@ -12,7 +12,7 @@ interface SectionUpdateProps {
 export default function PracticeEssay({ order, part, attempt }: SectionUpdateProps) {
     const { t } = useTranslation();
 
-    let section_order = order ?? 0;
+    const section_order = order ?? 0;
     return (
         <div>
 

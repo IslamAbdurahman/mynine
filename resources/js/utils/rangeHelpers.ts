@@ -16,8 +16,8 @@ export function buildRange(fromRaw?: string | null, toRaw?: string | null): stri
 
     // single letters
     if (/^[A-Za-z]$/.test(from) && /^[A-Za-z]$/.test(to)) {
-        let a = from.toUpperCase().charCodeAt(0);
-        let b = to.toUpperCase().charCodeAt(0);
+        const a = from.toUpperCase().charCodeAt(0);
+        const b = to.toUpperCase().charCodeAt(0);
         const step = a <= b ? 1 : -1;
         const arr: string[] = [];
         for (let code = a; step > 0 ? code <= b : code >= b; code += step) {

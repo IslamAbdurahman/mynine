@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\SroteUserRequest;
+use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -26,7 +26,7 @@ class UserController extends Controller
 
         $this->authorize('viewAny', User::class);
 
-        $per_page = $request->per_page === 'all' ? 99999 : ($request->per_page ?? 10);
+        $per_page = $request->per_page === 'all' ? 100 : min((int)($request->per_page ?? 10), 100);
 
         $user = User::with([
             'roles',
@@ -96,7 +96,7 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(SroteUserRequest $request)
+    public function store(StoreUserRequest $request)
     {
         $this->authorize('viewAny', User::class);
 

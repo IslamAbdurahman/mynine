@@ -38,8 +38,6 @@ const MockTable = ({ tests, searchData, ...mock }: MockTableProps) => {
     const { delete: deleteMock, reset, errors: deleteError, clearErrors } = useForm();
 
     const handleDelete = (id: number) => {
-        console.log(deleteError); // Log to see if errors are populated
-
         deleteMock(route('mock.destroy', id), {
             preserveScroll: true,
             onSuccess: () => {

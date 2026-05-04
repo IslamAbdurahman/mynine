@@ -18,10 +18,13 @@ class AttemptController extends Controller
      */
     public function index(Request $request)
     {
-        $per_page = $request->per_page === 'all' ? 99999 : ($request->per_page ?? 10);
+        $per_page = $request->per_page === 'all' ? 100 : min((int)($request->per_page ?? 10), 100);
 
         $data = Attempt::with([
-
+            'test',
+            'user',
+            'mock',
+            'attempt_types',
         ])->orderBy('id', 'desc');
 
         if (!Auth::user()->hasRole('Admin')) {
@@ -38,21 +41,15 @@ class AttemptController extends Controller
         }
 
         if ($request->user_id) {
-            $data->where(function ($query) use ($request) {
-                $query->where('user_id', $request->user_id);
-            });
+            $data->where('user_id', $request->user_id);
         }
 
         if ($request->mock_id) {
-            $data->where(function ($query) use ($request) {
-                $query->where('mock_id', $request->mock_id);
-            });
+            $data->where('mock_id', $request->mock_id);
         }
 
         if ($request->test_id) {
-            $data->where(function ($query) use ($request) {
-                $query->where('test_id', $request->test_id);
-            });
+            $data->where('test_id', $request->test_id);
         }
 
         if ($request->search) {
@@ -148,6 +145,7 @@ class AttemptController extends Controller
      */
     public function show(Attempt $attempt)
     {
+        $attempt->load(['test', 'user', 'mock', 'attempt_types']);
         // Append attempt_parts only for detail view
         $attempt->attempt_types->each(function ($attemptType) {
             $attemptType->append('attempt_parts');
@@ -173,9 +171,11 @@ class AttemptController extends Controller
 //        ]);
 
         $attempt = $attempt->load([
+            'test',
+            'user',
+            'mock',
             'attempt_types' => function ($query) {
                 $query->whereHas('type', function ($q) {
-//                    $q->whereNot('name', 'Speaking');
                 });
             }
         ]);
@@ -191,7 +191,7 @@ class AttemptController extends Controller
 //        return view('pdf.attempt', compact('attempt'));
 
         $options = [
-            'isPhpEnabled' => true,
+            'isPhpEnabled' => false,
             'isRemoteEnabled' => true,
             'isHtml5ParserEnabled' => true,
             'isFontSubsettingEnabled' => true,

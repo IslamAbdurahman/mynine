@@ -60,7 +60,7 @@ export default function Practice() {
             .then((res) => {
                 const data = res.data ?? res;
                 setTestType(data);
-                
+
                 // If autoStart is true and there are parts, automatically load the first part
                 if (autoStart && data.parts && data.parts.length > 0) {
                     handlePart(data.parts[0].id);
@@ -133,7 +133,7 @@ export default function Practice() {
             <Head title="IELTS Practice" />
 
             {/* Fixed (TOP) */}
-            <div className="flex-none h-14 bg-[#1a1a1a] dark:bg-black text-white flex justify-between items-center px-6 shadow-md z-50">
+            <div className="flex-none h-14 bg-black/80 backdrop-blur-md text-white flex justify-between items-center px-6 shadow-md z-50">
                 <div className="flex items-center gap-4">
                     <span className="text-xl font-bold italic tracking-wider text-white">IELTS</span>
                     {testType && (
@@ -176,9 +176,11 @@ export default function Practice() {
                             />
                         ) : null;
                     })()}
-                    
-                    <span className="text-sm font-medium mr-4">{resAttempt.user?.name}</span>
-                    <LanguageBar variant="dark" />
+
+                    <div className="absolute top-0 right-0 p-3 lg:right-24 flex flex-row items-center gap-4">
+                        <span className="text-sm font-medium">{resAttempt.user?.name}</span>
+                        <LanguageBar variant="dark" />
+                    </div>
                 </div>
             </div>
 
@@ -189,7 +191,7 @@ export default function Practice() {
                             <h1 className="text-3xl font-bold tracking-tight">{t('ielts_practice_test')}</h1>
                             <p className="text-gray-600 dark:text-gray-400 mt-2 text-md">{t('confirm_details')}</p>
                         </div>
-                        
+
                         <div className="mb-8 p-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded">
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-y-3">
                                 <span className="font-semibold text-gray-600 dark:text-gray-400 col-span-1">{t('candidate_name')}</span>
@@ -218,18 +220,17 @@ export default function Practice() {
                                             key={item.id}
                                             disabled={isExpired || isLocked}
                                             onClick={() => handleTestType(item.id, true)}
-                                            className={`flex justify-between items-center w-full p-4 border transition-colors text-left group ${
-                                                isExpired || isLocked
-                                                ? 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800 opacity-60 cursor-not-allowed' 
+                                            className={`flex justify-between items-center w-full p-4 border transition-colors text-left group ${isExpired || isLocked
+                                                ? 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800 opacity-60 cursor-not-allowed'
                                                 : 'border-gray-400 dark:border-gray-600 hover:border-black dark:hover:border-white bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
-                                            }`}
+                                                }`}
                                         >
                                             <div className="flex flex-col">
                                                 <span className="text-lg font-bold">{item.type?.name}</span>
                                                 {isExpired && <span className="text-[10px] text-red-500 font-bold uppercase tracking-widest mt-0.5">{t('test_finished')}</span>}
                                                 {isLocked && <span className="text-[10px] text-orange-500 font-bold uppercase tracking-widest mt-0.5">{t('locked_active_test')}</span>}
                                             </div>
-                                            
+
                                             {!(isExpired || isLocked) && (
                                                 <span className="px-6 py-2 bg-black dark:bg-gray-700 group-hover:bg-gray-800 dark:group-hover:bg-gray-600 text-white font-semibold rounded-[2px] transition-colors uppercase tracking-wide text-sm flex items-center gap-2 pointer-events-none">
                                                     {at ? (t('continue') ?? 'Davom etish') : (t('start') ?? 'Start')} <span>➔</span>
@@ -274,11 +275,10 @@ export default function Practice() {
             {selectedPart && (
                 <div className="flex-1 overflow-hidden">
                     <div
-                        className={`h-full flex flex-col sm:flex-row bg-white dark:bg-gray-900 ${
-                            selectedPart.test_type.type.name === 'Listening'
-                                ? 'justify-center items-start'
-                                : ''
-                        }`}
+                        className={`h-full flex flex-col sm:flex-row bg-white dark:bg-gray-900 ${selectedPart.test_type.type.name === 'Listening'
+                            ? 'justify-center items-start'
+                            : ''
+                            }`}
                     >
                         {/* Left side scroll */}
                         {selectedPart.test_type.type.name !== 'Listening' && (
@@ -345,7 +345,7 @@ export default function Practice() {
                             <h1 className="text-3xl font-bold tracking-tight">{testType.type?.name}</h1>
                             <p className="text-gray-600 dark:text-gray-400 mt-2 text-md">Please ensure your sound is working (if applicable) and select a component.</p>
                         </div>
-                        
+
                         <h2 className="text-xl font-bold mb-4">{t('select_part') ?? 'Select a Part'}</h2>
                         <div className="flex flex-col gap-3">
                             {testType.parts?.map((item) => (
@@ -367,8 +367,8 @@ export default function Practice() {
 
 
             {/* Fixed (BOTTOM) */}
-            <div className="flex-none bg-[#e5e7eb] dark:bg-gray-950 border-t-2 border-gray-300 dark:border-gray-800 px-4 py-2 flex flex-col sm:flex-row justify-between items-center h-auto sm:h-20 shrink-0 z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] text-gray-900 dark:text-gray-100">
-                
+            <div className="flex-none bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-t-2 border-gray-300 dark:border-gray-800 px-4 py-2 flex flex-col sm:flex-row justify-between items-center h-auto sm:h-20 shrink-0 z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] text-gray-900 dark:text-gray-100">
+
                 <div className="flex-1 flex overflow-x-auto pb-2 sm:pb-0 items-center hide-scrollbar">
                     <PracticeNumberBar
                         part={selectedPart as Part}
@@ -384,11 +384,11 @@ export default function Practice() {
                                 className="bg-black dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded transition-colors flex items-center gap-1 uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
                                 disabled={!testType || !selectedPart || (testType.parts?.findIndex(p => p.id === selectedPart.id) ?? -1) <= 0}
                                 onClick={() => {
-                                     if (!testType || !selectedPart) return;
-                                     const currentIndex = testType.parts?.findIndex(p => p.id === selectedPart.id) ?? -1;
-                                     if (currentIndex > 0 && testType.parts) {
-                                          handlePart(testType.parts[currentIndex - 1].id);
-                                     }
+                                    if (!testType || !selectedPart) return;
+                                    const currentIndex = testType.parts?.findIndex(p => p.id === selectedPart.id) ?? -1;
+                                    if (currentIndex > 0 && testType.parts) {
+                                        handlePart(testType.parts[currentIndex - 1].id);
+                                    }
                                 }}
                             >
                                 ⬅ {t('prev') ?? 'Prev'}
@@ -399,11 +399,11 @@ export default function Practice() {
                                 className="bg-black dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded transition-colors flex items-center gap-1 uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
                                 disabled={!testType || !selectedPart || (testType.parts?.findIndex(p => p.id === selectedPart.id) ?? -1) >= (testType.parts?.length ?? 0) - 1}
                                 onClick={() => {
-                                     if (!testType || !selectedPart) return;
-                                     const currentIndex = testType.parts?.findIndex(p => p.id === selectedPart.id) ?? -1;
-                                     if (currentIndex !== -1 && testType.parts && currentIndex < testType.parts.length - 1) {
-                                          handlePart(testType.parts[currentIndex + 1].id);
-                                     }
+                                    if (!testType || !selectedPart) return;
+                                    const currentIndex = testType.parts?.findIndex(p => p.id === selectedPart.id) ?? -1;
+                                    if (currentIndex !== -1 && testType.parts && currentIndex < testType.parts.length - 1) {
+                                        handlePart(testType.parts[currentIndex + 1].id);
+                                    }
                                 }}
                             >
                                 {t('next') ?? 'Next'} ➔
@@ -421,7 +421,7 @@ export default function Practice() {
                     )}
                 </div>
             </div>
-            
+
         </div>
     );
 }

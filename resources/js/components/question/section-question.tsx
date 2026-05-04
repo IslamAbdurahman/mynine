@@ -37,8 +37,6 @@ export default function SectionQuestion(
     const { delete: deleteFolder, reset, errors: deleteError, clearErrors } = useForm();
 
     const handleDelete = () => {
-        console.log(deleteError);  // Log to see if errors are populated
-
         deleteFolder(route('question.destroy', question.id), {
             preserveScroll: true,
             onSuccess: () => {

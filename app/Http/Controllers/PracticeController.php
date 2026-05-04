@@ -29,7 +29,7 @@ class PracticeController extends Controller
         ]);
 
         try {
-            $attempt = Attempt::find($request->attempt_id);
+            $attempt = Attempt::with(['user', 'test.types', 'attempt_types'])->find($request->attempt_id);
 
             if (!$attempt) {
                 return back()->with('error', __('error.attempt_not_found'));
@@ -182,6 +182,8 @@ class PracticeController extends Controller
         try {
 
             $attempt = Attempt::with([
+                'user',
+                'attempt_types',
                 'test' => function ($query) {
                     $query->with([
                         'types' => function ($query) {
@@ -244,7 +246,8 @@ class PracticeController extends Controller
             DB::beginTransaction();
 
             $part = Part::with([
-                'test_type'
+                'test_type.test',
+                'test_type.type',
             ])->findOrFail($part_id);
 
 

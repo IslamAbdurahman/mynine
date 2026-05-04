@@ -2,7 +2,11 @@ import AppearanceTabs from '@/components/appearance-tabs';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-const LanguageBar = () => {
+interface LanguageBarProps {
+    variant?: 'light' | 'dark';
+}
+
+const LanguageBar = ({ variant }: LanguageBarProps) => {
     const { i18n, t } = useTranslation();
     const [open, setOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -24,11 +28,15 @@ const LanguageBar = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    const buttonClass = variant === 'dark'
+        ? "rounded border border-white/20 bg-white/10 px-3 py-1 text-sm shadow hover:bg-white/20 text-white backdrop-blur-sm transition-colors"
+        : "rounded border border-gray-300 bg-white px-3 py-1 text-sm shadow hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 transition-colors";
+
     return (
         <div className="relative flex justify-end" ref={dropdownRef}>
             <button
                 onClick={() => setOpen(!open)}
-                className="rounded border border-gray-300 bg-white px-3 py-1 text-sm shadow hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700"
+                className={buttonClass}
             >
                 🌐 {t('lang.title') ?? 'Language'}
             </button>
@@ -37,19 +45,19 @@ const LanguageBar = () => {
                 <div className="absolute right-0 z-50 mt-2 w-36 rounded border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
                     <button
                         onClick={() => changeLanguage('uz')}
-                        className="w-full px-4 py-2 text-left hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                        className="w-full px-4 py-2 text-left hover:bg-gray-100 text-gray-900 dark:text-white dark:hover:bg-gray-700"
                     >
                         🇺🇿 {t('lang.uz')}
                     </button>
                     <button
                         onClick={() => changeLanguage('en')}
-                        className="w-full px-4 py-2 text-left hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                        className="w-full px-4 py-2 text-left hover:bg-gray-100 text-gray-900 dark:text-white dark:hover:bg-gray-700"
                     >
                         🇬🇧 {t('lang.en')}
                     </button>
                     <button
                         onClick={() => changeLanguage('ru')}
-                        className="w-full px-4 py-2 text-left hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                        className="w-full px-4 py-2 text-left hover:bg-gray-100 text-gray-900 dark:text-white dark:hover:bg-gray-700"
                     >
                         🇷🇺 {t('lang.ru')}
                     </button>

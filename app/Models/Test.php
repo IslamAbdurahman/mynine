@@ -22,9 +22,7 @@ class Test extends Model
     ];
 
 
-    protected $with = [
-        'folder',
-    ];
+
 
 
     public function folder()
@@ -49,11 +47,6 @@ class Test extends Model
         return $this->hasMany(TestType::class, 'test_id');
     }
 
-    protected $appends = ['attempts_count'];
 
-    public function getAttemptsCountAttribute()
-    {
-        return $this->attempts()->count();
-    }
 
 }

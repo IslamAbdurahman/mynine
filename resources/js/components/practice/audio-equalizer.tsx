@@ -85,14 +85,10 @@ export default function AudioEqualizer({
             // Start offset = audio duration - remaining time
             const startOffset = Math.max(0, audio.duration - leftSeconds);
 
-            console.log(`Audio Duration: ${audio.duration}s`);
-            console.log(`Time left until endTime: ${leftSeconds}s`);
-            console.log(`Start offset: ${startOffset}s`);
-
             audio.currentTime = startOffset;
 
             if (autoPlay) {
-                audio.play().catch(() => console.log("Autoplay blocked"));
+                audio.play().catch(() => {});
             }
         };
 

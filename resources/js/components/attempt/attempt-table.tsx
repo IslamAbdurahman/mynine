@@ -35,8 +35,6 @@ const AttemptTable = ({ searchData, ...attempt }: AttemptTableProps) => {
     const { delete: deleteAttempt, reset, errors: deleteError, clearErrors } = useForm();
 
     const handleDelete = (id: number) => {
-        console.log(deleteError);  // Log to see if errors are populated
-
         deleteAttempt(route('attempt.destroy', id), {
             preserveScroll: true,
             onSuccess: () => {

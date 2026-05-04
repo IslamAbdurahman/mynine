@@ -40,8 +40,6 @@ const FolderTable = ({ searchData, ...folder }: FolderTableProps) => {
     const { delete: deleteFolder, reset, errors: deleteError, clearErrors } = useForm();
 
     const handleDelete = (id: number) => {
-        console.log(deleteError);  // Log to see if errors are populated
-
         deleteFolder(route('folder.destroy', id), {
             preserveScroll: true,
             onSuccess: () => {

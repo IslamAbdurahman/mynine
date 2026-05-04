@@ -25,7 +25,7 @@ class FolderController extends Controller
 
         $this->authorize('viewAny', Folder::class); // ✅ add this
 
-        $per_page = $request->per_page === 'all' ? 99999 : ($request->per_page ?? 10);
+        $per_page = $request->per_page === 'all' ? 100 : min((int)($request->per_page ?? 10), 100);
 
         $folder = Folder::with([
 
@@ -124,7 +124,7 @@ class FolderController extends Controller
                             'type'
                         ]);
                     }
-                ]);
+                ])->withCount('attempts');
             },
         ]);
         // Non-admin users must be part of the folder

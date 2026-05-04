@@ -37,8 +37,6 @@ const TestTable = ({ ...folder }: Folder) => {
     const { delete: deleteTest, reset, errors: deleteError, clearErrors } = useForm();
 
     const handleDelete = (id: number) => {
-        console.log(deleteError);  // Log to see if errors are populated
-
         deleteTest(route('test.destroy', id), {
             preserveScroll: true,
             onSuccess: () => {

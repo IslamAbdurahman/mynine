@@ -107,7 +107,7 @@ export default function AllTestCard({
                                     ? 'bg-blue-600 text-white shadow-lg'
                                     : !link.url
                                         ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed border border-transparent'
-                                        : 'bg-white dark:bg-gray-800 dark:text-gray-700 text-gray-600 border border-gray-100 dark:border-gray-700 hover:border-blue-500 hover:text-blue-600'
+                                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-100 dark:border-gray-700 hover:border-blue-500 hover:text-blue-600'
                             }`}
                             dangerouslySetInnerHTML={{ __html: link.label }}
                         />

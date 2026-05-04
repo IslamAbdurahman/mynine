@@ -33,8 +33,6 @@ export default function CreateQuestionModal(
     { section }: SectionUpdateProps
 ) {
 
-    console.log(section);
-
     const { t } = useTranslation();
     const [open, setOpen] = useState(false);
 

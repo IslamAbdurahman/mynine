@@ -63,7 +63,6 @@ export default function UpdateTestModal({ test, open, setOpen }: UpdateTestModal
                 toast.success(t('updated_successfully'));
             },
             onError: (err) => {
-                console.log(err);
                 nameInput.current?.focus();
                 // Display a friendly error message if available
                 const errorMessage = err?.error || t('create_failed'); // Use fallback error message

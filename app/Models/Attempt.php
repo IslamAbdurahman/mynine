@@ -24,12 +24,7 @@ class Attempt extends Model
         'status',
     ];
 
-    protected $with = [
-        'test',
-        'user',
-        'mock',
-        'attempt_types',
-    ];
+
 
     public function mock()
     {

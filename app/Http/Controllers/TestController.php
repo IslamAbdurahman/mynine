@@ -20,15 +20,11 @@ class TestController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->per_page) {
-            $per_page = $request->per_page;
-        } else {
-            $per_page = 10;
-        }
+        $per_page = $request->per_page === 'all' ? 100 : min((int)($request->per_page ?? 10), 100);
 
         $test = Test::with([
-
-        ]);
+            'folder',
+        ])->withCount('attempts');
 
         if ($request->search) {
             $test->where(function ($query) use ($request) {
@@ -84,29 +80,9 @@ class TestController extends Controller
             $data = $request->validated();
 
             if ($request->hasFile('audio_path')) {
-                $file = $request->file('audio_path');
-
-                // Fayl nomini olish va tozalash (bo‘sh joy va maxsus belgilarni '_' ga almashtirish)
-                $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                $originalName = preg_replace('/[^A-Za-z0-9_-]/', '_', $originalName);
-
-                // Fayl kengaytmasi
-                $extension = $file->getClientOriginalExtension();
-
-                // Yangi nom berish (masalan, vaqt + original nom)
-                $fileName = time() . '_' . $originalName . '.' . $extension;
-
-                // Faylni saqlash
-                $filePath = $file->storeAs('audio', $fileName, 'public');
-
-                // ✅ Array ichiga qo‘shib qo‘yish
-                $data['audio_path'] = 'storage/' . $filePath;
-
-                // 🔎 Audio uzunligini olish
-                $getID3 = new \getID3();
-                $fileInfo = $getID3->analyze(storage_path('app/public/' . $filePath));
-
-                $data['playtime_seconds'] = $fileInfo['playtime_seconds'] ?? null;
+                $audioData = $this->handleAudioUpload($request->file('audio_path'));
+                $data['audio_path'] = $audioData['path'];
+                $data['playtime_seconds'] = $audioData['playtime'];
             } else {
                 $data['audio_path'] = null;
             }
@@ -137,13 +113,12 @@ class TestController extends Controller
     public function show(Request $request, Test $test)
     {
         $test->load([
-            'tests',
+            'folder',
+            'types.type',
         ]);
         // Non-admin users must be part of the test
         if (!Auth::user()->hasRole('Admin')) {
-//            Auth::user()->user_tests()
-//                ->where('test_id', $test->id)
-//                ->firstOrFail(); // Throws if unauthorized
+            // Add authorization logic here if needed, e.g. checking folder ownership
         }
 
         return Inertia::render('test/show', [
@@ -169,40 +144,9 @@ class TestController extends Controller
             $data = $request->validated();
 
             if ($request->hasFile('audio_path')) {
-
-                $oldPath = str_replace('storage/', '', $test->audio_path);
-
-                $file = $request->file('audio_path');
-
-                // Fayl nomini olish va tozalash
-                $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                $originalName = preg_replace('/[^A-Za-z0-9_-]/', '_', $originalName); // bo‘sh joy va maxsus belgilarni olib tashlash
-
-                // Fayl kengaytmasi
-                $extension = $file->getClientOriginalExtension();
-
-                // Yangi nom berish (masalan, vaqt + original nom)
-                $fileName = time() . '_' . $originalName . '.' . $extension;
-
-                // Faylni saqlash
-                $filePath = $file->storeAs('audio', $fileName, 'public');
-
-                // ✅ Array ichiga qo‘shib qo‘yish
-                $data['audio_path'] = 'storage/' . $filePath;
-
-                // 🔎 Audio uzunligini olish
-                $getID3 = new \getID3();
-                $fileInfo = $getID3->analyze(storage_path('app/public/' . $filePath));
-
-                $data['playtime_seconds'] = $fileInfo['playtime_seconds'] ?? null;
-
-                // Eski faylni o‘chirish
-                if (!empty($test->audio_path)) {
-                    if (Storage::disk('public')->exists($oldPath)) {
-                        Storage::disk('public')->delete($oldPath);
-                    }
-                }
-
+                $audioData = $this->handleAudioUpload($request->file('audio_path'), $test->audio_path);
+                $data['audio_path'] = $audioData['path'];
+                $data['playtime_seconds'] = $audioData['playtime'];
             } else {
                 $data['audio_path'] = $test->audio_path;
             }
@@ -237,5 +181,38 @@ class TestController extends Controller
                 'error' => [$e->getMessage()],
             ]);
         }
+    }
+
+    /**
+     * Handle audio file upload and playtime analysis.
+     */
+    private function handleAudioUpload($file, $oldPath = null)
+    {
+        // Clean filename
+        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $originalName = preg_replace('/[^A-Za-z0-9_-]/', '_', $originalName);
+        $extension = $file->getClientOriginalExtension();
+        $fileName = time() . '_' . $originalName . '.' . $extension;
+
+        // Store file
+        $filePath = $file->storeAs('audio', $fileName, 'public');
+
+        // Analyze playtime
+        $getID3 = new \getID3();
+        $fileInfo = $getID3->analyze(storage_path('app/public/' . $filePath));
+        $playtime = $fileInfo['playtime_seconds'] ?? null;
+
+        // Delete old file if exists
+        if ($oldPath) {
+            $oldFilePath = str_replace('storage/', '', $oldPath);
+            if (Storage::disk('public')->exists($oldFilePath)) {
+                Storage::disk('public')->delete($oldFilePath);
+            }
+        }
+
+        return [
+            'path' => 'storage/' . $filePath,
+            'playtime' => $playtime,
+        ];
     }
 }

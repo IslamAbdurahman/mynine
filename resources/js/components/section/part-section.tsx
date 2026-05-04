@@ -50,8 +50,6 @@ export default function PartSection(
     const { delete: deleteFolder, reset, errors: deleteError, clearErrors } = useForm();
 
     const handleDelete = (id: number) => {
-        console.log(deleteError);  // Log to see if errors are populated
-
         deleteFolder(route('section.destroy', section.id), {
             preserveScroll: true,
             onSuccess: () => {

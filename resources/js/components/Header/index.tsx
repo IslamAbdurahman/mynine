@@ -56,7 +56,7 @@ const Header: React.FC = () => {
 
     return (
         <header
-            className={`fixed top-0 z-40 w-full bg-white transition-all duration-300 dark:bg-gray-900 ${sticky ? 'py-4 shadow-lg' : 'py-5 shadow-none'}`}
+            className={`fixed top-0 z-40 w-full transition-all duration-300 ${sticky ? 'bg-white/80 dark:bg-gray-950/80 backdrop-blur-md py-4 shadow-lg' : 'bg-transparent py-5 shadow-none'}`}
         >
             <div className="container mx-auto px-4 md:max-w-screen-md lg:max-w-screen-xl">
                 <div className="flex items-center justify-between">

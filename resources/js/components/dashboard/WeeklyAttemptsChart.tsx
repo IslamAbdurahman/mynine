@@ -1,16 +1,7 @@
 import React from 'react';
-import { Bar } from 'react-chartjs-2';
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title as TitlePlugin,
-    Tooltip,
-} from 'chart.js';
+import Chart from 'react-apexcharts';
 import { WeeklyStatItem } from '@/types';
-
-ChartJS.register(CategoryScale, LinearScale, BarElement, TitlePlugin, Tooltip);
+import { useAppearance } from '@/hooks/use-appearance';
 
 interface Props {
     title: string;
@@ -18,62 +9,74 @@ interface Props {
 }
 
 export default function WeeklyAttemptsChart({ title, data: chartData }: Props) {
-    // 1=Mon, 7=Sun
-    const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const { appearance } = useAppearance();
     
+    const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     const dataPoints = [1, 2, 3, 4, 5, 6, 7].map(dayRaw => {
         const item = chartData.find(d => Number(d.weekday) === dayRaw);
         return item ? Number(item.items_count) : 0;
     });
 
-    const data = {
-        labels: weekdays,
-        datasets: [
-            {
-                data: dataPoints,
-                backgroundColor: 'rgb(139, 92, 246)', // violet
-                borderRadius: 6
-            }
-        ]
-    };
+    const isDark = appearance === 'dark' || (appearance === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
-    const options = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: { display: false },
-            title: {
-                display: true,
-                text: title,
-                font: { size: 14, weight: 'bold' },
-                color: 'rgba(100, 116, 139, 1)', // slate-500
-                padding: { bottom: 16 }
-            },
-            tooltip: {
-                backgroundColor: '#1e293b',
-                padding: 12,
-                cornerRadius: 8,
-                titleFont: { size: 13 },
-                bodyFont: { size: 12 },
-                displayColors: false,
+    const options: ApexCharts.ApexOptions = {
+        chart: {
+            type: 'bar',
+            toolbar: { show: false },
+            zoom: { enabled: false },
+            fontFamily: 'inherit',
+            background: 'transparent',
+        },
+        theme: {
+            mode: isDark ? 'dark' : 'light'
+        },
+        title: {
+            text: title,
+            align: 'left',
+            style: {
+                fontSize: '14px',
+                fontWeight: 'bold',
+                color: isDark ? '#94a3b8' : '#64748b'
             }
         },
-        scales: {
-            x: {
-                grid: { display: false },
-                ticks: { font: { size: 12 } }
-            },
-            y: {
-                beginAtZero: true,
-                grid: { color: 'rgba(0, 0, 0, 0.05)' },
-                ticks: { font: { size: 11 }, precision: 0 }
+        plotOptions: {
+            bar: {
+                borderRadius: 6,
+                columnWidth: '50%',
             }
+        },
+        dataLabels: { enabled: false },
+        xaxis: {
+            categories: weekdays,
+            labels: {
+                style: { colors: '#94a3b8', fontSize: '12px' }
+            },
+            axisBorder: { show: false },
+            axisTicks: { show: false },
+        },
+        yaxis: {
+            labels: {
+                style: { colors: '#94a3b8', fontSize: '11px' }
+            }
+        },
+        grid: {
+            borderColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)',
+            strokeDashArray: 4,
+        },
+        colors: ['#8b5cf6'],
+        tooltip: {
+            theme: isDark ? 'dark' : 'light',
         }
     };
 
+    const series = [{
+        name: 'Attempts',
+        data: dataPoints
+    }];
+
     return (
-        <div className="w-full" style={{ height: '340px' }}>
-            <Bar data={data} options={options as any} />
+        <div className="w-full h-[340px]">
+            <Chart options={options} series={series} type="bar" height="100%" />
         </div>
     );
 }

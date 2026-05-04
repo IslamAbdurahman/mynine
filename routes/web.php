@@ -31,7 +31,7 @@ Route::get('fix-views', function () {
     }
 
     return 'Views, Cache, and Log permissions cleared and fixed successfully!';
-});
+})->middleware(['auth', 'role:Admin']);
 
 Route::get('sendmail', function () {
 
@@ -46,7 +46,7 @@ Route::get('sendmail', function () {
         dispatch(new SendResultEmailJob($attempt->user, $attempt));
     }
 
-});
+})->middleware(['auth', 'role:Admin']);
 
 Route::middleware(['auth', 'verified'])->group(function () {
 //    Route::get('dashboard', function () {

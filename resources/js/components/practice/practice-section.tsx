@@ -237,7 +237,7 @@ export default function PracticeSection({
             <span
                 ref={setNodeRef}
                 className={`inline-flex items-center gap-2 min-w-[120px] rounded-md border border-dashed px-2 py-1 text-sm mx-1 ${
-                    isOver ? 'bg-blue-100 border-blue-400' : 'border-gray-400'
+                    isOver ? 'bg-blue-100 dark:bg-blue-900/40 border-blue-400' : 'border-gray-400 dark:border-gray-600'
                 }`}
             >
                 <span className="text-blue-600 font-semibold">{number}.</span>

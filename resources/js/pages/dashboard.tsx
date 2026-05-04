@@ -80,7 +80,7 @@ export default function Dashboard() {
             <div className="flex flex-col gap-6 p-6 lg:p-8 max-w-7xl mx-auto w-full animate-in fade-in duration-500">
                 
                 {/* Header Section with Welcome */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-8 border border-primary/10">
+                <div className="relative overflow-hidden rounded-3xl bg-primary/5 p-8 border border-primary/10 backdrop-blur-sm">
                     <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <div>
                             <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
@@ -107,7 +107,7 @@ export default function Dashboard() {
                 {/* Main Stats Grid */}
                 <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                     {/* Total Attempts */}
-                    <Card className="border-none bg-white dark:bg-neutral-900 shadow-sm rounded-3xl overflow-hidden hover:shadow-md transition-shadow">
+                    <Card className="border-none shadow-sm rounded-3xl overflow-hidden hover:shadow-md transition-shadow">
                         <CardContent className="p-6">
                             <div className="flex items-center gap-4">
                                 <div className="p-3 rounded-2xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400">
@@ -122,7 +122,7 @@ export default function Dashboard() {
                     </Card>
 
                     {/* Monthly Progress */}
-                    <Card className="border-none bg-white dark:bg-neutral-900 shadow-sm rounded-3xl overflow-hidden hover:shadow-md transition-shadow">
+                    <Card className="border-none shadow-sm rounded-3xl overflow-hidden hover:shadow-md transition-shadow">
                         <CardContent className="p-6">
                             <div className="flex items-center gap-4">
                                 <div className="p-3 rounded-2xl bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400">
@@ -137,7 +137,7 @@ export default function Dashboard() {
                     </Card>
 
                     {/* Reading Avg */}
-                    <Card className="border-none bg-white dark:bg-neutral-900 shadow-sm rounded-3xl overflow-hidden hover:shadow-md transition-shadow">
+                    <Card className="border-none shadow-sm rounded-3xl overflow-hidden hover:shadow-md transition-shadow">
                         <CardContent className="p-6">
                             <div className="flex items-center gap-4">
                                 <div className="p-3 rounded-2xl bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400">
@@ -152,7 +152,7 @@ export default function Dashboard() {
                     </Card>
 
                     {/* Listening Avg */}
-                    <Card className="border-none bg-white dark:bg-neutral-900 shadow-sm rounded-3xl overflow-hidden hover:shadow-md transition-shadow">
+                    <Card className="border-none shadow-sm rounded-3xl overflow-hidden hover:shadow-md transition-shadow">
                         <CardContent className="p-6">
                             <div className="flex items-center gap-4">
                                 <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400">
@@ -169,7 +169,7 @@ export default function Dashboard() {
 
                 {/* Recent Activity */}
                 <div className="mb-6">
-                    <Card className="border-none bg-white dark:bg-neutral-900 shadow-sm rounded-3xl overflow-hidden">
+                    <Card className="border-none shadow-sm rounded-3xl overflow-hidden">
                         <CardHeader className="flex flex-row items-center justify-between border-b border-gray-100 dark:border-neutral-800 pb-4">
                             <CardTitle className="text-lg font-bold flex items-center gap-2">
                                 <History className="size-5 text-primary" />
@@ -244,7 +244,7 @@ export default function Dashboard() {
                     <div className="grid gap-6 grid-cols-1 mt-6">
                         {/* Analytics Chart */}
                         {(user.attempts?.length ?? 0) > 0 && (
-                        <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
+                        <div className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
                             <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                                 <TrendingUp className="size-5 text-primary" />
                                 {t('performance_overview')} <span className="text-sm font-normal text-gray-400 ml-1">(so&apos;nggi 30 kun)</span>
@@ -257,7 +257,7 @@ export default function Dashboard() {
 
                         {/* Daily Stats */}
                         {(daily_users.length > 0 || daily_attempts.length > 0) && (
-                            <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
+                            <div className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
                                 <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                                     <TrendingUp className="size-5 text-primary" /> Daily Activity
                                 </h3>
@@ -268,13 +268,13 @@ export default function Dashboard() {
                         {/* Hourly Stats Row (Today vs All-time) */}
                         <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
                             {/* Today Hourly Stats */}
-                            <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
+                            <div className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
                                 <HourlyAttemptsChart title="Today's hourly stats" data={today_hourly_attempts} />
                             </div>
 
                             {/* All-time Hourly Stats */}
                             {hourly_attempts.length > 0 && (
-                                <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
+                                <div className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
                                     <HourlyAttemptsChart title="All-time hourly distribution" data={hourly_attempts} />
                                 </div>
                             )}
@@ -282,7 +282,7 @@ export default function Dashboard() {
 
                         {/* Weekly Stats */}
                         {weekly_attempts.length > 0 && (
-                            <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
+                            <div className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
                                 <WeeklyAttemptsChart title="All-time Weekly Attempts Distribution" data={weekly_attempts} />
                             </div>
                         )}

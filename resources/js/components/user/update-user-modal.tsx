@@ -43,9 +43,6 @@ export default function UpdateUserModal({ roles, user, open, setOpen }: UpdateUs
 
     const isAdmin = auth?.user?.roles?.some(role => role.name === 'Admin');
 
-
-    console.log(user.roles);
-
     useEffect(() => {
         setData({
             name: user.name || '',

@@ -1,17 +1,7 @@
 import React from 'react';
-import { Bar } from 'react-chartjs-2';
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend
-} from 'chart.js';
+import Chart from 'react-apexcharts';
 import { StatItem } from '@/types';
-
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+import { useAppearance } from '@/hooks/use-appearance';
 
 interface Props {
     dailyUsers: StatItem[];
@@ -19,7 +9,8 @@ interface Props {
 }
 
 export default function DailyStatsChart({ dailyUsers, dailyAttempts }: Props) {
-    // Generate dates based on the available data
+    const { appearance } = useAppearance();
+
     const allDates = Array.from(new Set([
         ...dailyUsers.map(d => d.day_date),
         ...dailyAttempts.map(d => d.day_date)
@@ -46,90 +37,66 @@ export default function DailyStatsChart({ dailyUsers, dailyAttempts }: Props) {
         return Math.max(0, total - unique);
     });
 
-    const data = {
-        labels,
-        datasets: [
-            {
-                label: 'New Users',
-                data: newUsersData,
-                backgroundColor: 'rgb(99, 102, 241)', // indigo
-                stack: 'Stack 0',
-                borderRadius: 4
-            },
-            {
-                label: 'Unique Attempt Users',
-                data: uniqueAttemptUsersData,
-                backgroundColor: 'rgb(16, 185, 129)', // emerald
-                stack: 'Stack 1',
-                borderRadius: 4
-            },
-            {
-                label: 'Repeat Attempts',
-                data: repeatAttemptsData,
-                backgroundColor: 'rgba(20, 184, 166, 0.6)', // teal 60% opacity
-                stack: 'Stack 1',
-                borderRadius: 4
-            }
-        ]
-    };
+    const isDark = appearance === 'dark' || (appearance === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
-    const formatLabel = (value: number) => {
-        if (value > 99) {
-            return (value / 1000).toFixed(1) + 'k';
-        }
-        return value.toString();
-    };
-
-    const options = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                position: 'top' as const,
-                align: 'end' as const,
-                labels: {
-                    usePointStyle: true,
-                    boxWidth: 8,
-                    font: { size: 12 }
-                }
+    const options: ApexCharts.ApexOptions = {
+        chart: {
+            type: 'bar',
+            stacked: true,
+            toolbar: { show: false },
+            zoom: { enabled: false },
+            fontFamily: 'inherit',
+            background: 'transparent',
+        },
+        theme: {
+            mode: isDark ? 'dark' : 'light'
+        },
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                borderRadius: 4,
+                columnWidth: '60%',
             },
-            tooltip: {
-                backgroundColor: '#1e293b',
-                padding: 12,
-                cornerRadius: 8,
-                titleFont: { size: 13 },
-                bodyFont: { size: 12 },
-                callbacks: {
-                    footer: (tooltipItems: any) => {
-                        let total = 0;
-                        tooltipItems.forEach((tooltipItem: any) => {
-                            if (tooltipItem.dataset.label.includes('Attempt')) {
-                                total += tooltipItem.raw;
-                            }
-                        });
-                        return total > 0 ? `Total Attempts: ${total}` : '';
-                    }
-                }
+        },
+        dataLabels: { enabled: false },
+        xaxis: {
+            categories: labels,
+            labels: {
+                style: { colors: '#94a3b8', fontSize: '12px' }
+            },
+            axisBorder: { show: false },
+            axisTicks: { show: false },
+        },
+        yaxis: {
+            labels: {
+                style: { colors: '#94a3b8', fontSize: '12px' }
             }
         },
-        scales: {
-            x: {
-                stacked: true,
-                grid: { display: false },
-                ticks: { font: { size: 11 } }
-            },
-            y: {
-                stacked: true,
-                beginAtZero: true,
-                grid: { color: 'rgba(0, 0, 0, 0.05)' },
-                ticks: { font: { size: 11 } }
-            }
+        grid: {
+            borderColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)',
+            strokeDashArray: 4,
+        },
+        legend: {
+            position: 'top',
+            horizontalAlign: 'right',
+            fontFamily: 'inherit',
+            markers: { radius: 12 },
+        },
+        colors: ['#6366f1', '#10b981', '#14b8a6'],
+        tooltip: {
+            theme: isDark ? 'dark' : 'light',
         }
     };
 
+    const series = [
+        { name: 'New Users', data: newUsersData },
+        { name: 'Unique Attempt Users', data: uniqueAttemptUsersData },
+        { name: 'Repeat Attempts', data: repeatAttemptsData }
+    ];
+
     return (
-        <div className="w-full" style={{ height: '340px' }}>
-            <Bar data={data} options={options} />
+        <div className="w-full h-[340px]">
+            <Chart options={options} series={series} type="bar" height="100%" />
         </div>
     );
 }

@@ -1,24 +1,12 @@
-import React from 'react';
-import { Line } from 'react-chartjs-2';
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Filler
-} from 'chart.js';
-import { Attempt } from '@/types';
-
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Filler);
+import { useAppearance } from '@/hooks/use-appearance';
 
 export default function AttemptsChart({ attempts }: { attempts: Attempt[] }) {
+    const { t } = useTranslation();
+    const { appearance } = useAppearance();
     if (!attempts || attempts.length === 0) return null;
 
     const labels = attempts.map(a => 
-        new Date(a.finished_at).toLocaleDateString('en-US', {
+        new Date(a.finished_at!).toLocaleDateString('en-US', {
             month: 'short',
             day: 'numeric'
         })
@@ -28,62 +16,80 @@ export default function AttemptsChart({ attempts }: { attempts: Attempt[] }) {
         a.attempt_types?.reduce((sum, t) => sum + (Number(t.is_correct_count) || 0), 0) || 0
     );
 
-    const data = {
-        labels,
-        datasets: [
-            {
-                data: dataPoints,
-                borderColor: 'rgb(99, 102, 241)', // indigo
-                backgroundColor: 'rgba(99, 102, 241, 0.2)', // indigo with opacity for fill
-                borderWidth: 2,
-                tension: 0.4,
-                fill: true,
-                pointBackgroundColor: 'rgb(99, 102, 241)',
-            }
-        ]
-    };
-
-    const options = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                display: false
-            },
-            tooltip: {
-                backgroundColor: '#1e293b', // dark background
-                padding: 12,
-                cornerRadius: 8,
-                titleFont: { size: 13 },
-                bodyFont: { size: 12 },
-                displayColors: false,
+    const options: ApexCharts.ApexOptions = {
+        chart: {
+            type: 'area',
+            toolbar: { show: false },
+            zoom: { enabled: false },
+            fontFamily: 'inherit',
+            background: 'transparent',
+            animations: { enabled: true }
+        },
+        theme: {
+            mode: appearance === 'system' 
+                ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+                : (appearance as 'light' | 'dark')
+        },
+        dataLabels: { enabled: false },
+        stroke: {
+            curve: 'smooth',
+            width: 3,
+            colors: ['#6366f1']
+        },
+        fill: {
+            type: 'gradient',
+            gradient: {
+                shadeIntensity: 1,
+                opacityFrom: 0.45,
+                opacityTo: 0.05,
+                stops: [20, 100, 100, 100]
             }
         },
-        scales: {
-            x: {
-                grid: {
-                    display: false
-                },
-                ticks: {
-                    font: { size: 11 }
+        colors: ['#6366f1'],
+        xaxis: {
+            categories: labels,
+            labels: {
+                style: {
+                    colors: '#94a3b8',
+                    fontSize: '12px'
                 }
             },
-            y: {
-                beginAtZero: true,
-                suggestedMax: Math.max(...dataPoints, 10) * 1.1,
-                grid: {
-                    color: 'rgba(0, 0, 0, 0.05)',
-                },
-                ticks: {
-                    font: { size: 11 }
+            axisBorder: { show: false },
+            axisTicks: { show: false },
+        },
+        yaxis: {
+            labels: {
+                style: {
+                    colors: '#94a3b8',
+                    fontSize: '12px'
                 }
             }
+        },
+        grid: {
+            borderColor: 'rgba(148, 163, 184, 0.1)',
+            strokeDashArray: 4,
+        },
+        tooltip: {
+            theme: 'dark',
+            x: { show: true },
+        },
+        markers: {
+            size: 5,
+            colors: ['#6366f1'],
+            strokeColors: '#fff',
+            strokeWidth: 2,
+            hover: { size: 7 }
         }
     };
 
+    const series = [{
+        name: 'Score',
+        data: dataPoints
+    }];
+
     return (
-        <div className="w-full" style={{ height: '280px' }}>
-            <Line data={data} options={options} />
+        <div className="w-full h-[300px]">
+            <Chart options={options} series={series} type="area" height="100%" />
         </div>
     );
 }

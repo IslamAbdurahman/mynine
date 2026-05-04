@@ -28,8 +28,6 @@ export default function PartComponent(
     const { delete: deleteFolder, reset, errors: deleteError, clearErrors } = useForm();
 
     const handleDelete = () => {
-        console.log(deleteError);  // Log to see if errors are populated
-
         deleteFolder(route('part.destroy', part.id), {
             preserveScroll: true,
             onSuccess: () => {

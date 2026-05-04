@@ -16,10 +16,12 @@ class LandingPageController extends Controller
 
             $tests = Test::query()
                 ->with([
+                    'folder',
                     'types' => function ($query) {
                         $query->whereHas('parts');
                     }
                 ])
+                ->withCount('attempts')
                 ->where('active', 1)
                 ->where('open', 1)
                 ->whereHas('folder', function ($query) {

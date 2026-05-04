@@ -1,5 +1,30 @@
 stages:
+  - test
+  - lint
   - deploy
+
+test_backend:
+  stage: test
+  image: php:8.4
+  script:
+    - cp .env.example .env
+    - composer install
+    - php artisan key:generate
+    - php artisan test
+  only:
+    - main
+    - merge_requests
+
+lint_frontend:
+  stage: lint
+  image: node:22
+  script:
+    - npm install
+    - npm run lint
+    - npm run types
+  only:
+    - main
+    - merge_requests
 
 before_script:
   # Install SSH key

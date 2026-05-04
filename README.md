@@ -172,6 +172,21 @@ sudo supervisorctl start mynine-worker:*
 
 ---
 
+## 🔐 File Permissions (Production)
+
+If you encounter "Permission denied" errors in logs or while running queues, ensure the `storage` and `bootstrap/cache` directories have the correct ownership and permissions:
+
+```bash
+# Set ownership to the web server user (e.g., www-data or your system user)
+sudo chown -R $USER:$USER storage bootstrap/cache
+sudo chmod -R 775 storage bootstrap/cache
+
+# If issues persist, ensure the folders exist
+mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache storage/logs
+```
+
+---
+
 ## 🤝 Support & Contribution
 
 - **YouTube:** [IslamAbdurahman](https://www.youtube.com/@IslamAbdurahman)

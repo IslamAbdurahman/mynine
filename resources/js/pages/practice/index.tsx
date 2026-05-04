@@ -242,7 +242,15 @@ export default function Practice() {
                                 return resAttempt.test?.types?.map((item) => {
                                     const at = resAttempt?.attempt_types?.find(a => a.type_id === item.type_id);
                                     const finishedAt = at?.finished_at;
-                                    const isExpired = finishedAt ? new Date(finishedAt).getTime() <= (Date.now() + 5000) : false;
+                                    
+                                    // Robust expiration check with 60s buffer
+                                    let isExpired = false;
+                                    if (finishedAt) {
+                                        const finishTime = new Date(finishedAt).getTime();
+                                        // If parsing fails or yields a strange result, we fallback to a safe check
+                                        isExpired = !isNaN(finishTime) && finishTime <= (Date.now() + 60000);
+                                    }
+
                                     const isLocked = !!(activeTypeId && activeTypeId !== item.type_id && !isExpired);
 
                                     return (
@@ -276,7 +284,9 @@ export default function Practice() {
                         {(() => {
                             const anyStarted = resAttempt.attempt_types && resAttempt.attempt_types.length > 0;
                             const allStartedFinished = resAttempt.attempt_types?.every(at => {
-                                return at.finished_at ? new Date(at.finished_at).getTime() <= (Date.now() + 5000) : false;
+                                if (!at.finished_at) return false;
+                                const finishTime = new Date(at.finished_at).getTime();
+                                return !isNaN(finishTime) && finishTime <= (Date.now() + 60000); 
                             });
 
                             if (anyStarted && allStartedFinished) {

@@ -145,7 +145,7 @@ class AttemptController extends Controller
      */
     public function show(Attempt $attempt)
     {
-        $attempt->load(['test', 'user', 'mock', 'attempt_types']);
+        $attempt->load(['test.folder', 'user', 'mock', 'attempt_types']);
         // Append attempt_parts only for detail view
         $attempt->attempt_types->each(function ($attemptType) {
             $attemptType->append('attempt_parts');

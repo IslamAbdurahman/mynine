@@ -70,10 +70,10 @@ export default function AttemptShow() {
                             <div className="space-y-2">
                                 <p><strong>{t('id')}:</strong> {attempt.id}</p>
                                 <p>
-                                    <strong>{t('user')}:</strong> {attempt.user.name} ({attempt.user.phone ?? attempt.user.email})
+                                    <strong>{t('user')}:</strong> {attempt.user?.name} ({attempt.user?.phone ?? attempt.user?.email})
                                 </p>
                                 <p><strong>{t('mock')}:</strong> {attempt?.mock?.name}</p>
-                                <p><strong>{t('test')}:</strong> {attempt?.test?.folder.name} {attempt?.test?.name}</p>
+                                <p><strong>{t('test')}:</strong> {attempt?.test?.folder?.name} {attempt?.test?.name}</p>
                                 <p><strong>{t('started_at')}:</strong> {attempt.started_at}</p>
                                 <p><strong>{t('finished_at')}:</strong> {attempt.finished_at}</p>
                             </div>
@@ -94,9 +94,9 @@ export default function AttemptShow() {
                                     className="p-4 border rounded-xl shadow-sm bg-white dark:bg-gray-800 flex flex-col items-start"
                                 >
                                     <div className="font-semibold text-gray-800 dark:text-gray-200 mb-2">
-                                        {type.type.name} : {type.type.name === 'Writing'
+                                        {type.type?.name} : {type.type?.name === 'Writing'
                                         ? Number(type.is_correct_count ?? 0) / 2
-                                        : type.type.name === 'Speaking'
+                                        : type.type?.name === 'Speaking'
                                             ? type.score
                                             : type.is_correct_count}
                                     </div>
@@ -118,9 +118,9 @@ export default function AttemptShow() {
                                 (
                                     <div
                                         key={attemptType.id}
-                                        className={`mt-6 ${['Writing', 'Speaking'].includes(attemptType.type.name) ? 'col-span-2' : ''}`}
+                                        className={`mt-6 ${['Writing', 'Speaking'].includes(attemptType.type?.name ?? '') ? 'col-span-2' : ''}`}
                                     >
-                                        <h3 className="text-md font-semibold mb-2">{attemptType.type.name}</h3>
+                                        <h3 className="text-md font-semibold mb-2">{attemptType.type?.name}</h3>
                                         <AttemptTypeComponent
                                             attempt_type={attemptType}
                                         />

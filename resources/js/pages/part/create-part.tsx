@@ -15,7 +15,7 @@ export default function CreatePart() {
     const { testType } = usePage<{ testType: TestType }>().props;
     const { t } = useTranslation();  // Using the translation hook
 
-    const editorRef = useRef(null);
+    const editorRef = useRef<any>(null);
 
     // const logContent = () => {
     //     if (editorRef.current) {

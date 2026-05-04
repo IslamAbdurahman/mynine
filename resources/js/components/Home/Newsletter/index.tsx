@@ -1,5 +1,3 @@
-import { getImagePrefix } from "@/utils/util";
-import Image from "next/image";
 
 const Newsletter = () => {
     const isProd = process.env.NODE_ENV === "production";
@@ -19,7 +17,7 @@ const Newsletter = () => {
                                     <input type="Email address" name="q" className="py-6 lg:py-8 text-sm md:text-lg w-full mx-3 text-black rounded-full pl-8 focus:outline-none focus:text-black" placeholder="Enter your email address" autoComplete="off" />
                                     <div className="absolute inset-y-0 right-0 flex items-center pr-6 pt-5 lg:pt-0">
                                         <button type="submit" className="p-3 lg:p-5 focus:outline-none focus:shadow-outline bg-ultramarine hover:bg-midnightblue duration-150 ease-in-out rounded-full">
-                                            <Image src={`${getImagePrefix()}images/newsletter/send.svg`} alt="send-icon" width={30} height={30} />
+                                            <img src={`/images/newsletter/send.svg`} alt="send-icon" width={30} height={30} />
                                         </button>
                                     </div>
                                 </div>

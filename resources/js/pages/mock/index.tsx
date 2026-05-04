@@ -62,6 +62,7 @@ export default function Mock() {
                         <PremiumFilters
                             data={data}
                             setData={setData}
+                            handleSubmit={handleSubmit}
                             isAdmin={isAdmin}
                             users={users}
                             tests={tests}

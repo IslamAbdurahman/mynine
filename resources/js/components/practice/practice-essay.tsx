@@ -7,9 +7,19 @@ interface SectionUpdateProps {
     order: number;
     part: Part;
     attempt: Attempt;
+    setSelectedPart: React.Dispatch<React.SetStateAction<Part | null>>;
+    isFlagged: boolean;
+    toggleFlag: (id: number) => void;
 }
 
-export default function PracticeEssay({ order, part, attempt }: SectionUpdateProps) {
+export default function PracticeEssay({
+                                           order,
+                                           part,
+                                           attempt,
+                                           setSelectedPart,
+                                           isFlagged,
+                                           toggleFlag
+                                       }: SectionUpdateProps) {
     const { t } = useTranslation();
 
     const section_order = order ?? 0;
@@ -23,13 +33,15 @@ export default function PracticeEssay({ order, part, attempt }: SectionUpdatePro
                         <div key={section.id} className="p-2">
                             {section.questions.map((question, qIndex) => (
                                 <PracticeQuestion
-                                    setSelectedPart={() => {}}
+                                    setSelectedPart={setSelectedPart}
                                     key={qIndex}
-                                    order={1}
+                                    order={order}
                                     attempt={attempt}
                                     section={section}
                                     question={question}
                                     index={qIndex}
+                                    isFlagged={isFlagged}
+                                    toggleFlag={() => toggleFlag(question.id)}
                                 />
                             ))}
                         </div>

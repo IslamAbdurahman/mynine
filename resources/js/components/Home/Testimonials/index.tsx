@@ -1,12 +1,25 @@
-"use client";
+import React from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import React from "react";
-import Image from "next/image";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { TestimonialData } from "@/app/api/data";
-import { getImagePrefix } from "@/utils/util";
+
+const TestimonialData = [
+    {
+        name: "John Doe",
+        profession: "Student",
+        comment: "Excellent practice materials!",
+        imgSrc: "images/testimonials/user1.png",
+        rating: 5
+    },
+    {
+        name: "Jane Smith",
+        profession: "IELTS Candidate",
+        comment: "The mock tests are very realistic.",
+        imgSrc: "images/testimonials/user2.png",
+        rating: 4.5
+    }
+];
 
 const Testimonial = () => {
 
@@ -72,7 +85,7 @@ const Testimonial = () => {
                         <div key={i}>
                             <div className={`bg-white rounded-2xl m-4 p-5 my-20 relative ${i % 2 ? 'shadow-testimonial-shadow2' : 'shadow-testimonial-shadow1'}`}>
                                 <div className="absolute top-[-45px]">
-                                    <Image src={`${getImagePrefix()}${items.imgSrc}`}
+                                    <img src={`/${items.imgSrc}`}
                                         alt={items.name} width={100} height={100} className="inline-block" />
                                 </div>
                                 <h4 className='text-base font-normal text-darkgray my-4'>{items.comment}</h4>

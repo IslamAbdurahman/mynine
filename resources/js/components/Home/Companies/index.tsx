@@ -1,11 +1,16 @@
 "use client"
-import Image from "next/image";
-import React, { Component } from "react";
+import React from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { TruestedCompanies } from "@/app/api/data";
 import { getImagePrefix } from "@/utils/util";
+
+const TruestedCompanies = [
+    { imgSrc: "images/companies/company1.svg" },
+    { imgSrc: "images/companies/company2.svg" },
+    { imgSrc: "images/companies/company3.svg" },
+    { imgSrc: "images/companies/company4.svg" },
+];
 
 // CAROUSEL SETTINGS
 const Companies = () => {
@@ -59,7 +64,7 @@ const Companies = () => {
                     <Slider {...settings}>
                         {TruestedCompanies.map((item, i) =>
                             <div key={i}>
-                                <Image src={`${getImagePrefix()}${item.imgSrc}`} alt={item.imgSrc} width={116} height={36} />
+                                <img src={`/${item.imgSrc}`} alt={item.imgSrc} width={116} height={36} />
                             </div>
                         )}
                     </Slider>

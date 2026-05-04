@@ -104,10 +104,28 @@ export interface User {
     attempts_count_this_month?: number;
     last_attempt?: Attempt;
     attempts?: Attempt[];
+    user_firms?: UserFirm[];
     created_at: string,
     updated_at: string,
 
     [key: string]: unknown;
+}
+
+export interface Firm {
+    id: number;
+    name: string;
+    comment: string;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface UserFirm {
+    id: number;
+    user_id: number;
+    firm_id: number;
+    role: string;
+    firm?: Firm;
+    user?: User;
 }
 
 export interface Role {

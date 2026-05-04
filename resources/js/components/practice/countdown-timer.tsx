@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 
+interface CountdownTimerProps {
+    finishedAt: string | null;
+    onExpire?: () => void;
+    serverTimeOffset?: number;
+}
+
 export function CountdownTimer({
                                    finishedAt,
                                    onExpire,
                                    serverTimeOffset = 0,
-                               }: {
-    finishedAt: string | null;
-    onExpire?: () => void;
-    serverTimeOffset?: number;
-}) {
+                               }: CountdownTimerProps) {
     const [timeLeft, setTimeLeft] = useState<string>("");
 
     useEffect(() => {

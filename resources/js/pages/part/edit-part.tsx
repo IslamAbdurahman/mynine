@@ -15,7 +15,7 @@ export default function EditPart() {
     const { part } = usePage<{ part: Part }>().props;
     const { t } = useTranslation();
 
-    const editorRef = useRef(null);
+    const editorRef = useRef<any>(null);
     const nameInput = useRef<HTMLInputElement>(null);
 
     const breadcrumbs: BreadcrumbItem[] = [

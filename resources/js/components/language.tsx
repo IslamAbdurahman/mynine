@@ -4,9 +4,10 @@ import { useTranslation } from 'react-i18next';
 
 interface LanguageBarProps {
     variant?: 'light' | 'dark';
+    placement?: 'bottom' | 'top' | 'left' | 'right';
 }
 
-const LanguageBar = ({ variant }: LanguageBarProps) => {
+const LanguageBar = ({ variant, placement }: LanguageBarProps) => {
     const { i18n, t } = useTranslation();
     const [open, setOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);

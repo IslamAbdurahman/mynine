@@ -59,7 +59,7 @@ export default function Practice() {
             attempt_id: attempt.id
         }))
             .then((res) => res.json())
-            .then((res) => {
+            .then((res: any) => {
                 if (res.server_time) {
                     setServerTimeOffset(new Date(res.server_time).getTime() - Date.now());
                 }
@@ -87,7 +87,7 @@ export default function Practice() {
             attempt_id: attempt.id
         }))
             .then((res) => res.json())
-            .then((res) => {
+            .then((res: any) => {
                 if (res.server_time) {
                     setServerTimeOffset(new Date(res.server_time).getTime() - Date.now());
                 }
@@ -115,7 +115,7 @@ export default function Practice() {
                         // Refresh attempt data
                         fetch(route('practice-attempt', attempt.id))
                             .then((res) => res.json())
-                            .then((res) => {
+                            .then((res: any) => {
                                 if (res.server_time) {
                                     setServerTimeOffset(new Date(res.server_time).getTime() - Date.now());
                                 }
@@ -130,7 +130,7 @@ export default function Practice() {
     useEffect(() => {
         fetch(route('practice-attempt', attempt.id))
             .then((res) => res.json())
-            .then((res) => {
+            .then((res: any) => {
                 if (res.server_time) {
                     setServerTimeOffset(new Date(res.server_time).getTime() - Date.now());
                 }
@@ -364,6 +364,9 @@ export default function Practice() {
                                     order={order}
                                     part={selectedPart}
                                     attempt={attempt}
+                                    setSelectedPart={setSelectedPart}
+                                    isFlagged={flaggedIds.has(selectedPart.sections[0]?.questions[0]?.id)}
+                                    toggleFlag={toggleFlag}
                                 />
                             </div>
                         )}

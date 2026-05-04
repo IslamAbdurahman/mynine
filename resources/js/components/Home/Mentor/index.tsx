@@ -1,11 +1,13 @@
-"use client"
+import React from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import React from "react";
-import Image from "next/image";
-import { MentorData } from "@/app/api/data";
-import { getImagePrefix } from "@/utils/util";
+
+const MentorData = [
+    { name: "Sheroziy", profession: "Senior Developer", imgSrc: "images/mentor/user1.png" },
+    { name: "Doniyor", profession: "IELTS Instructor", imgSrc: "images/mentor/user2.png" },
+    { name: "Azizbek", profession: "Designer", imgSrc: "images/mentor/user3.png" },
+];
 
 const Mentor = () => {
 
@@ -49,9 +51,9 @@ const Mentor = () => {
                         <div key={i}>
                             <div className='m-3 py-14 md:my-10 text-center'>
                                 <div className="relative">
-                                    <Image src={`${getImagePrefix()}${items.imgSrc}`} alt="user-image" width={306} height={0} className="inline-block m-auto" />
+                                    <img src={`/${items.imgSrc}`} alt="user-image" width={306} height={306} className="inline-block m-auto" />
                                     <div className="absolute right-[84px] bottom-[102px] bg-white rounded-full p-4">
-                                        <Image src={`${getImagePrefix()}images/mentor/linkedin.svg`}alt="linkedin-image" width={25} height={24} />
+                                        <img src={`/images/mentor/linkedin.svg`} alt="linkedin-image" width={25} height={24} />
                                     </div>
                                 </div>
                                 <div className="-mt-10">

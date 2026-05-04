@@ -80,7 +80,7 @@ export default function DailyStatsChart({ dailyUsers, dailyAttempts }: Props) {
             position: 'top',
             horizontalAlign: 'right',
             fontFamily: 'inherit',
-            markers: { radius: 12 },
+            markers: { size: 4 },
         },
         colors: ['#6366f1', '#10b981', '#14b8a6'],
         tooltip: {

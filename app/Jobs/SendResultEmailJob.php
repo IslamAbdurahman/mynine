@@ -25,6 +25,11 @@ class SendResultEmailJob implements ShouldQueue
 
     public function handle()
     {
-        Mail::to($this->user->email)->send(new SendResultMail($this->user, $this->result));
+        try {
+            Mail::to($this->user->email)->send(new SendResultMail($this->user, $this->result));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("SendResultEmailJob failed: " . $e->getMessage());
+            throw $e;
+        }
     }
 }

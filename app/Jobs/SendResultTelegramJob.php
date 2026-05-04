@@ -35,19 +35,44 @@ class SendResultTelegramJob implements ShouldQueue
 
             $telegram = new Api(env('MynineUzBot_TOKEN'));
 
-            // PDF URL
-            $pdfUrl = url('/attempt-pdf/'.$this->attempt->id);
+            // Generate PDF internally instead of via URL
+            $attempt = $this->attempt->load([
+                'test',
+                'user',
+                'mock',
+                'attempt_types' => function ($query) {
+                    $query->whereHas('type', function ($q) {
+                    });
+                }
+            ]);
 
-            // Wrap the URL in InputFile
-            $document = InputFile::create($pdfUrl, "TestResult_{$this->attempt->id}.pdf");
+            $attempt->attempt_types->each(function ($attemptType) {
+                $attemptType->append('attempt_parts');
+            });
+
+            $options = [
+                'isPhpEnabled' => false,
+                'isRemoteEnabled' => true,
+                'isHtml5ParserEnabled' => true,
+                'isFontSubsettingEnabled' => true,
+                'isUnicodeEnabled' => true,
+                'defaultFont' => 'DejaVu Sans',
+            ];
+
+            $dompdf = new \Dompdf\Dompdf($options);
+            $dompdf->loadHtml(view('pdf.attempt', compact('attempt'))->render());
+            $dompdf->setPaper('A4');
+            $dompdf->render();
+            $pdfContent = $dompdf->output();
+
+            // Wrap the content in InputFile
+            $document = InputFile::createFromContents($pdfContent, "TestResult_{$this->attempt->id}.pdf");
 
             // Caption
             $caption = "Hello {$this->user->name},\nYour test attempt is complete! 🎉\n\n" .
                        "💳 Bizni Qo'llab-quvvatlang:\n\n" .
                        "9860600402432220\n\n" .
                        "Donat qilishingiz mumkin.";
-
-            Log::info("Telegram PDF sent to user {$this->user->telegram_id}");
 
             // Send document
             $telegram->sendDocument([

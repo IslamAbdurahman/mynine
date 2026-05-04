@@ -39,7 +39,7 @@ export default function CreatePart() {
         minute: number | null;
         comment: string;
     }>({
-        test_type_id: testType.id,
+        test_type_id: testType?.id,
         name: '',
         textarea: '',
         minute: null,
@@ -78,17 +78,17 @@ export default function CreatePart() {
                         <Link href={'/folder'} className={'underline'}>
                             {t('folder')} /
                         </Link>
-                        <Link href={`/folder/${testType.test.folder.id}`} className={'underline'}>
-                            {testType.test.folder.name} /
+                        <Link href={`/folder/${testType?.test?.folder?.id}`} className={'underline'}>
+                            {testType?.test?.folder?.name} /
                         </Link>
 
                         <Link
-                            href={`/test-type/${testType.id}`}
+                            href={`/test-type/${testType?.id}`}
                             className="underline"
                         >
-                            {testType.test?.name}
+                            {testType?.test?.name}
                         </Link>
-                        / {testType.type?.name}
+                        / {testType?.type?.name}
                     </div>
                 </div>
 
@@ -171,7 +171,7 @@ export default function CreatePart() {
                             {/* Secondary Cancel */}
                             <Button
                                 type="button"
-                                onClick={() => router.visit(route('test-type.show', testType.id))}
+                                onClick={() => router.visit(route('test-type.show', testType?.id))}
                                 className="bg-gray-100 text-gray-800 hover:bg-gray-200
                    dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
                             >

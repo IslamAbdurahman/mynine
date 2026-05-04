@@ -31,7 +31,7 @@ class PartController extends Controller
         ]);
 
         $testType = TestType::with([
-            'test',
+            'test.folder',
             'type',
         ])->find($request->test_type_id);
 
@@ -99,7 +99,7 @@ class PartController extends Controller
     public function show(Part $part)
     {
         $part = $part->load([
-            'test_type',
+            'test_type.test.folder',
             'sections',
             'images',
         ]);

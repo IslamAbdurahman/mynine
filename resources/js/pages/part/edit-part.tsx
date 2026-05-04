@@ -66,20 +66,20 @@ export default function EditPart() {
                             {t('folder')} /
                         </Link>
                         <Link
-                            href={`/folder/${part.test_type.test.folder.id}`}
+                            href={`/folder/${part?.test_type?.test?.folder?.id}`}
                             className="underline"
                         >
-                            {part.test_type.test.folder.name} /
+                            {part?.test_type?.test?.folder?.name} /
                         </Link>
 
                         <Link
-                            href={`/test-type/${part.test_type.id}`}
+                            href={`/test-type/${part?.test_type?.id}`}
                             className="underline"
                         >
-                            {part.test_type.test?.name}
+                            {part?.test_type?.test?.name}
                         </Link>
 
-                        / {part.test_type.type?.name}
+                        / {part?.test_type?.type?.name}
                     </div>
                 </div>
 

@@ -246,9 +246,11 @@ export default function Practice() {
                                 })?.type_id;
 
                                 return resAttempt.test?.types?.map((item) => {
-                                    const at = resAttempt?.attempt_types?.find(a => a.type_id === item.type_id);
+                                    const attemptTypes = resAttempt?.attempt_types;
+                                    const at = Array.isArray(attemptTypes) ? attemptTypes.find(a => a.type_id === item.type_id) : null;
                                     const finishedAt = at?.finished_at;
-                                    const isExpired = finishedAt ? new Date(finishedAt).getTime() <= (Date.now() + 1000) : false;
+                                    // 10-second buffer to handle server-client clock sync
+                                    const isExpired = finishedAt ? new Date(finishedAt).getTime() <= (Date.now() + 10000) : false;
                                     const isLocked = !!(activeTypeId && activeTypeId !== item.type_id && !isExpired);
 
                                     return (
@@ -284,10 +286,10 @@ export default function Practice() {
                             const isArray = Array.isArray(attemptTypes);
                             const anyStarted = isArray && attemptTypes.length > 0;
                             
-                            // If anything is started, check if all started are finished
                             const allStartedFinished = isArray && attemptTypes.every(at => {
                                 if (!at.finished_at) return false;
-                                return new Date(at.finished_at).getTime() <= (Date.now() + 5000); // 5s buffer
+                                // 10-second buffer for server-client clock sync
+                                return new Date(at.finished_at).getTime() <= (Date.now() + 10000); 
                             });
 
                             if (anyStarted && allStartedFinished) {

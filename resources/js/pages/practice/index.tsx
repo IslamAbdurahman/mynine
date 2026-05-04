@@ -96,15 +96,6 @@ export default function Practice() {
         }
     };
 
-    const safeAlert = (message: string) => {
-        const tg = window.Telegram?.WebApp;
-        if (isTelegramWebApp() && tg && typeof tg.showAlert === 'function') {
-            tg.showAlert(message);
-        } else {
-            toast.error(message);
-        }
-    };
-
     const handleSubmitTestType = () => {
         if (!testType) return;
         
@@ -113,32 +104,20 @@ export default function Practice() {
                 attempt_id: attempt.id,
                 type_id: testType.type_id
             }))
-                .then(async (response) => {
-                    const res = await response.json();
-                    if (!response.ok || !res.success) {
-                        throw new Error(res.message || t('error_occurred'));
-                    }
-                    return res;
-                })
+                .then((res) => res.json())
                 .then((res) => {
-                    if (window.Telegram?.WebApp?.HapticFeedback) {
-                        window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                    if (res.success) {
+                        setTestType(null);
+                        setSelectedPart(null);
+                        // Refresh attempt data
+                        fetch(route('practice-attempt', attempt.id))
+                            .then((res) => res.json())
+                            .then((res) => {
+                                setResAttempt(res.data ?? res);
+                            });
                     }
-                    toast.success(t('success.test_type_submitted') ?? 'Module finished!');
-                    
-                    setTestType(null);
-                    setSelectedPart(null);
-                    // Refresh attempt data
-                    fetch(route('practice-attempt', attempt.id))
-                        .then((res) => res.json())
-                        .then((res) => {
-                            setResAttempt(res.data ?? res);
-                        });
                 })
-                .catch((err) => {
-                    console.error('handleSubmitTestType error:', err);
-                    safeAlert(err.message || 'Error finishing test type');
-                });
+                .catch((err) => console.error('handleSubmitTestType error:', err));
         });
     };
 
@@ -246,11 +225,9 @@ export default function Practice() {
                                 })?.type_id;
 
                                 return resAttempt.test?.types?.map((item) => {
-                                    const attemptTypes = resAttempt?.attempt_types;
-                                    const at = Array.isArray(attemptTypes) ? attemptTypes.find(a => a.type_id === item.type_id) : null;
+                                    const at = resAttempt?.attempt_types?.find(a => a.type_id === item.type_id);
                                     const finishedAt = at?.finished_at;
-                                    // 10-second buffer to handle server-client clock sync
-                                    const isExpired = finishedAt ? new Date(finishedAt).getTime() <= (Date.now() + 10000) : false;
+                                    const isExpired = finishedAt ? new Date(finishedAt).getTime() <= (Date.now() + 5000) : false;
                                     const isLocked = !!(activeTypeId && activeTypeId !== item.type_id && !isExpired);
 
                                     return (
@@ -282,14 +259,9 @@ export default function Practice() {
 
                         {/* Complete Test Submission Button */}
                         {(() => {
-                            const attemptTypes = resAttempt.attempt_types;
-                            const isArray = Array.isArray(attemptTypes);
-                            const anyStarted = isArray && attemptTypes.length > 0;
-                            
-                            const allStartedFinished = isArray && attemptTypes.every(at => {
-                                if (!at.finished_at) return false;
-                                // 10-second buffer for server-client clock sync
-                                return new Date(at.finished_at).getTime() <= (Date.now() + 10000); 
+                            const anyStarted = resAttempt.attempt_types && resAttempt.attempt_types.length > 0;
+                            const allStartedFinished = resAttempt.attempt_types?.every(at => {
+                                return at.finished_at ? new Date(at.finished_at).getTime() <= (Date.now() + 5000) : false;
                             });
 
                             if (anyStarted && allStartedFinished) {

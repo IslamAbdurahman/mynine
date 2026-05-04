@@ -137,6 +137,41 @@ Route::any('/pay/{paysys}/{key}/{amount}', function($paysys, $key, $amount){
 
 ---
 
+## ⚙️ Queue Configuration (Supervisor)
+
+For production environments, it is highly recommended to use **Supervisor** to manage your Laravel queue workers. Supervisor will automatically restart your `queue:work` processes if they fail.
+
+**1. Create a Supervisor configuration file**
+Create a new file at `/etc/supervisor/conf.d/mynine-worker.conf`:
+
+```ini
+[program:mynine-worker]
+process_name=%(program_name)s_%(process_num)02d
+command=php /var/www/mynine/artisan queue:work --sleep=3 --tries=3 --max-time=3600
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+user=www-data
+numprocs=2
+redirect_stderr=true
+stdout_logfile=/var/www/mynine/storage/logs/worker.log
+stopwaitsecs=3600
+```
+
+*Note: Update `/var/www/mynine` to your actual project path and `user=www-data` to your system user.*
+
+**2. Start the worker**
+Run the following commands to update and start the supervisor process:
+
+```bash
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl start mynine-worker:*
+```
+
+---
+
 ## 🤝 Support & Contribution
 
 - **YouTube:** [IslamAbdurahman](https://www.youtube.com/@IslamAbdurahman)

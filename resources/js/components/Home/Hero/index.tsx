@@ -6,7 +6,7 @@ const Hero = () => {
     return (
         <section
             id="home-section"
-            className="relative overflow-hidden bg-white dark:bg-black transition-colors duration-500 pb-20 pt-10"
+            className="relative overflow-hidden bg-white dark:bg-black transition-colors duration-500 pb-20 pt-32 md:pt-40"
         >
             {/* Background Orbs */}
             <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />

@@ -16,7 +16,7 @@ const Footer: React.FC = () => {
         .replace(/\b\w/g, (char) => char.toUpperCase());
 
     return (
-        <footer id="contact" className="bg-deepSlate dark:bg-gray-900 py-10">
+        <footer id="contact" className="bg-deepSlate dark:bg-gray-900 pt-10 pb-32 md:pb-10">
             <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md px-4">
                 <div className="grid grid-cols-1 gap-y-10 gap-x-16 sm:grid-cols-2 lg:grid-cols-12 xl:gap-x-8">
 

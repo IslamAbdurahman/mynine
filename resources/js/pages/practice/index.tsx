@@ -108,34 +108,32 @@ export default function Practice() {
     const handleSubmitTestType = () => {
         if (!testType) return;
         
-        safeConfirm(t('confirm_finish_test_type') ?? `Finish ${testType.type?.name}?`, () => {
-            fetch(route('practice-test-type-submit', {
-                attempt_id: attempt.id,
-                type_id: testType.type_id
-            }))
-                .then(async (response) => {
-                    const res = await response.json();
-                    if (!response.ok || !res.success) {
-                        throw new Error(res.message || t('error_occurred') || 'Submission failed');
-                    }
-                    return res;
-                })
-                .then((res) => {
-                    toast.success(t('success_submit') ?? 'Submitted successfully');
-                    setTestType(null);
-                    setSelectedPart(null);
-                    // Refresh attempt data
-                    fetch(route('practice-attempt', attempt.id))
-                        .then((res) => res.json())
-                        .then((res) => {
-                            setResAttempt(res.data ?? res);
-                        });
-                })
-                .catch((err) => {
-                    console.error('handleSubmitTestType error:', err);
-                    safeAlert(err.message || 'Error finishing test type');
-                });
-        });
+        fetch(route('practice-test-type-submit', {
+            attempt_id: attempt.id,
+            type_id: testType.type_id
+        }))
+            .then(async (response) => {
+                const res = await response.json();
+                if (!response.ok || !res.success) {
+                    throw new Error(res.message || t('error_occurred') || 'Submission failed');
+                }
+                return res;
+            })
+            .then((res) => {
+                toast.success(t('success_submit') ?? 'Submitted successfully');
+                setTestType(null);
+                setSelectedPart(null);
+                // Refresh attempt data
+                fetch(route('practice-attempt', attempt.id))
+                    .then((res) => res.json())
+                    .then((res) => {
+                        setResAttempt(res.data ?? res);
+                    });
+            })
+            .catch((err) => {
+                console.error('handleSubmitTestType error:', err);
+                safeAlert(err.message || 'Error finishing test type');
+            });
     };
 
     useEffect(() => {

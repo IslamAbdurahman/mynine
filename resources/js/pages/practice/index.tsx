@@ -12,6 +12,8 @@ import AppearanceTabs from '@/components/appearance-tabs';
 import { FaCirclePlay } from 'react-icons/fa6';
 import AudioEqualizer from '@/components/practice/audio-equalizer';
 import LanguageBar from '@/components/language';
+import { toast } from 'sonner';
+import { isTelegramWebApp } from '@/hooks/use-telegram';
 
 export default function Practice() {
     const { attempt } = usePage<{ attempt: Attempt }>().props;
@@ -83,28 +85,59 @@ export default function Practice() {
             .catch((err) => console.error('handlePart error:', err));
     };
 
+    const safeConfirm = (message: string, callback: () => void) => {
+        if (window.Telegram?.WebApp?.showConfirm) {
+            window.Telegram.WebApp.showConfirm(message, (ok: boolean) => {
+                if (ok) callback();
+            });
+        } else if (confirm(message)) {
+            callback();
+        }
+    };
+
+    const safeAlert = (message: string) => {
+        if (window.Telegram?.WebApp?.showAlert) {
+            window.Telegram.WebApp.showAlert(message);
+        } else {
+            toast.error(message);
+        }
+    };
+
     const handleSubmitTestType = () => {
         if (!testType) return;
-        if (confirm(t('confirm_finish_test_type') ?? `Finish ${testType.type?.name}?`)) {
+        
+        safeConfirm(t('confirm_finish_test_type') ?? `Finish ${testType.type?.name}?`, () => {
             fetch(route('practice-test-type-submit', {
                 attempt_id: attempt.id,
                 type_id: testType.type_id
             }))
-                .then((res) => res.json())
-                .then((res) => {
-                    if (res.success) {
-                        setTestType(null);
-                        setSelectedPart(null);
-                        // Refresh attempt data
-                        fetch(route('practice-attempt', attempt.id))
-                            .then((res) => res.json())
-                            .then((res) => {
-                                setResAttempt(res.data ?? res);
-                            });
+                .then(async (response) => {
+                    const res = await response.json();
+                    if (!response.ok || !res.success) {
+                        throw new Error(res.message || t('error_occurred'));
                     }
+                    return res;
                 })
-                .catch((err) => console.error('handleSubmitTestType error:', err));
-        }
+                .then((res) => {
+                    if (window.Telegram?.WebApp?.HapticFeedback) {
+                        window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                    }
+                    toast.success(t('success.test_type_submitted') ?? 'Module finished!');
+                    
+                    setTestType(null);
+                    setSelectedPart(null);
+                    // Refresh attempt data
+                    fetch(route('practice-attempt', attempt.id))
+                        .then((res) => res.json())
+                        .then((res) => {
+                            setResAttempt(res.data ?? res);
+                        });
+                })
+                .catch((err) => {
+                    console.error('handleSubmitTestType error:', err);
+                    safeAlert(err.message || 'Error finishing test type');
+                });
+        });
     };
 
     useEffect(() => {
@@ -207,13 +240,13 @@ export default function Practice() {
                             {(() => {
                                 const activeTypeId = resAttempt.test?.types?.find(item => {
                                     const at = resAttempt?.attempt_types?.find(a => a.type_id === item.type_id);
-                                    return at && (!at.finished_at || new Date(at.finished_at).getTime() > Date.now());
+                                    return at && (!at.finished_at || new Date(at.finished_at).getTime() > (Date.now() + 1000));
                                 })?.type_id;
 
                                 return resAttempt.test?.types?.map((item) => {
                                     const at = resAttempt?.attempt_types?.find(a => a.type_id === item.type_id);
                                     const finishedAt = at?.finished_at;
-                                    const isExpired = finishedAt ? new Date(finishedAt).getTime() <= Date.now() : false;
+                                    const isExpired = finishedAt ? new Date(finishedAt).getTime() <= (Date.now() + 1000) : false;
                                     const isLocked = !!(activeTypeId && activeTypeId !== item.type_id && !isExpired);
 
                                     return (
@@ -243,22 +276,24 @@ export default function Practice() {
                             })()}
                         </div>
 
-                        {/* Complete Test Submission Button (Shown when all tests are done) */}
+                        {/* Complete Test Submission Button (Shown when all STARTED modules are done) */}
                         {(() => {
-                            const allFinished = resAttempt.test?.types?.every(item => {
-                                const at = resAttempt?.attempt_types?.find(a => a.type_id === item.type_id);
-                                return at?.finished_at ? new Date(at.finished_at).getTime() <= Date.now() : false;
+                            const anyStarted = resAttempt.attempt_types && resAttempt.attempt_types.length > 0;
+                            const allStartedFinished = resAttempt.attempt_types?.every(at => {
+                                if (!at.finished_at) return false;
+                                // 2-second buffer for server-client clock sync
+                                return new Date(at.finished_at).getTime() <= (Date.now() + 2000);
                             });
 
-                            if (allFinished) {
+                            if (anyStarted && allStartedFinished) {
                                 return (
                                     <div className="mt-8 flex justify-end border-t border-gray-200 dark:border-gray-700 pt-6">
                                         <button
                                             className="bg-black dark:bg-gray-100 hover:bg-gray-800 dark:hover:bg-white text-white dark:text-gray-900 font-bold py-3 px-8 rounded transition-colors uppercase tracking-wide text-lg flex items-center gap-2"
                                             onClick={() => {
-                                                if (confirm(t('confirm_submit_test'))) {
+                                                safeConfirm(t('confirm_submit_test') ?? 'Finish and submit the entire test?', () => {
                                                     window.location.href = route('practice-attempt-submit', attempt.id);
-                                                }
+                                                });
                                             }}
                                         >
                                             {t('submit_test')} <CheckIcon className="w-6 h-6 ml-2 text-green-500" />

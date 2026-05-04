@@ -140,9 +140,9 @@ export default function Practice() {
         getStatus();
     }, [attempt.id, selectedPart]);
 
-    if (!resAttempt || (isLoading && !selectedPart && !testType)) {
+    if (!resAttempt) {
         return (
-            <div className="flex flex-col justify-center items-center h-full bg-white dark:bg-gray-950">
+            <div className="flex flex-col justify-center items-center h-screen bg-white dark:bg-gray-950">
                 <div className="w-12 h-12 border-4 border-black dark:border-white border-t-transparent rounded-full animate-spin mb-4"></div>
                 <p className="text-lg font-medium animate-pulse uppercase tracking-widest">{t('loading') ?? 'Loading...'}</p>
             </div>
@@ -156,7 +156,7 @@ export default function Practice() {
 
             <Head title="IELTS Practice" />
 
-            {/* Fixed (TOP) */}
+            {/* Header (Always Visible) */}
             <div className="flex-none h-14 bg-black/80 backdrop-blur-md text-white flex justify-between items-center px-6 shadow-md z-50">
                 <div className="flex items-center gap-4">
                     <span className="text-xl font-bold italic tracking-wider text-white">IELTS</span>
@@ -210,7 +210,16 @@ export default function Practice() {
                 </div>
             </div>
 
-            {!testType && (
+            {/* Main Content Area */}
+            <div className="flex-1 relative overflow-hidden flex flex-col">
+                {isLoading ? (
+                    <div className="absolute inset-0 z-40 flex flex-col justify-center items-center bg-[#e5e7eb]/50 dark:bg-gray-900/50 backdrop-blur-sm">
+                        <div className="w-10 h-10 border-4 border-black dark:border-white border-t-transparent rounded-full animate-spin mb-4"></div>
+                        <p className="text-sm font-bold animate-pulse uppercase tracking-[0.2em]">{t('loading') ?? 'Loading...'}</p>
+                    </div>
+                ) : null}
+
+                {!testType && (
                 <div className="flex flex-col items-center justify-center h-full flex-1 w-full bg-[#e5e7eb] dark:bg-gray-900 px-4 overflow-y-auto">
                     <div className="bg-white dark:bg-gray-800 p-8 md:p-10 max-w-3xl w-full border border-gray-300 dark:border-gray-700 shadow-md text-gray-900 dark:text-gray-100">
                         <div className="border-b-2 border-gray-200 dark:border-gray-700 pb-4 mb-6">
@@ -391,8 +400,9 @@ export default function Practice() {
                 </div>
             )}
 
+            </div>
 
-            {/* Fixed (BOTTOM) */}
+            {/* Bottom Bar (Always Visible) */}
             <div className="flex-none bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-t-2 border-gray-300 dark:border-gray-800 px-4 py-2 flex flex-col sm:flex-row justify-between items-center h-auto sm:h-20 shrink-0 z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] text-gray-900 dark:text-gray-100">
 
                 <div className="flex-1 flex overflow-x-auto pb-2 sm:pb-0 items-center hide-scrollbar">

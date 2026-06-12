@@ -57,10 +57,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('user', \App\Http\Controllers\User\UserController::class);
     Route::resource('folder', \App\Http\Controllers\FolderController::class);
-    Route::resource('test', \App\Http\Controllers\TestController::class);
+    Route::resource('test', \App\Http\Controllers\TestController::class)->except(['update']);
     Route::post('/test/{test}/update', [\App\Http\Controllers\TestController::class, 'update'])->name('test.update');
     Route::resource('test-type', \App\Http\Controllers\TestTypeController::class);
-    Route::resource('part', \App\Http\Controllers\PartController::class);
+    Route::resource('part', \App\Http\Controllers\PartController::class)->except(['update']);
     Route::post('/part/{part}/update', [\App\Http\Controllers\PartController::class, 'update'])->name('part.update');
     Route::resource('section', \App\Http\Controllers\SectionController::class);
     Route::resource('question', \App\Http\Controllers\QuestionController::class);

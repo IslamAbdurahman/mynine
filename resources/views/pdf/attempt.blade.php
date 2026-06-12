@@ -241,7 +241,7 @@
         }
     }
     
-    $verificationUrl = "https://mynine.uz/attempt/" . $attempt->id;
+    $verificationUrl = route('attempt.pdf', $attempt->id);
 @endphp
 
 <div class="certificate-container">

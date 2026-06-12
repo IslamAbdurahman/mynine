@@ -30,7 +30,17 @@ class EvaluateEssayJob implements ShouldQueue
         try {
             $task = 'Evaluate the essay';
             $question = $answer->question->section->textarea;
-            $essay = $answer->answer_text;
+            $essay = $answer->answer_text ?? '';
+
+            // Count words
+            $wordCount = empty(trim($essay)) ? 0 : count(preg_split('/\s+/', trim($essay)));
+            if ($wordCount < 50) {
+                $answer->score = 0.0;
+                $answer->review_note_ai = "### IELTS Writing Evaluation\n\n**Overall Band Score:** 0.0\n\n#### Individual Criteria Scores:\n- **Task Response:** 0.0\n- **Coherence & Cohesion:** 0.0\n- **Lexical Resource:** 0.0\n- **Grammatical Range & Accuracy:** 0.0\n\n#### Detailed Feedback:\nYour essay contains only {$wordCount} words. Under IELTS criteria, essays with fewer than 50 words are considered too short to be evaluated and will receive a score of 0. Please write at least 150 words for Task 1 and 250 words for Task 2.";
+                $answer->save();
+                $this->recalculateAttemptTypeScore($answer);
+                return;
+            }
 
             $openAIService = new OpenAIService();
             $resultJson = $openAIService->evaluateEssay($task, $question, $essay);

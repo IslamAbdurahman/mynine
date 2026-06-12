@@ -345,15 +345,77 @@
                 @foreach($part->part->sections as $sec)
                     @foreach($sec->questions as $q)
                         @if(optional($q->attempt_answer)->review_note_ai)
+                            @php
+                                $reviewText = $q->attempt_answer->review_note_ai;
+                                
+                                // Extract Overall Band Score
+                                preg_match('/Overall Band Score:\s*([0-9.]+)/i', $reviewText, $matches);
+                                $essayOverall = $matches[1] ?? null;
+
+                                // Extract individual criteria scores
+                                preg_match('/Task Response:\s*([0-9.]+)/i', $reviewText, $matches);
+                                $taskResponse = $matches[1] ?? 'N/A';
+
+                                preg_match('/Coherence & Cohesion:\s*([0-9.]+)/i', $reviewText, $matches);
+                                $coherenceCohesion = $matches[1] ?? 'N/A';
+
+                                preg_match('/Lexical Resource:\s*([0-9.]+)/i', $reviewText, $matches);
+                                $lexicalResource = $matches[1] ?? 'N/A';
+
+                                preg_match('/Grammatical Range & Accuracy:\s*([0-9.]+)/i', $reviewText, $matches);
+                                $grammaticalRange = $matches[1] ?? 'N/A';
+
+                                // Extract Detailed Feedback
+                                $feedbackParts = explode('Detailed Feedback:', $reviewText);
+                                $detailedFeedback = count($feedbackParts) > 1 ? trim($feedbackParts[1]) : null;
+                                
+                                if (!$detailedFeedback) {
+                                    $detailedFeedback = $reviewText;
+                                }
+                            @endphp
                             <div class="section-title">Writing Task {{ $loop->iteration }} Evaluation</div>
                             <div class="essay-container">
-                                <strong>Your Essay:</strong>
-                                <p style="white-space: pre-wrap; color: #1a202c; margin-top: 5px; margin-bottom: 15px;">
-                                    {{ $q->attempt_answer->answer_text }}
-                                </p>
-                                <strong>AI Feedback:</strong>
-                                <div class="essay-feedback" style="margin-top: 5px;">
-                                    {!! nl2br(e($q->attempt_answer->review_note_ai)) !!}
+                                <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                                    <tr>
+                                        <td style="width: 60%; vertical-align: top; padding-right: 15px; border-right: 1px solid #e2e8f0;">
+                                            <div style="font-weight: bold; color: #4a5568; margin-bottom: 5px;">Your Essay:</div>
+                                            <div style="white-space: pre-wrap; color: #1a202c; font-size: 10.5px; line-height: 1.4;">{{ $q->attempt_answer->answer_text }}</div>
+                                        </td>
+                                        <td style="width: 40%; vertical-align: top; padding-left: 15px;">
+                                            <div style="font-weight: bold; color: #1a365d; margin-bottom: 8px; text-transform: uppercase; font-size: 11px;">AI Score Summary:</div>
+                                            <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+                                                <tr>
+                                                    <td style="padding: 4px 0; border-bottom: 1px solid #edf2f7; color: #718096;">Task Response:</td>
+                                                    <td style="padding: 4px 0; border-bottom: 1px solid #edf2f7; text-align: right; font-weight: bold;">{{ $taskResponse }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="padding: 4px 0; border-bottom: 1px solid #edf2f7; color: #718096;">Coherence & Cohesion:</td>
+                                                    <td style="padding: 4px 0; border-bottom: 1px solid #edf2f7; text-align: right; font-weight: bold;">{{ $coherenceCohesion }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="padding: 4px 0; border-bottom: 1px solid #edf2f7; color: #718096;">Lexical Resource:</td>
+                                                    <td style="padding: 4px 0; border-bottom: 1px solid #edf2f7; text-align: right; font-weight: bold;">{{ $lexicalResource }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="padding: 4px 0; border-bottom: 1px solid #edf2f7; color: #718096;">Grammatical Range:</td>
+                                                    <td style="padding: 4px 0; border-bottom: 1px solid #edf2f7; text-align: right; font-weight: bold;">{{ $grammaticalRange }}</td>
+                                                </tr>
+                                                @if($essayOverall)
+                                                <tr>
+                                                    <td style="padding: 6px 0; color: #2b6cb0; font-weight: bold; font-size: 11px;">Overall Band:</td>
+                                                    <td style="padding: 6px 0; text-align: right; font-weight: bold; color: #2b6cb0; font-size: 12px;">{{ $essayOverall }}</td>
+                                                </tr>
+                                                @endif
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                                
+                                <div style="border-top: 1px solid #e2e8f0; padding-top: 10px; margin-top: 10px;">
+                                    <div style="font-weight: bold; color: #1a365d; margin-bottom: 5px;">Detailed Feedback & Suggestions:</div>
+                                    <div style="color: #4a5568; font-style: italic; white-space: pre-wrap; word-wrap: break-word; font-size: 10px; line-height: 1.5;">
+                                        {!! nl2br(e($detailedFeedback)) !!}
+                                    </div>
                                 </div>
                             </div>
                         @endif

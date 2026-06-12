@@ -142,10 +142,11 @@
         /* Essay details */
         .essay-container {
             margin-bottom: 20px;
-            padding: 10px;
-            border: 1px solid #e2e8f0;
-            background: #f7fafc;
-            border-radius: 4px;
+            padding: 15px;
+            border: 1px solid #cbd5e0;
+            background: #f8fafc;
+            border-radius: 6px;
+            page-break-inside: avoid;
         }
 
         .essay-feedback {
@@ -204,6 +205,31 @@
 <body>
 
 @php
+    if (!function_exists('parseMarkdownToHtml')) {
+        function parseMarkdownToHtml($text) {
+            if (empty($text)) return '';
+            
+            // Safe conversion of HTML special chars
+            $html = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+            
+            // Convert headers: ### Heading -> styled block
+            $html = preg_replace('/^###\s+(.+)$/m', '<strong style="color: #1a365d; font-size: 11px; display: block; margin-top: 10px; margin-bottom: 5px;">$1</strong>', $html);
+            $html = preg_replace('/^##\s+(.+)$/m', '<strong style="color: #1a365d; font-size: 12px; display: block; margin-top: 12px; margin-bottom: 6px;">$1</strong>', $html);
+            $html = preg_replace('/^#\s+(.+)$/m', '<strong style="color: #1a365d; font-size: 14px; display: block; margin-top: 15px; border-bottom: 1px solid #cbd5e0; padding-bottom: 3px; margin-bottom: 8px;">$1</strong>', $html);
+            
+            // Convert bold: **bold** -> <strong>bold</strong>
+            $html = preg_replace('/\*\*(.*?)\*\*/', '<strong>$1</strong>', $html);
+            
+            // Convert list items: - list item -> styled div
+            $html = preg_replace('/^\s*[-*]\s+(.+)$/m', '<div style="margin-left: 12px; margin-bottom: 4px; padding-left: 8px; border-left: 2px solid #cbd5e0;">$1</div>', $html);
+            
+            // Preserve line breaks
+            $html = nl2br($html);
+            
+            return $html;
+        }
+    }
+
     $listeningCorrect = 0;
     $readingCorrect = 0;
     
@@ -413,8 +439,8 @@
                                 
                                 <div style="border-top: 1px solid #e2e8f0; padding-top: 10px; margin-top: 10px;">
                                     <div style="font-weight: bold; color: #1a365d; margin-bottom: 5px;">Detailed Feedback & Suggestions:</div>
-                                    <div style="color: #4a5568; font-style: italic; white-space: pre-wrap; word-wrap: break-word; font-size: 10px; line-height: 1.5;">
-                                        {!! nl2br(e($detailedFeedback)) !!}
+                                    <div style="color: #4a5568; font-style: normal; white-space: normal; word-wrap: break-word; font-size: 10px; line-height: 1.5;">
+                                        {!! parseMarkdownToHtml($detailedFeedback) !!}
                                     </div>
                                 </div>
                             </div>

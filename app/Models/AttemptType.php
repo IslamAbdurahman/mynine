@@ -17,6 +17,7 @@ class AttemptType extends Model
         'type_id',
         'score',
         'is_correct_count',
+        'is_submitted',
         'comment',
         'started_at',
         'finished_at',
@@ -165,6 +166,7 @@ class AttemptType extends Model
     public function finish()
     {
         $this->finished_at = now();
+        $this->is_submitted = true;
         $this->save();
 
         // Bog'liq AttemptPartlarni ham yakunlash

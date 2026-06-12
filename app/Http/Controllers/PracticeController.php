@@ -29,6 +29,7 @@ class PracticeController extends Controller
         ]);
 
         try {
+            $this->checkAndAutoFinishExpired($request->attempt_id);
             $attempt = Attempt::with(['user', 'test.types', 'attempt_types'])->find($request->attempt_id);
 
             if (!$attempt) {
@@ -123,7 +124,7 @@ class PracticeController extends Controller
                 ->where('type_id', $type_id)
                 ->firstOrFail();
 
-            if ($attempt_type->finished_at && $attempt_type->finished_at <= now()) {
+            if ($attempt_type->is_submitted) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Test type already submitted.',
@@ -143,7 +144,7 @@ class PracticeController extends Controller
                 ->whereHas('question.section.question_type', function ($query) {
                     $query->where('type', 'essay');
                 })
-                ->whereRaw('LENGTH(answer_text) > 200')
+                ->whereRaw('LENGTH(answer_text) > 10')
                 ->get();
 
             foreach ($attempt_answers as $answer) {
@@ -181,6 +182,7 @@ class PracticeController extends Controller
     public function practice_attempt($attempt_id)
     {
         try {
+            $this->checkAndAutoFinishExpired($attempt_id);
 
             $attempt = Attempt::with([
                 'user',
@@ -218,6 +220,8 @@ class PracticeController extends Controller
                 'attempt_id' => 'required|exists:attempts,id',
             ]);
 
+            $this->checkAndAutoFinishExpired($request->attempt_id);
+
             $test_type = TestType::with([
                 'parts'
             ])
@@ -245,6 +249,8 @@ class PracticeController extends Controller
             $request->validate([
                 'attempt_id' => 'required|exists:attempts,id',
             ]);
+
+            $this->checkAndAutoFinishExpired($request->attempt_id);
 
             DB::beginTransaction();
 
@@ -342,5 +348,35 @@ class PracticeController extends Controller
     public function destroy(Test $test)
     {
         //
+    }
+
+    private function checkAndAutoFinishExpired($attemptId)
+    {
+        $expiredAttemptTypes = AttemptType::where('attempt_id', $attemptId)
+            ->where('is_submitted', false)
+            ->whereNotNull('finished_at')
+            ->where('finished_at', '<', now())
+            ->get();
+
+        foreach ($expiredAttemptTypes as $attemptType) {
+            $attempt_answers = AttemptAnswer::query()
+                ->whereHas('attempt_part', function ($query) use ($attemptId, $attemptType) {
+                    $query->where('attempt_id', $attemptId)
+                        ->whereHas('part.test_type', function ($q) use ($attemptType) {
+                            $q->where('type_id', $attemptType->type_id);
+                        });
+                })
+                ->whereHas('question.section.question_type', function ($query) {
+                    $query->where('type', 'essay');
+                })
+                ->whereRaw('LENGTH(answer_text) > 10')
+                ->get();
+
+            foreach ($attempt_answers as $answer) {
+                EvaluateEssayJob::dispatch($answer->id);
+            }
+
+            $attemptType->finish();
+        }
     }
 }

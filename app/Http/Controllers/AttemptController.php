@@ -174,10 +174,7 @@ class AttemptController extends Controller
             'test',
             'user',
             'mock',
-            'attempt_types' => function ($query) {
-                $query->whereHas('type', function ($q) {
-                });
-            }
+            'attempt_types.type'
         ]);
 
         // Append attempt_parts for PDF view

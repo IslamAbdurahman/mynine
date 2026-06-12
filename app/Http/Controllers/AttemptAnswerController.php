@@ -43,6 +43,25 @@ class AttemptAnswerController extends Controller
                 ->first();
 
             if ($testType && $testType->finished_at < now()) {
+                if (!$testType->is_submitted) {
+                    $attempt_answers = \App\Models\AttemptAnswer::query()
+                        ->whereHas('attempt_part', function ($query) use ($testType) {
+                            $query->where('attempt_id', $testType->attempt_id)
+                                ->whereHas('part.test_type', function ($q) use ($testType) {
+                                    $q->where('type_id', $testType->type_id);
+                                });
+                        })
+                        ->whereHas('question.section.question_type', function ($query) {
+                            $query->where('type', 'essay');
+                        })
+                        ->whereRaw('LENGTH(answer_text) > 10')
+                        ->get();
+
+                    foreach ($attempt_answers as $answer) {
+                        \App\Jobs\EvaluateEssayJob::dispatch($answer->id);
+                    }
+                    $testType->finish();
+                }
                 throw ValidationException::withMessages([
                     'error' => ["Time is up for this test type! You cannot submit answers. ⏰"],
                 ]);

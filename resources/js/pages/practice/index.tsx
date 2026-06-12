@@ -25,6 +25,31 @@ export default function Practice() {
     const [flaggedIds, setFlaggedIds] = useState<Set<number>>(new Set());
     const [serverTimeOffset, setServerTimeOffset] = useState<number>(0);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [leftWidth, setLeftWidth] = useState<number>(50); // percentage
+
+    const startResize = (mouseDownEvent: React.MouseEvent) => {
+        mouseDownEvent.preventDefault();
+
+        const startX = mouseDownEvent.clientX;
+        const startWidth = leftWidth;
+        const container = mouseDownEvent.currentTarget.parentElement;
+        if (!container) return;
+        const containerWidth = container.getBoundingClientRect().width || window.innerWidth;
+
+        const doDrag = (mouseMoveEvent: MouseEvent) => {
+            const deltaX = mouseMoveEvent.clientX - startX;
+            const newWidthPercent = startWidth + (deltaX / containerWidth) * 100;
+            setLeftWidth(Math.max(25, Math.min(75, newWidthPercent)));
+        };
+
+        const stopDrag = () => {
+            document.removeEventListener('mousemove', doDrag);
+            document.removeEventListener('mouseup', stopDrag);
+        };
+
+        document.addEventListener('mousemove', doDrag);
+        document.addEventListener('mouseup', stopDrag);
+    };
 
     const toggleFlag = (id: number) => {
         setFlaggedIds((prev) => {
@@ -307,73 +332,101 @@ export default function Practice() {
             )}
 
 
-            {selectedPart && (
-                <div className="flex-1 overflow-hidden">
-                    <div
-                        className={`h-full flex flex-col sm:flex-row bg-white dark:bg-gray-900 ${selectedPart.test_type.type.name === 'Listening'
-                            ? 'justify-center items-start'
-                            : ''
-                            }`}
-                    >
-                        {/* Left side scroll */}
-                        {selectedPart.test_type.type.name !== 'Listening' && (
-                            <div className="flex-1 h-full overflow-y-auto w-full sm:w-1/2 p-6 border-r-2 border-gray-300 dark:border-gray-700">
-                                <PracticePart
-                                    attempt={attempt}
-                                    part={selectedPart} />
-                            </div>
-                        )}
-
-                        {/* Right side scroll */}
-                        {selectedPart.test_type.type.name !== 'Writing' && (
-                            <div className="flex-1 h-full overflow-y-auto w-full sm:w-1/2 p-6 bg-gray-50 dark:bg-gray-900">
-                                <div className="max-w-3xl mx-auto">
-                                    {selectedPart?.sections?.reduce((acc: ReactElement[], section: Section, sectionIndex: number) => {
-                                        const sectionSum = section.questions.reduce(
-                                            (sum: number, q: Question) => sum + Number(q.is_correct_count ?? 1),
-                                            0
-                                        );
-
-                                        const currentOrder = Number(order);
-
-                                        acc.push(
-                                            <PracticeSection
-                                                key={section.id}
-                                                order={currentOrder}
-                                                section={section}
-                                                attempt={attempt}
-                                                partIndex={sectionIndex}
-                                                sectionIndex={sectionIndex}
-                                                setSelectedPart={setSelectedPart}
-                                                flaggedIds={flaggedIds}
-                                                toggleFlag={toggleFlag}
-                                            />
-                                        );
-
-                                        order = currentOrder + sectionSum;
-
-                                        return acc;
-                                    }, [])}
+            {selectedPart && (() => {
+                const isSplit = selectedPart.test_type.type.name === 'Reading' || selectedPart.test_type.type.name === 'Writing';
+                return (
+                    <div className="flex-1 overflow-hidden">
+                        <div
+                            className={`h-full flex flex-col sm:flex-row bg-white dark:bg-gray-900 ${selectedPart.test_type.type.name === 'Listening'
+                                ? 'justify-center items-start'
+                                : ''
+                                }`}
+                        >
+                            {/* Left side scroll */}
+                            {selectedPart.test_type.type.name !== 'Listening' && (
+                                <div 
+                                    className={`h-full overflow-y-auto p-6 border-r-2 border-gray-300 dark:border-gray-700 ${
+                                        isSplit ? 'flex-none' : 'flex-1 w-full sm:w-1/2'
+                                    }`}
+                                    style={{ width: isSplit ? `${leftWidth}%` : undefined }}
+                                >
+                                    <PracticePart
+                                        attempt={attempt}
+                                        part={selectedPart} />
                                 </div>
-                            </div>
-                        )}
+                            )}
 
-                        {selectedPart.test_type.type.name === 'Writing' && (
-                            <div className="flex-1 h-full overflow-y-auto w-full sm:w-1/2 p-6 bg-gray-50 dark:bg-gray-900">
-                                <PracticeEssay
-                                    order={order}
-                                    part={selectedPart}
-                                    attempt={attempt}
-                                    setSelectedPart={setSelectedPart}
-                                    isFlagged={flaggedIds.has(selectedPart.sections[0]?.questions[0]?.id)}
-                                    toggleFlag={toggleFlag}
-                                />
-                            </div>
-                        )}
+                            {/* Resizable Divider */}
+                            {isSplit && (
+                                <div
+                                    className="w-1 bg-gray-300 dark:bg-gray-700 hover:bg-black dark:hover:bg-white cursor-col-resize h-full transition-all flex items-center justify-center select-none z-30"
+                                    onMouseDown={startResize}
+                                >
+                                    <div className="w-[2px] h-6 bg-gray-400 dark:bg-gray-600 rounded"></div>
+                                </div>
+                            )}
 
+                            {/* Right side scroll */}
+                            {selectedPart.test_type.type.name !== 'Writing' && (
+                                <div 
+                                    className={`h-full overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900 ${
+                                        isSplit ? 'flex-none' : 'flex-1 w-full sm:w-1/2'
+                                    }`}
+                                    style={{ width: isSplit ? `${100 - leftWidth}%` : undefined }}
+                                >
+                                    <div className="max-w-3xl mx-auto">
+                                        {selectedPart?.sections?.reduce((acc: ReactElement[], section: Section, sectionIndex: number) => {
+                                            const sectionSum = section.questions.reduce(
+                                                (sum: number, q: Question) => sum + Number(q.is_correct_count ?? 1),
+                                                0
+                                            );
+
+                                            const currentOrder = Number(order);
+
+                                            acc.push(
+                                                <PracticeSection
+                                                    key={section.id}
+                                                    order={currentOrder}
+                                                    section={section}
+                                                    attempt={attempt}
+                                                    partIndex={sectionIndex}
+                                                    sectionIndex={sectionIndex}
+                                                    setSelectedPart={setSelectedPart}
+                                                    flaggedIds={flaggedIds}
+                                                    toggleFlag={toggleFlag}
+                                                />
+                                            );
+
+                                            order = currentOrder + sectionSum;
+
+                                            return acc;
+                                        }, [])}
+                                    </div>
+                                </div>
+                            )}
+
+                            {selectedPart.test_type.type.name === 'Writing' && (
+                                <div 
+                                    className={`h-full overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900 ${
+                                        isSplit ? 'flex-none' : 'flex-1 w-full sm:w-1/2'
+                                    }`}
+                                    style={{ width: isSplit ? `${100 - leftWidth}%` : undefined }}
+                                >
+                                    <PracticeEssay
+                                        order={order}
+                                        part={selectedPart}
+                                        attempt={attempt}
+                                        setSelectedPart={setSelectedPart}
+                                        isFlagged={flaggedIds.has(selectedPart.sections[0]?.questions[0]?.id)}
+                                        toggleFlag={toggleFlag}
+                                    />
+                                </div>
+                            )}
+
+                        </div>
                     </div>
-                </div>
-            )}
+                );
+            })()}
 
 
             {testType && !selectedPart && !isLoading && (

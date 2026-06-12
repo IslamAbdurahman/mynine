@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Attempt, Part } from '@/types';
 import { sanitizeAndInsertWbr } from '@/utils/sanitizeAndInsertWbr';
+import { Highlighter, Trash2 } from 'lucide-react';
 
 interface PartUpdateProps {
     part: Part;
@@ -56,10 +57,10 @@ export default function PracticePart({ attempt, part }: PartUpdateProps) {
         const rect = range.getBoundingClientRect();
         const containerRect = textRef.current.getBoundingClientRect();
 
-        // Position toolbar below the selection inside container
+        // Position toolbar above the selection inside container
         setToolbarPos({
-            top: rect.bottom - containerRect.top + textRef.current.scrollTop + 50, // below selection
-            left: rect.left - containerRect.left + textRef.current.scrollLeft,
+            top: rect.top - containerRect.top + textRef.current.scrollTop - 45, // above selection
+            left: Math.max(10, rect.left - containerRect.left + textRef.current.scrollLeft + (rect.width / 2) - 60), // centered
         });
         setSelectionRange(range);
     };
@@ -170,33 +171,50 @@ export default function PracticePart({ attempt, part }: PartUpdateProps) {
             {toolbarPos && (
                 <div
                     ref={toolbarRef}
+                    className="flex items-center gap-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xl rounded-full px-2 py-1 select-none animate-in fade-in zoom-in-95 duration-100"
                     style={{
                         position: 'absolute',
                         top: toolbarPos.top,
                         left: toolbarPos.left,
                         zIndex: 50,
-                        display: 'flex',
-                        gap: '4px',
                     }}
                 >
                     <button
                         onClick={handleHighlight}
-                        className="px-2 py-1 bg-yellow-300 hover:bg-yellow-400 dark:bg-yellow-600 dark:hover:bg-yellow-500 text-gray-900 dark:text-gray-100 text-sm"
+                        className="p-1 hover:bg-yellow-100 dark:hover:bg-yellow-950/40 rounded-full text-yellow-600 dark:text-yellow-400 transition-colors flex items-center gap-1 text-xs font-semibold px-2"
+                        title={t('highlight') || 'Highlight'}
                     >
-                        {t('highlight') || 'Highlight'}
+                        <Highlighter className="w-3.5 h-3.5" />
+                        <span>{t('highlight') || 'Highlight'}</span>
                     </button>
+                    <div className="w-[1px] h-3 bg-gray-200 dark:bg-gray-700 mx-0.5"></div>
                     <button
                         onClick={handleClearHighlight}
-                        className="px-2 py-1 bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 text-sm"
+                        className="p-1 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-full text-red-600 dark:text-red-400 transition-colors flex items-center gap-1 text-xs font-semibold px-2"
+                        title={t('clearHighlight') || 'Clear'}
                     >
-                        {t('clearHighlight') || 'Clear'}
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>{t('clear') || 'Clear'}</span>
                     </button>
                 </div>
             )}
 
             <style>{`
                 mark.highlight {
-                  background-color: yellow;
+                  background-color: rgba(253, 224, 71, 0.4);
+                  color: inherit;
+                  border-radius: 2px;
+                  padding: 1px 0;
+                  transition: background-color 0.2s;
+                }
+                .dark mark.highlight {
+                  background-color: rgba(234, 179, 8, 0.35);
+                }
+                mark.highlight:hover {
+                  background-color: rgba(253, 224, 71, 0.6);
+                }
+                .dark mark.highlight:hover {
+                  background-color: rgba(234, 179, 8, 0.5);
                 }
             `}</style>
         </div>

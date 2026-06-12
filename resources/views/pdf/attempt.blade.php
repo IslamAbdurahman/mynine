@@ -18,8 +18,8 @@
         /* Page Border repeating on every page */
         .page-border {
             position: fixed;
-            top: 10pt;
-            left: 10pt;
+            top: -20pt;
+            left: -20pt;
             width: 575pt;
             height: 822pt;
             border: 4pt double #1a365d;

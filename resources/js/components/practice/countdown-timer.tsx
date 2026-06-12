@@ -12,6 +12,7 @@ export function CountdownTimer({
                                    serverTimeOffset = 0,
                                }: CountdownTimerProps) {
     const [timeLeft, setTimeLeft] = useState<string>("");
+    const [isLowTime, setIsLowTime] = useState<boolean>(false);
 
     useEffect(() => {
         if (!finishedAt) return;
@@ -24,8 +25,15 @@ export function CountdownTimer({
 
             if (diff <= 0) {
                 setTimeLeft("00:00:00");
+                setIsLowTime(true);
                 onExpire?.(); // 🔥 call when expired
                 return false;
+            }
+
+            if (diff <= 180000) { // 3 minutes (180,000 ms)
+                setIsLowTime(true);
+            } else {
+                setIsLowTime(false);
             }
 
             const hours = Math.floor(diff / (1000 * 60 * 60));
@@ -53,5 +61,9 @@ export function CountdownTimer({
         return () => clearInterval(interval);
     }, [finishedAt, onExpire]);
 
-    return <span>{timeLeft}</span>;
+    return (
+        <span className={`font-mono transition-all duration-300 ${isLowTime ? 'text-red-500 dark:text-red-400 font-bold animate-pulse' : ''}`}>
+            {timeLeft}
+        </span>
+    );
 }

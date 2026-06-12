@@ -29,13 +29,15 @@ export default function PracticeQuestion({
                                          }: SectionUpdateProps) {
     const { t } = useTranslation();
 
-    const [answer_text, setAnswerText] = useState<string | undefined>(
-        question.attempt_answer?.answer_text
-    );
+    const [answer_text, setAnswerText] = useState<string | undefined>(() => {
+        const saved = localStorage.getItem(`unsaved-q-${attempt.id}-${question.id}`);
+        return saved !== null ? saved : question.attempt_answer?.answer_text;
+    });
 
-    const [matchingAnswer, setMatchingAnswer] = useState<string>(
-        question.attempt_answer?.answer_text ?? ''
-    );
+    const [matchingAnswer, setMatchingAnswer] = useState<string>(() => {
+        const saved = localStorage.getItem(`unsaved-q-${attempt.id}-${question.id}`);
+        return saved !== null ? saved : (question.attempt_answer?.answer_text ?? '');
+    });
 
     const renderWithBlanks = (text: string) => {
         const parts = text.split(/\{\}/g);
@@ -77,6 +79,9 @@ export default function PracticeQuestion({
                 const data = await response.json();
 
                 if (!response.ok) throw new Error(data.error);
+
+                // Remove from LocalStorage upon successful sync
+                localStorage.removeItem(`unsaved-q-${attempt.id}-${qId}`);
 
                 // 🟢 Lokal holatni yangilash
                 setSelectedPart((prev: Part | null) => {
@@ -123,12 +128,54 @@ export default function PracticeQuestion({
 
     const handleChange = (qId: number, value: string) => {
         setAnswerText(value);
+        localStorage.setItem(`unsaved-q-${attempt.id}-${qId}`, value);
         debouncedSave(qId, value);
     };
 
-    const [selectedOptionIds, setSelectedOptionIds] = useState<number[]>(
-        question.attempt_answer?.attempt_answer_options?.map((a) => a.option_id) ?? []
-    );
+    const [selectedOptionIds, setSelectedOptionIds] = useState<number[]>(() => {
+        const saved = localStorage.getItem(`unsaved-opt-${attempt.id}-${question.id}`);
+        return saved !== null 
+            ? JSON.parse(saved) 
+            : (question.attempt_answer?.attempt_answer_options?.map((a) => a.option_id) ?? []);
+    });
+
+    // 🚀 Auto-sync from LocalStorage on mount
+    React.useEffect(() => {
+        const unsavedText = localStorage.getItem(`unsaved-q-${attempt.id}-${question.id}`);
+        if (unsavedText !== null && unsavedText !== question.attempt_answer?.answer_text) {
+            debouncedSave(question.id, unsavedText);
+        }
+
+        const unsavedOpt = localStorage.getItem(`unsaved-opt-${attempt.id}-${question.id}`);
+        if (unsavedOpt !== null) {
+            const parsed = JSON.parse(unsavedOpt);
+            const backendOpts = question.attempt_answer?.attempt_answer_options?.map((a) => a.option_id) ?? [];
+            const isSame = parsed.length === backendOpts.length && parsed.every((val: number) => backendOpts.includes(val));
+            if (!isSame) {
+                fetch(route('attempt-answer.store', {
+                    part_id: section.part_id,
+                    attempt_id: attempt.id
+                }), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement).content
+                    },
+                    body: JSON.stringify({
+                        question_id: question.id,
+                        options: parsed
+                    })
+                })
+                .then(async (response) => {
+                    const data = await response.json();
+                    if (data.success) {
+                        localStorage.removeItem(`unsaved-opt-${attempt.id}-${question.id}`);
+                    }
+                })
+                .catch(() => {});
+            }
+        }
+    }, [attempt.id, question.id]);
 
     // 🚀 Option toggle (fetch bilan)
     const toggleOption = async (optionId: number) => {
@@ -145,6 +192,9 @@ export default function PracticeQuestion({
             } else {
                 updated = [optionId];
             }
+
+            // Save to LocalStorage immediately
+            localStorage.setItem(`unsaved-opt-${attempt.id}-${question.id}`, JSON.stringify(updated));
 
             // 🔄 Backendga yuborish
             fetch(route('attempt-answer.store', {
@@ -167,6 +217,8 @@ export default function PracticeQuestion({
                     return data; // ✅ pass parsed data to next .then()
                 })
                 .then(() => {
+                    // Clear from LocalStorage on success
+                    localStorage.removeItem(`unsaved-opt-${attempt.id}-${question.id}`);
 
                     setSelectedPart((prev: Part | null) => {
                         if (!prev) return null;
@@ -243,6 +295,7 @@ export default function PracticeQuestion({
                             value={matchingAnswer}
                             onChange={(e) => {
                                 setMatchingAnswer(e.target.value);
+                                localStorage.setItem(`unsaved-q-${attempt.id}-${question.id}`, e.target.value);
                                 debouncedSave(question.id, e.target.value);
                             }}
                             className="ms-2 inline-block rounded-md border border-blue-500 px-2 py-0.5 text-sm shadow-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white align-middle"
@@ -263,6 +316,7 @@ export default function PracticeQuestion({
                         value={matchingAnswer}
                         onChange={(e) => {
                             setMatchingAnswer(e.target.value);
+                            localStorage.setItem(`unsaved-q-${attempt.id}-${question.id}`, e.target.value);
                             debouncedSave(question.id, e.target.value);
                         }}
                         className="w-full min-h-[400px] mt-4 rounded-sm border-2 border-black dark:border-gray-500 bg-white dark:bg-gray-800 p-4 text-[16px] leading-[1.6] font-sans shadow-inner focus:outline-none resize-y text-black dark:text-gray-100"

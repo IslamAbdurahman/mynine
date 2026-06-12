@@ -15,11 +15,21 @@
             line-height: 1.5;
         }
 
+        /* Page Border repeating on every page */
+        .page-border {
+            position: fixed;
+            top: 10pt;
+            left: 10pt;
+            width: 575pt;
+            height: 822pt;
+            border: 4pt double #1a365d;
+            z-index: 1000;
+        }
+
         /* Certificate border and styling */
         .certificate-container {
-            border: 4px double #1a365d;
             padding: 25px;
-            background: #fff;
+            background: transparent;
             position: relative;
         }
 
@@ -287,6 +297,8 @@
     $verificationCode = strtoupper(substr(hash('sha256', $attempt->id . $attempt->created_at), 0, 12));
 @endphp
 
+<div class="page-border"></div>
+
 <div class="watermark">MYNINE.UZ</div>
 
 <div class="certificate-container">
@@ -399,48 +411,50 @@
                                     $detailedFeedback = $reviewText;
                                 }
                             @endphp
-                            <div class="section-title">Writing Task {{ $loop->iteration }} Evaluation</div>
-                            <div class="essay-container">
-                                <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
-                                    <tr>
-                                        <td style="width: 60%; vertical-align: top; padding-right: 15px; border-right: 1px solid #e2e8f0;">
-                                            <div style="font-weight: bold; color: #4a5568; margin-bottom: 5px;">Your Essay:</div>
-                                            <div style="white-space: pre-wrap; color: #1a202c; font-size: 10.5px; line-height: 1.4;">{{ $q->attempt_answer->answer_text }}</div>
-                                        </td>
-                                        <td style="width: 40%; vertical-align: top; padding-left: 15px;">
-                                            <div style="font-weight: bold; color: #1a365d; margin-bottom: 8px; text-transform: uppercase; font-size: 11px;">AI Score Summary:</div>
-                                            <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
-                                                <tr>
-                                                    <td style="padding: 4px 0; border-bottom: 1px solid #edf2f7; color: #718096;">Task Response:</td>
-                                                    <td style="padding: 4px 0; border-bottom: 1px solid #edf2f7; text-align: right; font-weight: bold;">{{ $taskResponse }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="padding: 4px 0; border-bottom: 1px solid #edf2f7; color: #718096;">Coherence & Cohesion:</td>
-                                                    <td style="padding: 4px 0; border-bottom: 1px solid #edf2f7; text-align: right; font-weight: bold;">{{ $coherenceCohesion }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="padding: 4px 0; border-bottom: 1px solid #edf2f7; color: #718096;">Lexical Resource:</td>
-                                                    <td style="padding: 4px 0; border-bottom: 1px solid #edf2f7; text-align: right; font-weight: bold;">{{ $lexicalResource }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="padding: 4px 0; border-bottom: 1px solid #edf2f7; color: #718096;">Grammatical Range:</td>
-                                                    <td style="padding: 4px 0; border-bottom: 1px solid #edf2f7; text-align: right; font-weight: bold;">{{ $grammaticalRange }}</td>
-                                                </tr>
-                                                @if($essayOverall)
-                                                <tr>
-                                                    <td style="padding: 6px 0; color: #2b6cb0; font-weight: bold; font-size: 11px;">Overall Band:</td>
-                                                    <td style="padding: 6px 0; text-align: right; font-weight: bold; color: #2b6cb0; font-size: 12px;">{{ $essayOverall }}</td>
-                                                </tr>
-                                                @endif
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </table>
-                                
-                                <div style="border-top: 1px solid #e2e8f0; padding-top: 10px; margin-top: 10px;">
-                                    <div style="font-weight: bold; color: #1a365d; margin-bottom: 5px;">Detailed Feedback & Suggestions:</div>
-                                    <div style="color: #4a5568; font-style: normal; white-space: normal; word-wrap: break-word; font-size: 10px; line-height: 1.5;">
-                                        {!! parseMarkdownToHtml($detailedFeedback) !!}
+                            <div style="page-break-before: always;">
+                                <div class="section-title">Writing Task {{ $loop->iteration }} Evaluation</div>
+                                <div class="essay-container">
+                                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                                        <tr>
+                                            <td style="width: 60%; vertical-align: top; padding-right: 15px; border-right: 1px solid #e2e8f0;">
+                                                <div style="font-weight: bold; color: #4a5568; margin-bottom: 5px;">Your Essay:</div>
+                                                <div style="white-space: pre-wrap; color: #1a202c; font-size: 10.5px; line-height: 1.4;">{{ $q->attempt_answer->answer_text }}</div>
+                                            </td>
+                                            <td style="width: 40%; vertical-align: top; padding-left: 15px;">
+                                                <div style="font-weight: bold; color: #1a365d; margin-bottom: 8px; text-transform: uppercase; font-size: 11px;">AI Score Summary:</div>
+                                                <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+                                                    <tr>
+                                                        <td style="padding: 4px 0; border-bottom: 1px solid #edf2f7; color: #718096;">Task Response:</td>
+                                                        <td style="padding: 4px 0; border-bottom: 1px solid #edf2f7; text-align: right; font-weight: bold;">{{ $taskResponse }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="padding: 4px 0; border-bottom: 1px solid #edf2f7; color: #718096;">Coherence & Cohesion:</td>
+                                                        <td style="padding: 4px 0; border-bottom: 1px solid #edf2f7; text-align: right; font-weight: bold;">{{ $coherenceCohesion }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="padding: 4px 0; border-bottom: 1px solid #edf2f7; color: #718096;">Lexical Resource:</td>
+                                                        <td style="padding: 4px 0; border-bottom: 1px solid #edf2f7; text-align: right; font-weight: bold;">{{ $lexicalResource }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="padding: 4px 0; border-bottom: 1px solid #edf2f7; color: #718096;">Grammatical Range:</td>
+                                                        <td style="padding: 4px 0; border-bottom: 1px solid #edf2f7; text-align: right; font-weight: bold;">{{ $grammaticalRange }}</td>
+                                                    </tr>
+                                                    @if($essayOverall)
+                                                    <tr>
+                                                        <td style="padding: 6px 0; color: #2b6cb0; font-weight: bold; font-size: 11px;">Overall Band:</td>
+                                                        <td style="padding: 6px 0; text-align: right; font-weight: bold; color: #2b6cb0; font-size: 12px;">{{ $essayOverall }}</td>
+                                                    </tr>
+                                                    @endif
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    
+                                    <div style="border-top: 1px solid #e2e8f0; padding-top: 10px; margin-top: 10px;">
+                                        <div style="font-weight: bold; color: #1a365d; margin-bottom: 5px;">Detailed Feedback & Suggestions:</div>
+                                        <div style="color: #4a5568; font-style: normal; white-space: normal; word-wrap: break-word; font-size: 10px; line-height: 1.5;">
+                                            {!! parseMarkdownToHtml($detailedFeedback) !!}
+                                        </div>
                                     </div>
                                 </div>
                             </div>

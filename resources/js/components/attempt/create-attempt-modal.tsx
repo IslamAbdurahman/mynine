@@ -89,11 +89,13 @@ export default function CreateAttemptModal({ test, mock }: AttemptUpdateProps) {
 
             <DialogContent className="max-h-[90vh] overflow-y-auto dark:border-gray-400">
                 <DialogTitle>{t('start_with_name', { name: test.name })}</DialogTitle>
-                <DialogDescription className="space-y-2 text-gray-700 dark:text-gray-300">
-                    <p>{t('begin_test_warning')}</p>
-                    <p>{t('test_start_warning')}</p>
-                    <p>{t('do_not_refresh')}</p>
-                    <p>{t('good_luck')}</p>
+                <DialogDescription className="space-y-2 text-gray-700 dark:text-gray-300" asChild>
+                    <div className="space-y-2 text-gray-700 dark:text-gray-300 text-sm">
+                        <p>{t('begin_test_warning')}</p>
+                        <p>{t('test_start_warning')}</p>
+                        <p>{t('do_not_refresh')}</p>
+                        <p>{t('good_luck')}</p>
+                    </div>
                 </DialogDescription>
 
                 {/* Check headset buttons */}

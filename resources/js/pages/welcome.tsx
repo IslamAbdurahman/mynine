@@ -125,13 +125,15 @@ export default function Welcome() {
                                 <div className="relative rounded-[2rem] overflow-hidden aspect-[4/3] bg-gray-50 dark:bg-black/20">
                                     <img
                                         src="/images/courses/coursethree.png"
-                                        alt={mock.test.name}
+                                        alt={mock.test?.name ?? ''}
                                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                    <div className="absolute right-4 bottom-4 transition-transform duration-500 group-hover:translate-x-1 shadow-2xl scale-110">
-                                        <CreateAttemptModal mock={mock} test={mock.test} />
-                                    </div>
+                                    {mock.test && (
+                                        <div className="absolute right-4 bottom-4 transition-transform duration-500 group-hover:translate-x-1 shadow-2xl scale-110">
+                                            <CreateAttemptModal mock={mock} test={mock.test} />
+                                        </div>
+                                    )}
                                     <div className="absolute top-4 left-4">
                                         <span className="px-4 py-2 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md text-primary text-xs font-black rounded-xl uppercase tracking-widest shadow-lg">
                                             {t('mock')}
@@ -143,7 +145,7 @@ export default function Welcome() {
                                 <div className="px-6 py-8 space-y-6">
                                     <div className="space-y-3">
                                         <h3 className="text-2xl font-black text-gray-900 dark:text-white leading-tight">
-                                            {mock.test.folder.name} : {mock.test.name}
+                                            {mock.test?.folder?.name ? `${mock.test.folder.name} : ` : ''}{mock.test?.name}
                                         </h3>
                                         <div className="h-1 w-12 bg-primary/30 rounded-full" />
                                     </div>

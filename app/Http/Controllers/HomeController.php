@@ -120,6 +120,7 @@ class HomeController extends Controller
     {
 
         $mock = Mock::query()
+            ->with(['test.folder'])
             ->where('slug', $request->slug)
             ->where('started_at', '<=', now())
             ->where('finished_at', '>=', now())

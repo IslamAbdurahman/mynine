@@ -18,10 +18,10 @@
         /* Page Border repeating on every page */
         .page-border {
             position: fixed;
-            top: -20pt;
-            left: -20pt;
-            width: 575pt;
-            height: 822pt;
+            top: -10pt;
+            left: -10pt;
+            width: 555pt;
+            height: 802pt;
             border: 4pt double #1a365d;
             z-index: 1000;
         }
@@ -156,7 +156,6 @@
             border: 1px solid #cbd5e0;
             background: #f8fafc;
             border-radius: 6px;
-            page-break-inside: avoid;
         }
 
         .essay-feedback {
@@ -414,7 +413,7 @@
                             <div style="page-break-before: always;">
                                 <div class="section-title">Writing Task {{ $loop->iteration }} Evaluation</div>
                                 <div class="essay-container">
-                                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; page-break-inside: avoid;">
                                         <tr>
                                             <td style="width: 60%; vertical-align: top; padding-right: 15px; border-right: 1px solid #e2e8f0;">
                                                 <div style="font-weight: bold; color: #4a5568; margin-bottom: 5px;">Your Essay:</div>

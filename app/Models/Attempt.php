@@ -85,7 +85,7 @@ class Attempt extends Model
                 ->whereHas('question.section.question_type', function ($query) {
                     $query->where('type', 'essay');
                 })
-                ->whereRaw('LENGTH(answer_text) > 200')
+                ->whereRaw('LENGTH(answer_text) > 10')
                 ->get();
 
             foreach ($essayAnswers as $answer) {

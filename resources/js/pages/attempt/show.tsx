@@ -43,6 +43,48 @@ export default function AttemptShow() {
     const isAdmin = auth?.user?.roles?.some(role => role.name === 'Admin');
     const isTeacher = auth?.user?.roles?.some(role => role.name === 'Teacher');
 
+    const getListeningBand = (correct: number): number => {
+        if (correct >= 39) return 9.0;
+        if (correct >= 37) return 8.5;
+        if (correct >= 35) return 8.0;
+        if (correct >= 32) return 7.5;
+        if (correct >= 30) return 7.0;
+        if (correct >= 26) return 6.5;
+        if (correct >= 23) return 6.0;
+        if (correct >= 18) return 5.5;
+        if (correct >= 16) return 5.0;
+        if (correct >= 13) return 4.5;
+        if (correct >= 10) return 4.0;
+        if (correct >= 8)  return 3.5;
+        if (correct >= 6)  return 3.0;
+        if (correct >= 4)  return 2.5;
+        if (correct === 3) return 2.0;
+        if (correct === 2) return 1.5;
+        if (correct === 1) return 1.0;
+        return 0.0;
+    };
+
+    const getReadingBand = (correct: number): number => {
+        if (correct >= 39) return 9.0;
+        if (correct >= 37) return 8.5;
+        if (correct >= 35) return 8.0;
+        if (correct >= 33) return 7.5;
+        if (correct >= 30) return 7.0;
+        if (correct >= 27) return 6.5;
+        if (correct >= 23) return 6.0;
+        if (correct >= 19) return 5.5;
+        if (correct >= 15) return 5.0;
+        if (correct >= 13) return 4.5;
+        if (correct >= 10) return 4.0;
+        if (correct >= 8)  return 3.5;
+        if (correct >= 6)  return 3.0;
+        if (correct >= 4)  return 2.5;
+        if (correct === 3) return 2.0;
+        if (correct === 2) return 1.5;
+        if (correct === 1) return 1.0;
+        return 0.0;
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Attempt" />
@@ -95,10 +137,14 @@ export default function AttemptShow() {
                                 >
                                     <div className="font-semibold text-gray-800 dark:text-gray-200 mb-2">
                                         {type.type?.name} : {type.type?.name === 'Writing'
-                                        ? Number(type.is_correct_count ?? 0) / 2
+                                        ? `${Number(type.is_correct_count ?? 0) / 2} (Band ${Number(type.is_correct_count ?? 0) / 2})`
                                         : type.type?.name === 'Speaking'
-                                            ? type.score
-                                            : type.is_correct_count}
+                                            ? `${type.score ?? 0} (Band ${type.score ?? 0})`
+                                            : type.type?.name === 'Listening'
+                                                ? `${type.is_correct_count ?? 0} / 40 (Band ${getListeningBand(Number(type.is_correct_count ?? 0))})`
+                                                : type.type?.name === 'Reading'
+                                                    ? `${type.is_correct_count ?? 0} / 40 (Band ${getReadingBand(Number(type.is_correct_count ?? 0))})`
+                                                    : type.is_correct_count}
                                     </div>
                                     <div className="text-sm text-gray-600 dark:text-gray-400">
 

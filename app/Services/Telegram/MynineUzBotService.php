@@ -68,15 +68,24 @@ class MynineUzBotService
             ? trim(str_replace('/start ', '', $update['message']['text']))
             : null;
 
-        $user = User::updateOrCreate(
-            ['telegram_id' => $chatId],
-            [
+        $user = User::where('telegram_id', $chatId)->first();
+
+        if (!$user) {
+            $user = User::create([
+                'telegram_id' => $chatId,
                 'name' => ($from['first_name'] ?? '') . ' ' . ($from['last_name'] ?? ''),
                 'username' => $from['username'] ?? null,
                 'avatar' => $from['photo_url'] ?? null,
                 'ref_telegram_id' => $ref_telegram_id,
-            ]
-        );
+            ]);
+        } else {
+            $user->update([
+                'name' => ($from['first_name'] ?? '') . ' ' . ($from['last_name'] ?? ''),
+                'username' => $from['username'] ?? null,
+                'avatar' => $from['photo_url'] ?? null,
+                'ref_telegram_id' => $user->ref_telegram_id ?? $ref_telegram_id,
+            ]);
+        }
 
         // Assign default role only if the user was just created
         if ($user->wasRecentlyCreated) {

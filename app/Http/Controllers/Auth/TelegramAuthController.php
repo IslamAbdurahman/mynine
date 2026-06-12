@@ -12,12 +12,30 @@ class TelegramAuthController extends Controller
     public function login(Request $request)
     {
         $data = $request->validate([
+            'initData' => 'nullable|string',
             'id' => 'required|numeric',
             'first_name' => 'nullable|string',
             'last_name' => 'nullable|string',
             'username' => 'nullable|string',
             'photo_url' => 'nullable|string',
         ]);
+
+        $isLocal = app()->environment('local');
+        $initData = $data['initData'] ?? '';
+
+        if (!empty($initData)) {
+            if (!$this->verifyTelegramWebApp($initData)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid Telegram WebApp signature',
+                ], 403);
+            }
+        } elseif (!$isLocal) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Telegram authentication initData is required',
+            ], 403);
+        }
 
         // 1️⃣ Try to find by telegram_id or by email (if older record exists)
         $user = User::where('telegram_id', $data['id'])
@@ -47,5 +65,35 @@ class TelegramAuthController extends Controller
             'success' => true,
             'redirect' => route('all-test.index'),
         ]);
+    }
+
+    private function verifyTelegramWebApp(string $initData): bool
+    {
+        $botToken = env('MynineUzBot_TOKEN');
+        if (empty($botToken) || empty($initData)) {
+            return false;
+        }
+
+        parse_str($initData, $data);
+
+        if (!isset($data['hash'])) {
+            return false;
+        }
+
+        $checkHash = $data['hash'];
+        unset($data['hash']);
+
+        ksort($data);
+
+        $dataCheckArr = [];
+        foreach ($data as $key => $value) {
+            $dataCheckArr[] = $key . '=' . $value;
+        }
+        $dataCheckString = implode("\n", $dataCheckArr);
+
+        $secretKey = hash_hmac('sha256', $botToken, 'WebAppData', true);
+        $hash = hash_hmac('sha256', $dataCheckString, $secretKey);
+
+        return hash_equals($hash, $checkHash);
     }
 }

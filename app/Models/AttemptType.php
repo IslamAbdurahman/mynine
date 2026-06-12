@@ -77,33 +77,76 @@ class AttemptType extends Model
      */
     public static function calculateIsCorrectCount($attempt_id, $type_id)
     {
-        return DB::table('attempt_answers as aa')
-            ->join('attempt_parts as ap', 'aa.attempt_part_id', '=', 'ap.id')
-            ->join('questions as q', 'aa.question_id', '=', 'q.id')
-            ->join('sections as s', 'q.section_id', '=', 's.id')
-            ->join('parts as p', 's.part_id', '=', 'p.id')
-            ->join('test_types as tt', 'p.test_type_id', '=', 'tt.id')
-            ->leftJoin('attempt_answer_options as aao', 'aa.id', '=', 'aao.attempt_answer_id')
-            ->where('ap.attempt_id', $attempt_id)
-            ->where('tt.type_id', $type_id)
-            ->selectRaw("
-        SUM(
-            IF(
-                tt.type_id IN (1, 2),
-                IF(
-                    aao.id IS NOT NULL,
-                    aao.is_correct,
-                    IF(
-                        TRIM(LOWER(aa.answer_text)) = TRIM(LOWER(q.answer_text)),
-                        1,
-                        0
-                    )
-                ),
-                aa.score
-            )
-        ) AS is_correct_count
-    ")
-            ->value('is_correct_count');
+        $answers = \App\Models\AttemptAnswer::query()
+            ->whereHas('attempt_part', function ($query) use ($attempt_id, $type_id) {
+                $query->where('attempt_id', $attempt_id)
+                    ->whereHas('part.test_type', function ($q) use ($type_id) {
+                        $q->where('type_id', $type_id);
+                    });
+            })
+            ->with(['question.options', 'attempt_answer_options', 'attempt_part.part.test_type'])
+            ->get();
+
+        $correctCount = 0;
+
+        foreach ($answers as $answer) {
+            $question = $answer->question;
+            if (!$question) {
+                continue;
+            }
+
+            $testType = $answer->attempt_part->part->test_type;
+            
+            // Writing (3) or Speaking (4)
+            if (!in_array($testType->type_id, [1, 2])) {
+                $correctCount += $answer->score;
+                continue;
+            }
+
+            // Listening (1) and Reading (2)
+            if ($question->options->count() > 0) {
+                foreach ($answer->attempt_answer_options as $aao) {
+                    if ($aao->is_correct == 1) {
+                        $correctCount += 1;
+                    }
+                }
+            } else {
+                $studentAnswer = trim(strtolower($answer->answer_text));
+                if ($studentAnswer === '') {
+                    continue;
+                }
+
+                $correctAnswerText = $question->answer_text;
+                if (empty($correctAnswerText)) {
+                    continue;
+                }
+
+                $delimiters = ['/', ';'];
+                $normalizedCorrectAnswers = [$correctAnswerText];
+                
+                foreach ($delimiters as $delimiter) {
+                    $tempAnswers = [];
+                    foreach ($normalizedCorrectAnswers as $val) {
+                        if (str_contains($val, $delimiter)) {
+                            $tempAnswers = array_merge($tempAnswers, explode($delimiter, $val));
+                        } else {
+                            $tempAnswers[] = $val;
+                        }
+                    }
+                    $normalizedCorrectAnswers = $tempAnswers;
+                }
+
+                $normalizedCorrectAnswers = array_map(function($val) {
+                    return trim(strtolower($val));
+                }, $normalizedCorrectAnswers);
+
+                if (in_array($studentAnswer, $normalizedCorrectAnswers)) {
+                    $correctCount += 1;
+                }
+            }
+        }
+
+        return $correctCount;
     }
 
     /**

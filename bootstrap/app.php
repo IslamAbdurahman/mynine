@@ -23,11 +23,13 @@ return Application::configure(basePath: dirname(__DIR__))
             AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        // ✅ Telegram webhook uchun CSRF istisno
+        // ✅ Telegram & to'lov webhooklari uchun CSRF istisnolari
         $middleware->validateCsrfTokens(except: [
             'bot/webhook',
             'webapp-login',
             'bot/MynineUzBot/webhook',
+            'handle/*',
+            'pay/*',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

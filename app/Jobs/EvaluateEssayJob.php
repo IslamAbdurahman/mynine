@@ -33,23 +33,32 @@ class EvaluateEssayJob implements ShouldQueue
             $essay = $answer->answer_text;
 
             $openAIService = new OpenAIService();
-            $result = $openAIService->evaluateEssay($task, $question, $essay);
+            $resultJson = $openAIService->evaluateEssay($task, $question, $essay);
 
-            $resultText = $result;
+            $data = json_decode($resultJson, true);
             $answer->score = null;
 
-            if (preg_match('/```json\s*(\{.*"overall".*\})\s*```/s', $resultText, $matches)) {
-                $jsonString = $matches[1];
-                $data = json_decode($jsonString, true);
-
-                if ($data && isset($data['overall'])) {
-                    $answer->score = $data['overall'];
+            if ($data && isset($data['overall'])) {
+                $answer->score = $data['overall'];
+                
+                $scores = $data['scores'] ?? [];
+                $feedback = $data['feedback'] ?? '';
+                
+                $formattedReview = "### IELTS Writing Evaluation\n\n";
+                $formattedReview .= "**Overall Band Score:** " . $data['overall'] . "\n\n";
+                if (!empty($scores)) {
+                    $formattedReview .= "#### Individual Criteria Scores:\n";
+                    $formattedReview .= "- **Task Response:** " . ($scores['task_response'] ?? 'N/A') . "\n";
+                    $formattedReview .= "- **Coherence & Cohesion:** " . ($scores['coherence_cohesion'] ?? 'N/A') . "\n";
+                    $formattedReview .= "- **Lexical Resource:** " . ($scores['lexical_resource'] ?? 'N/A') . "\n";
+                    $formattedReview .= "- **Grammatical Range & Accuracy:** " . ($scores['grammatical_range_accuracy'] ?? 'N/A') . "\n\n";
                 }
-
-                $resultText = str_replace($matches[0], '', $resultText);
+                $formattedReview .= "#### Detailed Feedback:\n" . $feedback;
+                
+                $answer->review_note_ai = trim($formattedReview);
+            } else {
+                $answer->review_note_ai = $resultJson;
             }
-
-            $answer->review_note_ai = trim($resultText);
             $answer->save();
 
             // Recalculate is_correct_count for the corresponding attempt_type

@@ -18,6 +18,10 @@ class Option extends Model
         'is_correct',
     ];
 
+    protected $casts = [
+        'is_correct' => 'boolean',
+    ];
+
     public function section()
     {
         return $this->belongsTo(Section::class, 'section_id');

@@ -66,7 +66,22 @@ export default function CreateQuestionModal(
     // Handle option update
     const updateOption = (index: number, field: 'textarea' | 'is_correct', value: any) => {
         const updated = [...data.options];
-        (updated[index] as any)[field] = value;
+        if (field === 'is_correct' && value === true) {
+            const isSingular =
+                section.question_type.type === 'multiple_choice' ||
+                section.question_type.type === 'true_false' ||
+                section.question_type.type === 'yes_no';
+
+            if (isSingular) {
+                updated.forEach((option, i) => {
+                    option.is_correct = (i === index);
+                });
+            } else {
+                updated[index].is_correct = value;
+            }
+        } else {
+            (updated[index] as any)[field] = value;
+        }
         setData('options', updated);
     };
 
@@ -186,95 +201,130 @@ export default function CreateQuestionModal(
                         section.question_type.type === 'multiple_response'
                     ) && (
 
-                        <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                                <Label>{t('options')}</Label>
-                                {(section.question_type.type === 'multiple_choice' ||
-                                    section.question_type.type === 'multiple_response') && (
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => setShowSmartPaste(!showSmartPaste)}
-                                        className="text-xs py-1 px-2 border border-gray-300 dark:border-gray-600 rounded"
-                                    >
-                                        {showSmartPaste ? t('hide_smart_paste') || 'Hide Smart Paste' : t('smart_paste') || 'Smart Paste'}
-                                    </Button>
-                                )}
-                            </div>
-
-                            {showSmartPaste && (
-                                <div className="p-3 border border-dashed rounded-lg bg-gray-50 dark:bg-gray-950 space-y-2">
-                                    <Label className="text-xs text-gray-500 block mb-1">
-                                        {t('smart_paste_desc') || 'Paste options here (one per line). Mark correct option with asterisk (*) at the end.'}
+                        <div className="space-y-4">
+                            {(section.question_type.type === 'true_false' ||
+                                section.question_type.type === 'yes_no') ? (
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        {t('correct_answer') || 'Select Correct Answer'}
                                     </Label>
-                                    <textarea
-                                        placeholder={"A) Option A\nB) Option B*\nC) Option C\nD) Option D"}
-                                        value={smartPasteText}
-                                        onChange={(e) => setSmartPasteText(e.target.value)}
-                                        className="w-full h-24 p-2 text-xs border rounded bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-white font-mono focus:ring-1 focus:ring-blue-500 outline-none"
-                                    />
-                                    <Button
-                                        type="button"
-                                        size="sm"
-                                        onClick={handleSmartPaste}
-                                        className="bg-green-600 hover:bg-green-700 text-white text-xs py-1 px-3 rounded"
-                                    >
-                                        {t('apply_paste') || 'Apply Paste'}
-                                    </Button>
-                                </div>
-                            )}
-
-                            {data.options.map((option, index) => (
-                                <div key={index} className="flex items-center gap-2">
-                                    <Input
-                                        placeholder={t('option_text')}
-                                        value={option.textarea}
-                                        onChange={(e) => updateOption(index, 'textarea', e.target.value)}
-                                        disabled={section.question_type.type === 'true_false' || section.question_type.type === 'yes_no'}
-                                    />
-
-                                    <div className="flex items-center gap-1">
-                                        <Checkbox
-                                            checked={option.is_correct}
-                                            onCheckedChange={(checked) =>
-                                                updateOption(index, 'is_correct', checked === true)
-                                            }
-                                        />
-                                        <span>{t('correct')}</span>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        {data.options.map((option, index) => (
+                                            <div
+                                                key={index}
+                                                onClick={() => updateOption(index, 'is_correct', true)}
+                                                className={`flex items-center justify-between p-3 border rounded-xl cursor-pointer select-none transition-all ${
+                                                    option.is_correct
+                                                        ? 'border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/30 dark:border-indigo-500 ring-2 ring-indigo-600/10'
+                                                        : 'border-gray-200 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-900/50'
+                                                }`}
+                                            >
+                                                <span className="font-semibold text-sm text-gray-950 dark:text-white">
+                                                    {option.textarea}
+                                                </span>
+                                                <div className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${
+                                                    option.is_correct
+                                                        ? 'border-indigo-600 bg-indigo-600 dark:border-indigo-500 dark:bg-indigo-500'
+                                                        : 'border-gray-300 dark:border-gray-600'
+                                                }`}>
+                                                    {option.is_correct && (
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            {t('options')}
+                                        </Label>
+                                        {(section.question_type.type === 'multiple_choice' ||
+                                            section.question_type.type === 'multiple_response') && (
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => setShowSmartPaste(!showSmartPaste)}
+                                                className="text-xs py-1 px-2 border border-gray-300 dark:border-gray-600 rounded"
+                                            >
+                                                {showSmartPaste ? t('hide_smart_paste') || 'Hide Smart Paste' : t('smart_paste') || 'Smart Paste'}
+                                            </Button>
+                                        )}
+                                    </div>
+
+                                    {showSmartPaste && (
+                                        <div className="p-3 border border-dashed rounded-lg bg-gray-50 dark:bg-gray-950 space-y-2">
+                                            <Label className="text-xs text-gray-500 block mb-1">
+                                                {t('smart_paste_desc') || 'Paste options here (one per line). Mark correct option with asterisk (*) at the end.'}
+                                            </Label>
+                                            <textarea
+                                                placeholder={"A) Option A\nB) Option B*\nC) Option C\nD) Option D"}
+                                                value={smartPasteText}
+                                                onChange={(e) => setSmartPasteText(e.target.value)}
+                                                className="w-full h-24 p-2 text-xs border rounded bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-white font-mono focus:ring-1 focus:ring-blue-500 outline-none"
+                                            />
+                                            <Button
+                                                type="button"
+                                                size="sm"
+                                                onClick={handleSmartPaste}
+                                                className="bg-green-600 hover:bg-green-700 text-white text-xs py-1 px-3 rounded"
+                                            >
+                                                {t('apply_paste') || 'Apply Paste'}
+                                            </Button>
+                                        </div>
+                                    )}
+
+                                    {data.options.map((option, index) => (
+                                        <div key={index} className="flex items-center gap-2">
+                                            <Input
+                                                placeholder={t('option_text')}
+                                                value={option.textarea}
+                                                onChange={(e) => updateOption(index, 'textarea', e.target.value)}
+                                            />
+
+                                            <div className="flex items-center gap-1.5 shrink-0">
+                                                <Checkbox
+                                                    checked={option.is_correct}
+                                                    onCheckedChange={(checked) =>
+                                                        updateOption(index, 'is_correct', checked === true)
+                                                    }
+                                                />
+                                                <span className="text-sm text-gray-600 dark:text-gray-400">{t('correct')}</span>
+                                            </div>
+
+                                            {(section.question_type.type === 'multiple_choice' ||
+                                                section.question_type.type === 'multiple_response') && (
+                                                <Button
+                                                    type="button"
+                                                    variant="destructive"
+                                                    size="sm"
+                                                    onClick={() => removeOption(index)}
+                                                >
+                                                    {t('remove')}
+                                                </Button>
+                                            )}
+                                        </div>
+                                    ))}
 
                                     {(section.question_type.type === 'multiple_choice' ||
                                         section.question_type.type === 'multiple_response') && (
-                                        <Button
-                                            type="button"
-                                            variant="destructive"
-                                            size="sm"
-                                            onClick={() => removeOption(index)}
-                                        >
-                                            {t('remove')}
-                                        </Button>
+                                        <div>
+                                            <Button
+                                                type="button"
+                                                onClick={addOption}
+                                                className="bg-blue-600 text-white hover:bg-blue-700
+                                dark:bg-blue-500 dark:hover:bg-blue-600
+                                disabled:opacity-50"
+                                            >
+                                                <Plus /> {t('add_option')}
+                                            </Button>
+                                        </div>
                                     )}
                                 </div>
-                            ))}
-
-
-                            {(section.question_type.type === 'multiple_choice' ||
-                                section.question_type.type === 'multiple_response') && (
-                                <div>
-                                    <Button
-                                        type="button"
-                                        onClick={addOption}
-                                        className="bg-blue-600 text-white hover:bg-blue-700
-                        dark:bg-blue-500 dark:hover:bg-blue-600
-                        disabled:opacity-50"
-                                    >
-                                        <Plus /> {t('add_option')}
-                                    </Button>
-                                </div>
                             )}
-
-
                         </div>
 
                     )}

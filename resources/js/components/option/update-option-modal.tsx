@@ -17,16 +17,18 @@ import {
     DialogTitle
 } from '@/components/ui/dialog';
 
-import { Option } from '@/types';
+import { Option, QuestionType } from '@/types';
 
 interface UpdateOptionModalProps {
     option: Option;
+    question_type?: QuestionType;
     open: boolean;
     setOpen: (open: boolean) => void;
 }
 
 export default function UpdateOptionModal({
                                               option,
+                                              question_type,
                                               open,
                                               setOpen
                                           }: UpdateOptionModalProps) {
@@ -82,6 +84,7 @@ export default function UpdateOptionModal({
                             value={data.textarea}
                             onChange={(e) => setData('textarea', e.target.value)}
                             className="mt-1"
+                            disabled={question_type?.type === 'true_false' || question_type?.type === 'yes_no'}
                         />
                         <InputError message={errors.textarea} />
                     </div>

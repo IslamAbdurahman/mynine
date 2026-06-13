@@ -31,7 +31,23 @@ class OptionController extends Controller
     public function store(StoreOptionRequest $request)
     {
         try {
-            Option::create($request->validated());
+            $validated = $request->validated();
+
+            \DB::transaction(function () use ($validated) {
+                $option = Option::create($validated);
+
+                if (!empty($validated['is_correct'])) {
+                    $question = $option->question;
+                    $qType = $question?->section?->question_type?->type;
+
+                    $isSingular = in_array($qType, ['multiple_choice', 'true_false', 'yes_no']);
+                    if ($isSingular) {
+                        $question->options()
+                            ->where('id', '!=', $option->id)
+                            ->update(['is_correct' => 0]);
+                    }
+                }
+            });
 
             return back()->with('success', __('updated_successfully'));
         } catch (\Exception $e) {
@@ -65,7 +81,23 @@ class OptionController extends Controller
     public function update(UpdateOptionRequest $request, Option $option)
     {
         try {
-            $option->update($request->validated());
+            $validated = $request->validated();
+
+            \DB::transaction(function () use ($option, $validated) {
+                $option->update($validated);
+
+                if (!empty($validated['is_correct'])) {
+                    $question = $option->question;
+                    $qType = $question?->section?->question_type?->type;
+
+                    $isSingular = in_array($qType, ['multiple_choice', 'true_false', 'yes_no']);
+                    if ($isSingular) {
+                        $question->options()
+                            ->where('id', '!=', $option->id)
+                            ->update(['is_correct' => 0]);
+                    }
+                }
+            });
 
             return back()->with('success', __('updated_successfully'));
         } catch (\Exception $e) {

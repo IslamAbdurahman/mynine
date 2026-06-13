@@ -116,9 +116,7 @@ export default function SectionQuestion(
 
 
             {(
-                    question_type.type === 'true_false'
-                    || question_type.type === 'yes_no'
-                    || question_type.type === 'multiple_choice'
+                    question_type.type === 'multiple_choice'
                     || question_type.type === 'multiple_response'
                 )
                 && (
@@ -133,8 +131,11 @@ export default function SectionQuestion(
                 {question.options.map((option, oIndex) => {
 
                     return (
-                        <QuestionOpton option={option}
-                                       index={oIndex} />
+                        <QuestionOpton
+                            option={option}
+                            index={oIndex}
+                            question_type={question_type}
+                        />
                     );
                 })}
             </div>

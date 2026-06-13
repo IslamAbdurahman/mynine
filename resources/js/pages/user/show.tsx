@@ -123,7 +123,7 @@ export default function UserShow() {
                                     <Target className="size-6" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Reading Avg</p>
+                                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{t('reading_avg') || 'Reading Avg'}</p>
                                     <h3 className="text-2xl font-bold">{readingAvg}</h3>
                                 </div>
                             </div>
@@ -138,7 +138,7 @@ export default function UserShow() {
                                     <Target className="size-6" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Listening Avg</p>
+                                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{t('listening_avg') || 'Listening Avg'}</p>
                                     <h3 className="text-2xl font-bold">{listeningAvg}</h3>
                                 </div>
                             </div>
@@ -192,7 +192,7 @@ export default function UserShow() {
                                             <div className="flex items-center gap-3">
                                                 <div className="flex flex-col items-end">
                                                     <span className="text-xs font-medium text-gray-400 capitalize">
-                                                        {attempt.status || 'Finished'}
+                                                        {t(attempt.status || 'finished')}
                                                     </span>
                                                     <div className="flex items-center gap-1 text-green-600 dark:text-green-400 font-bold">
                                                         <CheckCircle2 className="size-3" />
@@ -225,7 +225,7 @@ export default function UserShow() {
                         <div className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
                             <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                                 <TrendingUp className="size-5 text-primary" />
-                                {t('performance_overview')} <span className="text-sm font-normal text-gray-400 ml-1">(so&apos;nggi 30 kun)</span>
+                                {t('performance_overview')} <span className="text-sm font-normal text-gray-400 ml-1">{t('last_30_days') || "(last 30 days)"}</span>
                             </h3>
                             <div className="w-full">
                                 <AttemptsChart attempts={user.attempts || []} />

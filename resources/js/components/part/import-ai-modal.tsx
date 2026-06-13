@@ -44,10 +44,10 @@ export default function ImportAiModal({ part }: ImportAiModalProps) {
                 reset();
                 clearErrors();
                 setOpen(false);
-                toast.success(t('imported_successfully') || 'Imported successfully!');
+                toast.success(t('imported_successfully'));
             },
             onError: (err) => {
-                const errorMessage = err?.error || t('import_failed') || 'Import failed';
+                const errorMessage = err?.error || t('import_failed');
                 toast.error(errorMessage);
             }
         });
@@ -60,34 +60,34 @@ export default function ImportAiModal({ part }: ImportAiModalProps) {
                     className={`${baseButton} bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold flex items-center gap-1.5 shadow-sm active:scale-95 transition-all py-1.5 px-3 rounded-lg text-xs self-center`}
                 >
                     <Sparkles className="w-3.5 h-3.5" />
-                    {t('ai_import') || 'AI Import'}
+                    {t('ai_import')}
                 </button>
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-2xl w-full overflow-y-auto dark:border-gray-400">
                 <DialogTitle className="flex items-center gap-2">
                     <Sparkles className="w-5 h-5 text-purple-500" />
-                    {t('modal.ai_import_title') || 'Import Questions via AI'}
+                    {t('modal.ai_import_title')}
                 </DialogTitle>
                 <DialogDescription>
-                    {t('modal.ai_import_desc') || 'Paste raw test text or upload a DOCX/TXT file. AI will automatically parse sections, question types, questions, options, and correct answers.'}
+                    {t('modal.ai_import_desc')}
                 </DialogDescription>
 
                 <form onSubmit={submit} className="space-y-4 mt-2">
                     <div className="space-y-1">
-                        <Label htmlFor="text">{t('paste_test_text') || 'Paste Test Text'}</Label>
+                        <Label htmlFor="text">{t('paste_test_text')}</Label>
                         <textarea
-                            id="text"
-                            value={data.text}
-                            onChange={(e) => setData('text', e.target.value)}
-                            placeholder={t('paste_test_placeholder') || 'Paste questions here...'}
-                            className="w-full h-48 p-3 text-sm border rounded bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-white outline-none focus:ring-1 focus:ring-purple-500"
+                             id="text"
+                             value={data.text}
+                             onChange={(e) => setData('text', e.target.value)}
+                             placeholder={t('paste_test_placeholder')}
+                             className="w-full h-48 p-3 text-sm border rounded bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-white outline-none focus:ring-1 focus:ring-purple-500"
                         />
                         <InputError message={errors.text} />
                     </div>
 
                     <div className="space-y-1">
-                        <Label htmlFor="file">{t('upload_docx_or_txt') || 'Or Upload DOCX / TXT File'}</Label>
+                        <Label htmlFor="file">{t('upload_docx_or_txt')}</Label>
                         <input
                             type="file"
                             id="file"
@@ -127,12 +127,12 @@ export default function ImportAiModal({ part }: ImportAiModalProps) {
                             {processing ? (
                                 <>
                                     <span className="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full"></span>
-                                    {t('processing') || 'Processing AI...'}
+                                    {t('processing')}
                                 </>
                             ) : (
                                 <>
                                     <Sparkles className="w-4 h-4" />
-                                    {t('import') || 'Import'}
+                                    {t('import')}
                                 </>
                             )}
                         </Button>

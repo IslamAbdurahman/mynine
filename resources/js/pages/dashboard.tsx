@@ -20,14 +20,15 @@ import {
     History
 } from 'lucide-react';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard'
-    }
-];
-
 export default function Dashboard() {
+    const { t } = useTranslation();
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: t('sidebar.dashboard'),
+            href: '/dashboard'
+        }
+    ];
+
     const { 
         user, 
         recent_attempts = [],
@@ -45,7 +46,6 @@ export default function Dashboard() {
         today_hourly_attempts: HourlyStatItem[],
         weekly_attempts: WeeklyStatItem[]
     }>().props;
-    const { t } = useTranslation();
 
     // Calculate averages if available
     const calculateAverage = (typeName: string) => {
@@ -144,7 +144,7 @@ export default function Dashboard() {
                                     <Target className="size-6" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Reading Avg</p>
+                                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{t('reading_avg') || 'Reading Avg'}</p>
                                     <h3 className="text-2xl font-bold">{readingAvg}</h3>
                                 </div>
                             </div>
@@ -159,7 +159,7 @@ export default function Dashboard() {
                                     <Target className="size-6" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Listening Avg</p>
+                                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{t('listening_avg') || 'Listening Avg'}</p>
                                     <h3 className="text-2xl font-bold">{listeningAvg}</h3>
                                 </div>
                             </div>
@@ -213,7 +213,7 @@ export default function Dashboard() {
                                             <div className="flex items-center gap-3">
                                                 <div className="flex flex-col items-end">
                                                     <span className="text-xs font-medium text-gray-400 capitalize">
-                                                        {attempt.status || 'Finished'}
+                                                        {t(attempt.status || 'finished')}
                                                     </span>
                                                     <div className="flex items-center gap-1 text-green-600 dark:text-green-400 font-bold">
                                                         <CheckCircle2 className="size-3" />
@@ -247,7 +247,7 @@ export default function Dashboard() {
                         <div className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
                             <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                                 <TrendingUp className="size-5 text-primary" />
-                                {t('performance_overview')} <span className="text-sm font-normal text-gray-400 ml-1">(so&apos;nggi 30 kun)</span>
+                                {t('performance_overview')} <span className="text-sm font-normal text-gray-400 ml-1">{t('last_30_days') || "(last 30 days)"}</span>
                             </h3>
                             <div className="w-full">
                                 <AttemptsChart attempts={user.attempts || []} />
@@ -259,7 +259,7 @@ export default function Dashboard() {
                         {(daily_users.length > 0 || daily_attempts.length > 0) && (
                             <div className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
                                 <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                                    <TrendingUp className="size-5 text-primary" /> Daily Activity
+                                    <TrendingUp className="size-5 text-primary" /> {t('daily_activity') || 'Daily Activity'}
                                 </h3>
                                 <DailyStatsChart dailyUsers={daily_users} dailyAttempts={daily_attempts} />
                             </div>
@@ -269,13 +269,13 @@ export default function Dashboard() {
                         <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
                             {/* Today Hourly Stats */}
                             <div className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
-                                <HourlyAttemptsChart title="Today's hourly stats" data={today_hourly_attempts} />
+                                <HourlyAttemptsChart title={t('todays_hourly_stats') || "Today's hourly stats"} data={today_hourly_attempts} />
                             </div>
 
                             {/* All-time Hourly Stats */}
                             {hourly_attempts.length > 0 && (
                                 <div className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
-                                    <HourlyAttemptsChart title="All-time hourly distribution" data={hourly_attempts} />
+                                    <HourlyAttemptsChart title={t('all_time_hourly_distribution') || 'All-time hourly distribution'} data={hourly_attempts} />
                                 </div>
                             )}
                         </div>
@@ -283,7 +283,7 @@ export default function Dashboard() {
                         {/* Weekly Stats */}
                         {weekly_attempts.length > 0 && (
                             <div className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
-                                <WeeklyAttemptsChart title="All-time Weekly Attempts Distribution" data={weekly_attempts} />
+                                <WeeklyAttemptsChart title={t('all_time_weekly_attempts_distribution') || 'All-time Weekly Attempts Distribution'} data={weekly_attempts} />
                             </div>
                         )}
                     </div>

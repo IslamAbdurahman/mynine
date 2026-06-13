@@ -250,7 +250,7 @@ export default function CreateQuestionModal(
                                                 onClick={() => setShowSmartPaste(!showSmartPaste)}
                                                 className="text-xs py-1 px-2 border border-gray-300 dark:border-gray-600 rounded"
                                             >
-                                                {showSmartPaste ? t('hide_smart_paste') || 'Hide Smart Paste' : t('smart_paste') || 'Smart Paste'}
+                                                {showSmartPaste ? t('hide_smart_paste') : t('smart_paste')}
                                             </Button>
                                         )}
                                     </div>
@@ -258,7 +258,7 @@ export default function CreateQuestionModal(
                                     {showSmartPaste && (
                                         <div className="p-3 border border-dashed rounded-lg bg-gray-50 dark:bg-gray-950 space-y-2">
                                             <Label className="text-xs text-gray-500 block mb-1">
-                                                {t('smart_paste_desc') || 'Paste options here (one per line). Mark correct option with asterisk (*) at the end.'}
+                                                {t('smart_paste_desc')}
                                             </Label>
                                             <textarea
                                                 placeholder={"A) Option A\nB) Option B*\nC) Option C\nD) Option D"}
@@ -272,7 +272,7 @@ export default function CreateQuestionModal(
                                                 onClick={handleSmartPaste}
                                                 className="bg-green-600 hover:bg-green-700 text-white text-xs py-1 px-3 rounded"
                                             >
-                                                {t('apply_paste') || 'Apply Paste'}
+                                                {t('apply_paste')}
                                             </Button>
                                         </div>
                                     )}

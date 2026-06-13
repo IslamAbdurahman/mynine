@@ -5,8 +5,10 @@ import React from 'react';
 import CreateAttemptModal from '@/components/attempt/create-attempt-modal';
 import { Icon } from '@iconify/react';
 
+
 interface FolderTableProps extends FolderPaginate {
     searchData: SearchData;
+    hidePagination?: boolean;
 }
 
 export default function AllTestCard({
@@ -15,7 +17,8 @@ export default function AllTestCard({
                                         to,
                                         total,
                                         links,
-                                        searchData
+                                        searchData,
+                                        hidePagination
                                     }: FolderTableProps) {
     const { t } = useTranslation();
 
@@ -92,28 +95,31 @@ export default function AllTestCard({
                 </div>
             )}
 
+
             {/* Pagination */}
-            <div className="mt-12 px-6 py-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-sm">
-                <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    {t('showing', { from, to, total })}
+            {!hidePagination && (
+                <div className="mt-12 px-6 py-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-sm">
+                    <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        {t('showing', { from, to, total })}
+                    </div>
+                    <div className="flex gap-1 overflow-x-auto pb-2 sm:pb-0">
+                        {links.map((link, index) => (
+                            <Link
+                                key={index}
+                                href={`${link.url ?? '?'}&search=${searchData.search}&per_page=${searchData.per_page}`}
+                                className={`px-3 py-1 rounded-lg text-sm font-bold transition-all duration-200 ${
+                                    link.active
+                                        ? 'bg-blue-600 text-white shadow-lg'
+                                        : !link.url
+                                            ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed border border-transparent'
+                                            : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-100 dark:border-gray-700 hover:border-blue-500 hover:text-blue-600'
+                                }`}
+                                dangerouslySetInnerHTML={{ __html: link.label }}
+                            />
+                        ))}
+                    </div>
                 </div>
-                <div className="flex gap-1 overflow-x-auto pb-2 sm:pb-0">
-                    {links.map((link, index) => (
-                        <Link
-                            key={index}
-                            href={`${link.url ?? '?'}&search=${searchData.search}&per_page=${searchData.per_page}`}
-                            className={`px-3 py-1 rounded-lg text-sm font-bold transition-all duration-200 ${
-                                link.active
-                                    ? 'bg-blue-600 text-white shadow-lg'
-                                    : !link.url
-                                        ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed border border-transparent'
-                                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-100 dark:border-gray-700 hover:border-blue-500 hover:text-blue-600'
-                            }`}
-                            dangerouslySetInnerHTML={{ __html: link.label }}
-                        />
-                    ))}
-                </div>
-            </div>
+            )}
         </div>
     );
 }

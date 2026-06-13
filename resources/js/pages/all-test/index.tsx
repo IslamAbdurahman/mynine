@@ -1,14 +1,13 @@
+
 import AppLayout from '@/layouts/app-layout';
 import { Head, usePage, useForm } from '@inertiajs/react';
 import { type BreadcrumbItem, type FolderPaginate, SearchData, Folder } from '@/types';
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { router } from '@inertiajs/react';
 import AllTestCard from '@/components/all-test/all-test-card';
 import PremiumFilters from '@/components/premium-filters';
 import { useTranslation } from 'react-i18next';
-import MobileSearchModal from '@/components/MobileSearchModal';
-
-export default function AllTest() {
+import MobileSearchModal from '@/components/MobileSearchModal';export default function AllTest() {
     const { folder, folders, filters, isAdmin } = usePage<{ 
         folder: FolderPaginate,
         folders: Folder[],
@@ -35,12 +34,61 @@ export default function AllTest() {
         total: folder.total
     });
 
+    const [foldersList, setFoldersList] = useState<Folder[]>(folder.data);
+    const [loading, setLoading] = useState(false);
+    const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+    const hasMore = folder.current_page < folder.last_page;
+
+    useEffect(() => {
+        if (folder.current_page === 1) {
+            setFoldersList(folder.data);
+        } else {
+            setFoldersList(prev => {
+                const existingIds = new Set(prev.map(f => f.id));
+                const newFolders = folder.data.filter(f => !existingIds.has(f.id));
+                return [...prev, ...newFolders];
+            });
+        }
+    }, [folder.data, folder.current_page]);
+
+    useEffect(() => {
+        if (!hasMore || loading) return;
+
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                setLoading(true);
+                router.get(route('all-test.index'), {
+                    ...data,
+                    page: folder.current_page + 1
+                }, {
+                    preserveState: true,
+                    preserveScroll: true,
+                    only: ['folder'],
+                    onSuccess: () => {
+                        setLoading(false);
+                    },
+                    onError: () => {
+                        setLoading(false);
+                    }
+                });
+            }
+        }, {
+            rootMargin: '100px',
+        });
+
+        if (sentinelRef.current) {
+            observer.observe(sentinelRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, [hasMore, loading, folder.current_page, data]);
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        router.get(route('all-test.index'), data);
+        setFoldersList([]);
+        router.get(route('all-test.index'), { ...data, page: 1 });
     };
-
-
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -67,9 +115,22 @@ export default function AllTest() {
 
                 {/* Table */}
                 <div className="overflow-x-auto">
+                    <AllTestCard 
+                        {...folder} 
+                        data={foldersList} 
+                        searchData={data} 
+                        hidePagination={true} 
+                    />
+                </div>
 
-                    <AllTestCard {...folder} searchData={data} />
-
+                {/* Scroll Sentinel */}
+                <div ref={sentinelRef} className="h-10 flex justify-center items-center">
+                    {loading && (
+                        <div className="flex items-center gap-2 text-sm text-gray-500 py-4">
+                            <span className="animate-spin inline-block w-5 h-5 border-2 border-t-transparent border-blue-600 rounded-full"></span>
+                            <span>{t('loading')}</span>
+                        </div>
+                    )}
                 </div>
             </div>
         </AppLayout>

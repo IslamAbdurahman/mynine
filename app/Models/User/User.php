@@ -72,5 +72,10 @@ class User extends Authenticatable
         return $this->hasOne(Attempt::class, 'user_id')->latestOfMany('created_at');
     }
 
+    protected static function newFactory()
+    {
+        return \Database\Factories\UserFactory::new();
+    }
+
 
 }

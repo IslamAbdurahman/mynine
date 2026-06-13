@@ -35,6 +35,8 @@ export default function CreateQuestionModal(
 
     const { t } = useTranslation();
     const [open, setOpen] = useState(false);
+    const [showSmartPaste, setShowSmartPaste] = useState(false);
+    const [smartPasteText, setSmartPasteText] = useState('');
 
     const nameInput = useRef<HTMLInputElement>(null);
 
@@ -66,6 +68,20 @@ export default function CreateQuestionModal(
         const updated = [...data.options];
         (updated[index] as any)[field] = value;
         setData('options', updated);
+    };
+
+    const handleSmartPaste = () => {
+        if (!smartPasteText.trim()) return;
+        const lines = smartPasteText.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
+        const parsedOptions = lines.map(line => {
+            let cleanedText = line.replace(/^[A-Z0-9][-.)\s]+/i, '').trim();
+            const isCorrect = line.includes('*') || line.toLowerCase().includes('(correct)');
+            cleanedText = cleanedText.replace(/\*$/, '').replace(/\(correct\)$/i, '').trim();
+            return { textarea: cleanedText, is_correct: isCorrect };
+        });
+        setData('options', [...data.options, ...parsedOptions]);
+        setSmartPasteText('');
+        setShowSmartPaste(false);
     };
 
     const submit: FormEventHandler = (e) => {
@@ -171,7 +187,40 @@ export default function CreateQuestionModal(
                     ) && (
 
                         <div className="space-y-2">
-                            <Label>{t('options')}</Label>
+                            <div className="flex items-center justify-between">
+                                <Label>{t('options')}</Label>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setShowSmartPaste(!showSmartPaste)}
+                                    className="text-xs py-1 px-2 border border-gray-300 dark:border-gray-600 rounded"
+                                >
+                                    {showSmartPaste ? t('hide_smart_paste') || 'Hide Smart Paste' : t('smart_paste') || 'Smart Paste'}
+                                </Button>
+                            </div>
+
+                            {showSmartPaste && (
+                                <div className="p-3 border border-dashed rounded-lg bg-gray-50 dark:bg-gray-950 space-y-2">
+                                    <Label className="text-xs text-gray-500 block mb-1">
+                                        {t('smart_paste_desc') || 'Paste options here (one per line). Mark correct option with asterisk (*) at the end.'}
+                                    </Label>
+                                    <textarea
+                                        placeholder={"A) Option A\nB) Option B*\nC) Option C\nD) Option D"}
+                                        value={smartPasteText}
+                                        onChange={(e) => setSmartPasteText(e.target.value)}
+                                        className="w-full h-24 p-2 text-xs border rounded bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-white font-mono focus:ring-1 focus:ring-blue-500 outline-none"
+                                    />
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        onClick={handleSmartPaste}
+                                        className="bg-green-600 hover:bg-green-700 text-white text-xs py-1 px-3 rounded"
+                                    >
+                                        {t('apply_paste') || 'Apply Paste'}
+                                    </Button>
+                                </div>
+                            )}
 
                             {data.options.map((option, index) => (
                                 <div key={index} className="flex items-center gap-2">

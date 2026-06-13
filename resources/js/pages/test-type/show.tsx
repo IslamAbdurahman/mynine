@@ -10,6 +10,7 @@ import MobileSearchModal from '@/components/MobileSearchModal';
 import CreateSectionModal from '@/components/section/create-section-modal';
 import PartSection from '@/components/section/part-section';
 import PartComponent from '@/components/part/part';
+import ImportAiModal from '@/components/part/import-ai-modal';
 
 export default function TestTypeShow() {
     const { testType, question_types } = usePage<{
@@ -119,10 +120,13 @@ export default function TestTypeShow() {
 
                                         {/* O‘ng tomon */}
                                         <div className="overflow-y-auto pl-2">
-                                            <CreateSectionModal
-                                                part={part}
-                                                question_types={question_types}
-                                            />
+                                            <div className="flex gap-3 mb-4">
+                                                <CreateSectionModal
+                                                    part={part}
+                                                    question_types={question_types}
+                                                />
+                                                <ImportAiModal part={part} />
+                                            </div>
 
                                             <div
                                                 className="mt-4 border border-gray-200 rounded-lg divide-y divide-gray-200 dark:border-gray-700 dark:divide-gray-700">

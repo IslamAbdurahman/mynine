@@ -62,6 +62,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('test-type', \App\Http\Controllers\TestTypeController::class);
     Route::resource('part', \App\Http\Controllers\PartController::class)->except(['update']);
     Route::post('/part/{part}/update', [\App\Http\Controllers\PartController::class, 'update'])->name('part.update');
+    Route::post('/part/{part}/import-ai', [\App\Http\Controllers\TestImportController::class, 'importAI'])->name('part.import-ai');
     Route::resource('section', \App\Http\Controllers\SectionController::class);
     Route::resource('question', \App\Http\Controllers\QuestionController::class);
     Route::resource('question-type', \App\Http\Controllers\QuestionTypeController::class);

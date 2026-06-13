@@ -330,8 +330,10 @@
         "update_title": "Updating",
         "update_description": "Update the details",
         "delete_title": "Deleting",
-        "delete_confirmation": "Are you sure?"
+        "delete_confirmation": "Are you sure?",
+        "ai_import_title": "Import Questions via AI"
     },
+    "modal.ai_import_title": "Import Questions via AI",
     "modal.create_description": "Create new record",
     "modal.create_title": "Create",
     "modal.delete_confirmation": "Are you sure you want to delete this?",

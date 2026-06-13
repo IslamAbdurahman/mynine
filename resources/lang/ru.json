@@ -330,8 +330,10 @@
         "update_title": "Обновление",
         "update_description": "Обновите данные",
         "delete_title": "Удаление",
-        "delete_confirmation": "Вы уверены?"
+        "delete_confirmation": "Вы уверены?",
+        "ai_import_title": "Импорт вопросов через ИИ"
     },
+    "modal.ai_import_title": "Импорт вопросов через ИИ",
     "modal.create_description": "Создать новую запись",
     "modal.create_title": "Создать",
     "modal.delete_confirmation": "Вы уверены, что хотите удалить это?",

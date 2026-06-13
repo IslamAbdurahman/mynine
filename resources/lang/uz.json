@@ -330,8 +330,10 @@
         "update_title": "Yangilash",
         "update_description": "Ma’lumotlarni yangilang",
         "delete_title": "O‘chirish",
-        "delete_confirmation": "Ishonchingiz komilmi?"
+        "delete_confirmation": "Ishonchingiz komilmi?",
+        "ai_import_title": "AI orqali savollarni import qilish"
     },
+    "modal.ai_import_title": "AI orqali savollarni import qilish",
     "modal.create_description": "Yangi yozuv qo'shish",
     "modal.create_title": "Qo'shish",
     "modal.delete_confirmation": "Buni o'chirishga ishonchingiz komilmi?",

@@ -189,15 +189,18 @@ export default function CreateQuestionModal(
                         <div className="space-y-2">
                             <div className="flex items-center justify-between">
                                 <Label>{t('options')}</Label>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => setShowSmartPaste(!showSmartPaste)}
-                                    className="text-xs py-1 px-2 border border-gray-300 dark:border-gray-600 rounded"
-                                >
-                                    {showSmartPaste ? t('hide_smart_paste') || 'Hide Smart Paste' : t('smart_paste') || 'Smart Paste'}
-                                </Button>
+                                {(section.question_type.type === 'multiple_choice' ||
+                                    section.question_type.type === 'multiple_response') && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setShowSmartPaste(!showSmartPaste)}
+                                        className="text-xs py-1 px-2 border border-gray-300 dark:border-gray-600 rounded"
+                                    >
+                                        {showSmartPaste ? t('hide_smart_paste') || 'Hide Smart Paste' : t('smart_paste') || 'Smart Paste'}
+                                    </Button>
+                                )}
                             </div>
 
                             {showSmartPaste && (
@@ -228,6 +231,7 @@ export default function CreateQuestionModal(
                                         placeholder={t('option_text')}
                                         value={option.textarea}
                                         onChange={(e) => updateOption(index, 'textarea', e.target.value)}
+                                        disabled={section.question_type.type === 'true_false' || section.question_type.type === 'yes_no'}
                                     />
 
                                     <div className="flex items-center gap-1">
@@ -240,29 +244,35 @@ export default function CreateQuestionModal(
                                         <span>{t('correct')}</span>
                                     </div>
 
-                                    <Button
-                                        type="button"
-                                        variant="destructive"
-                                        size="sm"
-                                        onClick={() => removeOption(index)}
-                                    >
-                                        {t('remove')}
-                                    </Button>
+                                    {(section.question_type.type === 'multiple_choice' ||
+                                        section.question_type.type === 'multiple_response') && (
+                                        <Button
+                                            type="button"
+                                            variant="destructive"
+                                            size="sm"
+                                            onClick={() => removeOption(index)}
+                                        >
+                                            {t('remove')}
+                                        </Button>
+                                    )}
                                 </div>
                             ))}
 
 
-                            <div>
-                                <Button
-                                    type="button"
-                                    onClick={addOption}
-                                    className="bg-blue-600 text-white hover:bg-blue-700
-                   dark:bg-blue-500 dark:hover:bg-blue-600
-                   disabled:opacity-50"
-                                >
-                                    <Plus /> {t('add_option')}
-                                </Button>
-                            </div>
+                            {(section.question_type.type === 'multiple_choice' ||
+                                section.question_type.type === 'multiple_response') && (
+                                <div>
+                                    <Button
+                                        type="button"
+                                        onClick={addOption}
+                                        className="bg-blue-600 text-white hover:bg-blue-700
+                        dark:bg-blue-500 dark:hover:bg-blue-600
+                        disabled:opacity-50"
+                                    >
+                                        <Plus /> {t('add_option')}
+                                    </Button>
+                                </div>
+                            )}
 
 
                         </div>

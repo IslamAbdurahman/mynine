@@ -181,6 +181,13 @@ class PartController extends Controller
      */
     public function destroy(Part $part)
     {
+        $test = $part->test_type?->test;
+        if ($test && ($test->attempts()->exists() || $test->mocks()->whereHas('attempts')->exists())) {
+            throw ValidationException::withMessages([
+                'error' => [__('test_has_attempts')],
+            ]);
+        }
+
         try {
             $part->delete();
             return back()->with('success', 'Part deleted successfully.');
@@ -191,4 +198,5 @@ class PartController extends Controller
             ]);
         }
     }
+
 }

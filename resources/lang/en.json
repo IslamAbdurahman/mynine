@@ -620,5 +620,6 @@
     "paste_test_placeholder": "Paste questions here...",
     "upload_docx_or_txt": "Or Upload DOCX / TXT File",
     "import": "Import",
+    "test_has_attempts": "This test has been solved/taken, therefore it cannot be deleted.",
     "№": "№"
 }

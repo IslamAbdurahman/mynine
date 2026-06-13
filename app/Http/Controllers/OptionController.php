@@ -113,6 +113,13 @@ class OptionController extends Controller
      */
     public function destroy(Option $option)
     {
+        $test = $option->question?->section?->part?->test_type?->test;
+        if ($test && ($test->attempts()->exists() || $test->mocks()->whereHas('attempts')->exists())) {
+            throw ValidationException::withMessages([
+                'error' => [__('test_has_attempts')],
+            ]);
+        }
+
         try {
             $option->delete();
             return back()->with('success', __('deleted_successfully'));
@@ -123,4 +130,5 @@ class OptionController extends Controller
             ]);
         }
     }
+
 }

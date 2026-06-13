@@ -63,6 +63,14 @@ class Question extends Model
         ")
             ->value('is_correct_count');
     }
+
+    protected static function booted()
+    {
+        static::deleting(function ($question) {
+            $question->options->each->delete();
+            \App\Models\Image::where('question_id', $question->id)->delete();
+        });
+    }
 }
 
 

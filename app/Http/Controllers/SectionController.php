@@ -99,6 +99,13 @@ class SectionController extends Controller
      */
     public function destroy(Section $section)
     {
+        $test = $section->part?->test_type?->test;
+        if ($test && ($test->attempts()->exists() || $test->mocks()->whereHas('attempts')->exists())) {
+            throw ValidationException::withMessages([
+                'error' => [__('test_has_attempts')],
+            ]);
+        }
+
         try {
             $section->delete();
             return back()->with('success', __('deleted_successfully'));
@@ -109,6 +116,7 @@ class SectionController extends Controller
             ]);
         }
     }
+
 
 
     private function syncQuestions(Section $section, string $textarea): void

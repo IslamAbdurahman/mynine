@@ -103,6 +103,13 @@ class QuestionController extends Controller
      */
     public function destroy(Question $question)
     {
+        $test = $question->section?->part?->test_type?->test;
+        if ($test && ($test->attempts()->exists() || $test->mocks()->whereHas('attempts')->exists())) {
+            throw ValidationException::withMessages([
+                'error' => [__('test_has_attempts')],
+            ]);
+        }
+
         try {
             $question->delete();
             return back()->with('success', __('deleted_successfully'));
@@ -113,4 +120,5 @@ class QuestionController extends Controller
             ]);
         }
     }
+
 }

@@ -44,4 +44,13 @@ class Section extends Model
     {
         return $this->hasMany(Option::class, 'section_id');
     }
+
+    protected static function booted()
+    {
+        static::deleting(function ($section) {
+            $section->questions->each->delete();
+            $section->options->each->delete();
+            \App\Models\Image::where('section_id', $section->id)->delete();
+        });
+    }
 }

@@ -167,6 +167,12 @@ class TestController extends Controller
      */
     public function destroy(Test $test)
     {
+        if ($test->attempts()->exists() || $test->mocks()->whereHas('attempts')->exists()) {
+            throw ValidationException::withMessages([
+                'error' => [__('test_has_attempts')],
+            ]);
+        }
+
         try {
             DB::beginTransaction();
 
@@ -182,6 +188,7 @@ class TestController extends Controller
             ]);
         }
     }
+
 
     /**
      * Handle audio file upload and playtime analysis.

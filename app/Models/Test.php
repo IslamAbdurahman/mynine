@@ -47,6 +47,13 @@ class Test extends Model
         return $this->hasMany(TestType::class, 'test_id');
     }
 
-
-
+    protected static function booted()
+    {
+        static::deleting(function ($test) {
+            $test->mocks()->delete();
+            $test->types->each->delete();
+        });
+    }
 }
+
+

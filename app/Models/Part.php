@@ -40,6 +40,14 @@ class Part extends Model
         return $this->hasMany(Image::class , 'part_id');
     }
 
+    protected static function booted()
+    {
+        static::deleting(function ($part) {
+            $part->sections->each->delete();
+            \App\Models\Image::where('part_id', $part->id)->delete();
+        });
+    }
+
     public function attempt_parts(){
         return $this->hasMany(AttemptPart::class , 'part_id');
     }

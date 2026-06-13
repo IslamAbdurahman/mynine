@@ -35,4 +35,11 @@ class TestType extends Model
     {
         return $this->hasMany(Part::class , 'test_type_id');
     }
+
+    protected static function booted()
+    {
+        static::deleting(function ($testType) {
+            $testType->parts->each->delete();
+        });
+    }
 }

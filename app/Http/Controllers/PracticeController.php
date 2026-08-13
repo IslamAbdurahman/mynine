@@ -81,6 +81,7 @@ class PracticeController extends Controller
     {
         try {
             $attempt = Attempt::with([
+                'mock',
                 'test' => function ($query) {
                     $query->with([
                         'types'
@@ -99,6 +100,9 @@ class PracticeController extends Controller
 
             // If the attempt is already finished, return it
             if ($attempt->finished_at) {
+                if ($attempt->mock_id && $attempt->mock?->slug) {
+                    return redirect('/?slug=' . $attempt->mock->slug)->with('success', __('success.test_submitted'));
+                }
                 if (session()->has('mock_student_id')) {
                     return redirect('/')->with('success', __('success.test_submitted'));
                 }
@@ -107,12 +111,12 @@ class PracticeController extends Controller
 
             $attempt->finish();
 
-            if (session()->has('mock_student_id')) {
-                return redirect('/')->with('success', __('success.test_submitted'));
-            }
-
             if ($attempt->mock_id && $attempt->mock?->slug) {
                 return redirect('/?slug=' . $attempt->mock->slug)->with('success', __('success.test_submitted'));
+            }
+
+            if (session()->has('mock_student_id')) {
+                return redirect('/')->with('success', __('success.test_submitted'));
             }
 
             return redirect(route('attempt.index'))->with('success', __('success.test_submitted'));

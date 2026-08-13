@@ -82,6 +82,53 @@ export default function TextHighlighter({ attemptId, partId, children }: TextHig
         }
     };
 
+    // Get all text nodes within a range
+    const getTextNodesInRange = (range: Range): { node: Text; start: number; end: number }[] => {
+        const result: { node: Text; start: number; end: number }[] = [];
+        const container = range.commonAncestorContainer;
+
+        // If the range is within a single text node
+        if (container.nodeType === Node.TEXT_NODE) {
+            result.push({
+                node: container as Text,
+                start: range.startOffset,
+                end: range.endOffset
+            });
+            return result;
+        }
+
+        // Walk through all text nodes in the common ancestor
+        const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null);
+        let node: Text | null;
+        let started = false;
+
+        while ((node = walker.nextNode() as Text | null)) {
+            if (node === range.startContainer) {
+                started = true;
+                result.push({
+                    node,
+                    start: range.startOffset,
+                    end: node.textContent?.length ?? 0
+                });
+            } else if (node === range.endContainer) {
+                result.push({
+                    node,
+                    start: 0,
+                    end: range.endOffset
+                });
+                break;
+            } else if (started) {
+                result.push({
+                    node,
+                    start: 0,
+                    end: node.textContent?.length ?? 0
+                });
+            }
+        }
+
+        return result;
+    };
+
     const addHighlight = (withNote: boolean = false) => {
         const selection = window.getSelection();
         if (!selection || selection.rangeCount === 0 || !selectedText) return;
@@ -90,20 +137,25 @@ export default function TextHighlighter({ attemptId, partId, children }: TextHig
         const hlId = 'hl-' + Date.now();
 
         try {
-            const mark = document.createElement('mark');
-            mark.className = 'ielts-highlight-span cursor-pointer hover:opacity-80';
-            mark.setAttribute('data-hl-id', hlId);
-            mark.setAttribute('style', [
-                'background-color: rgba(253, 224, 71, 0.75)',
-                'color: inherit',
-                'padding: 1px 0',
-                'border-radius: 0',
-                'box-decoration-break: clone',
-                '-webkit-box-decoration-break: clone',
-            ].join(';'));
-            range.surroundContents(mark);
+            const textNodes = getTextNodesInRange(range);
+
+            // Wrap each text node portion in its own <mark>
+            // Process in reverse order to avoid offset shifts
+            for (let i = textNodes.length - 1; i >= 0; i--) {
+                const { node, start, end } = textNodes[i];
+                if (start === end) continue; // skip empty ranges
+
+                const markRange = document.createRange();
+                markRange.setStart(node, start);
+                markRange.setEnd(node, end);
+
+                const mark = document.createElement('mark');
+                mark.className = 'ielts-highlight-span';
+                mark.setAttribute('data-hl-id', hlId);
+                markRange.surroundContents(mark);
+            }
         } catch (e) {
-            console.warn('Range surround contents fallback:', e);
+            console.warn('Highlight failed:', e);
         }
 
         const newItem: HighlightItem = {
@@ -128,14 +180,14 @@ export default function TextHighlighter({ attemptId, partId, children }: TextHig
         const updated = highlights.filter((h) => h.id !== id);
         saveHighlights(updated);
 
-        // Remove DOM mark element
+        // Remove ALL DOM mark elements with this highlight ID
         if (containerRef.current) {
-            const markEl = containerRef.current.querySelector(`[data-hl-id="${id}"]`);
-            if (markEl) {
+            const markEls = containerRef.current.querySelectorAll(`[data-hl-id="${id}"]`);
+            markEls.forEach((markEl) => {
                 const parent = markEl.parentNode;
                 while (markEl.firstChild) parent?.insertBefore(markEl.firstChild, markEl);
                 parent?.removeChild(markEl);
-            }
+            });
         }
 
         if (activeNoteModal?.id === id) {

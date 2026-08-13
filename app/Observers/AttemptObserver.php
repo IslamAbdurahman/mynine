@@ -32,14 +32,16 @@ class AttemptObserver
         // Only trigger when finished_at changes from null → not null
         if ($attempt->getOriginal('finished_at') === null && $attempt->finished_at !== null) {
 
-            // Send email if user has Google ID
-            if (filter_var($attempt->user->email, FILTER_VALIDATE_EMAIL)) {
-                dispatch(new \App\Jobs\SendResultEmailJob($attempt->user, $attempt));
-            }
+            if ($attempt->user) {
+                // Send email if user has email
+                if (!empty($attempt->user->email) && filter_var($attempt->user->email, FILTER_VALIDATE_EMAIL)) {
+                    dispatch(new \App\Jobs\SendResultEmailJob($attempt->user, $attempt));
+                }
 
-            // Send Telegram message if user has Telegram ID
-            if ($attempt->user->telegram_id !== null) {
-                dispatch(new SendResultTelegramJob($attempt->user, $attempt));
+                // Send Telegram message if user has Telegram ID
+                if (!empty($attempt->user->telegram_id)) {
+                    dispatch(new SendResultTelegramJob($attempt->user, $attempt));
+                }
             }
         }
     }
@@ -53,6 +55,7 @@ class AttemptObserver
 
         // Admin emas yoki test egasi ham emas bo'lsa -> taqiqlanadi
         if (
+            $authUser &&
             !$authUser->hasRole('Admin') &&
             $authUser->id !== $attempt->mock?->user_id
         ) {

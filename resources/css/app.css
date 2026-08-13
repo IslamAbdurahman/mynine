@@ -240,6 +240,47 @@ mark.highlight {
     background-color: yellowgreen !important;
 }
 
+/* ===== Text Highlighter - continuous highlight background ===== */
+mark.ielts-highlight-span {
+    background-color: #fde047 !important;
+    color: inherit !important;
+    cursor: pointer;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    border: none !important;
+    display: inline !important;
+    line-height: inherit !important;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+}
+
+mark.ielts-highlight-span * {
+    background-color: #fde047 !important;
+    color: inherit !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+mark.ielts-highlight-span:hover {
+    background-color: #facc15 !important;
+}
+
+mark.ielts-highlight-span:hover * {
+    background-color: #facc15 !important;
+}
+
+.dark mark.ielts-highlight-span,
+.dark mark.ielts-highlight-span * {
+    background-color: #a3e635 !important;
+    color: #1a1a1a !important;
+}
+
+.dark mark.ielts-highlight-span:hover,
+.dark mark.ielts-highlight-span:hover * {
+    background-color: #84cc16 !important;
+}
+
 /* ===== TinyMCE Table Borders (override prose + both light & dark) ===== */
 .ielts-passage table,
 .ielts-gap-section table,

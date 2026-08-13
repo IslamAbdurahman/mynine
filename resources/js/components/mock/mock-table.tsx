@@ -149,18 +149,7 @@ const MockTable = ({ tests, searchData, ...mock }: MockTableProps) => {
                                         <TrashIcon className="h-3.5 w-3.5" />
                                     </button>
                                 </div>
-                            </div> 
-                            
-                            <button
-                                onClick={() => {
-                                    navigator.clipboard.writeText(`${item.slug}`);
-                                    toast.success(t('link_copied'));
-                                }}
-                                className="flex h-10 w-full mt-3 items-center justify-center gap-2 rounded-xl bg-blue-600 font-bold text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md active:scale-95 cursor-pointer"
-                            >
-                                <Copy className="h-4 w-4" />
-                                <span className="text-xs uppercase tracking-wider">{t('copy_link')}</span>
-                            </button>
+                            </div>
                         </div>
                     );
                 })}

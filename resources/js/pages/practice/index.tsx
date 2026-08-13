@@ -545,64 +545,62 @@ export default function Practice() {
             )}
             </div>
 
-            {/* Bottom Footer Bar — parts in order, active=50%, each inactive splits remaining 50% */}
+            {/* Bottom Footer Bar — all parts divided equally (100% / parts.length) */}
             <div
                 className="flex-none bg-white border-t border-gray-200 shrink-0 z-40 text-gray-900 select-none flex w-full"
                 style={{ height: '52px' }}
             >
-                {testType?.parts && (() => {
-                    const parts = testType.parts;
-                    const ci = parts.findIndex(p => p.id === selectedPart?.id);
-                    const inactiveCount = parts.length - 1;
-                    // Each inactive part gets equal share of remaining 50%
-                    const inactivePct = inactiveCount > 0 ? 50 / inactiveCount : 50;
+                <div className="flex-1 flex h-full overflow-hidden">
+                    {testType?.parts && (() => {
+                        const parts = testType.parts;
+                        const ci = parts.findIndex(p => p.id === selectedPart?.id);
+                        const equalPct = parts.length > 0 ? 100 / parts.length : 100;
 
-                    return parts.map((p, idx) => {
-                        const isActive = idx === ci;
-                        let answered = 0;
-                        const total = p.sections?.reduce((s, sec) => {
-                            sec.questions?.forEach(q => {
-                                if (q.attempt_answer && (
-                                    (q.attempt_answer.attempt_answer_options?.length ?? 0) > 0 ||
-                                    (q.attempt_answer.answer_text?.trim())
-                                )) answered++;
-                            });
-                            return s + (sec.questions?.length || 0);
-                        }, 0) || 0;
+                        return parts.map((p, idx) => {
+                            const isActive = idx === ci;
+                            let answered = 0;
+                            const total = p.sections?.reduce((s, sec) => {
+                                sec.questions?.forEach(q => {
+                                    if (q.attempt_answer && (
+                                        (q.attempt_answer.attempt_answer_options?.length ?? 0) > 0 ||
+                                        (q.attempt_answer.answer_text?.trim())
+                                    )) answered++;
+                                });
+                                return s + (sec.questions?.length || 0);
+                            }, 0) || 0;
 
-                        const isLast = idx === parts.length - 1;
+                            if (isActive) {
+                                return (
+                                    <div
+                                        key={p.id}
+                                        className="flex items-center h-full border-r border-gray-200 px-3 gap-2 overflow-x-auto hide-scrollbar shrink-0 bg-gray-50/50"
+                                        style={{ width: `${equalPct}%` }}
+                                    >
+                                        <span className="text-sm font-bold text-gray-900 shrink-0">
+                                            {p.name}
+                                        </span>
+                                        <PracticeNumberBar
+                                            part={selectedPart as Part}
+                                            flaggedIds={flaggedIds}
+                                        />
+                                    </div>
+                                );
+                            }
 
-                        if (isActive) {
                             return (
-                                <div
+                                <button
                                     key={p.id}
-                                    className="flex items-center h-full border-r border-gray-200 px-3 gap-2 overflow-x-auto hide-scrollbar shrink-0"
-                                    style={{ width: '50%' }}
+                                    onClick={() => handlePart(p.id)}
+                                    className="flex items-center justify-center gap-1.5 h-full hover:bg-gray-100/80 transition-colors whitespace-nowrap group shrink-0 border-r border-gray-200 cursor-pointer"
+                                    style={{ width: `${equalPct}%` }}
                                 >
-                                    <span className="text-sm font-bold text-gray-800 shrink-0">
-                                        {p.name}
-                                    </span>
-                                    <PracticeNumberBar
-                                        part={selectedPart as Part}
-                                        flaggedIds={flaggedIds}
-                                    />
-                                </div>
+                                    <span className="text-sm font-semibold text-gray-600 group-hover:text-blue-600">{p.name}</span>
+                                    <span className="text-xs text-gray-400">{answered} of {total}</span>
+                                </button>
                             );
-                        }
-
-                        return (
-                            <button
-                                key={p.id}
-                                onClick={() => handlePart(p.id)}
-                                className={`flex items-center justify-center gap-1.5 h-full hover:bg-gray-50 transition-colors whitespace-nowrap group shrink-0 ${!isLast ? 'border-r border-gray-200' : ''}`}
-                                style={{ width: `${inactivePct}%` }}
-                            >
-                                <span className="text-sm font-semibold text-gray-600 group-hover:text-blue-600">{p.name}</span>
-                                <span className="text-xs text-gray-400">{answered} of {total}</span>
-                            </button>
-                        );
-                    });
-                })()}
+                        });
+                    })()}
+                </div>
 
                 {/* Spacing for fixed right navigation arrows */}
                 <div className="w-[88px] shrink-0" />

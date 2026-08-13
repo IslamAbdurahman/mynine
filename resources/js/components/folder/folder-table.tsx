@@ -74,50 +74,58 @@ const FolderTable = ({ searchData, ...folder }: FolderTableProps) => {
                     return (
                         <div
                             key={item.id}
-                            className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-md p-4 flex flex-col justify-between hover:shadow-lg transition"
+                            className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
                         >
                             {/* Header */}
-                            <div className="flex justify-between items-start">
-                                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                            <div className="flex justify-between items-start gap-2">
+                                <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 line-clamp-1 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                                     <Link href={`/folder/${item.id}`}>
                                         {item.name}
                                     </Link>
                                 </h3>
-                                <span className="text-xs text-gray-500">#{globalIndex}</span>
+                                <span className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 shrink-0">#{globalIndex}</span>
                             </div>
 
                             {/* Comment */}
-                            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                            <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400 line-clamp-2 min-h-[32px]">
                                 {item.comment || t('no_comment')}
                             </p>
 
                             {/* Status */}
-                            <div className="mt-3 flex items-center gap-2">
-                                {item.active == 1 ? (
-                                    <CheckCircle className="text-green-500 w-5 h-5" />
-                                ) : (
-                                    <MinusCircle className="text-gray-400 w-5 h-5" />
-                                )}
-                                <span className="text-sm text-gray-700 dark:text-gray-300">
-                            {item.active == 1 ? t('active') : t('inactive')}
-                        </span>
+                            <div className="mt-4 flex items-center justify-between border-t border-gray-100 dark:border-gray-800/60 pt-3">
+                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
+                                    item.active == 1
+                                        ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/40'
+                                        : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                                }`}>
+                                    {item.active == 1 ? (
+                                        <CheckCircle className="w-3.5 h-3.5" />
+                                    ) : (
+                                        <MinusCircle className="w-3.5 h-3.5" />
+                                    )}
+                                    {item.active == 1 ? t('active') : t('inactive')}
+                                </span>
                             </div>
 
                             {/* Actions */}
                             {(isAdmin || isTeacher) && (
-                                <div className="mt-4 flex gap-2">
+                                <div className="mt-3 flex gap-2 pt-1">
                                     <button
+                                        type="button"
                                         onClick={() => handleUpdateClick(item)}
-                                        className={`${baseButton} bg-green-600 hover:bg-green-700 focus:ring-green-300 flex-1 rounded-md`}
+                                        className="px-3 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 dark:hover:text-white rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer shadow-xs active:scale-95"
+                                        title={t('edit')}
                                     >
-                                        <PencilIcon className="w-4 h-4" />
+                                        <PencilIcon className="w-3.5 h-3.5" />
                                     </button>
 
                                     <button
+                                        type="button"
                                         onClick={() => handleDeleteClick(item)}
-                                        className={`${baseButton} bg-red-600 hover:bg-red-700 focus:ring-red-300 flex-1 rounded-md`}
+                                        className="px-3 py-2 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-600 hover:text-white dark:hover:bg-red-600 dark:hover:text-white rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer shadow-xs active:scale-95"
+                                        title={t('delete')}
                                     >
-                                        <TrashIcon className="w-4 h-4" />
+                                        <TrashIcon className="w-3.5 h-3.5" />
                                     </button>
                                 </div>
                             )}

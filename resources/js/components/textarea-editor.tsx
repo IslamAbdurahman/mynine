@@ -74,6 +74,9 @@ export default function TextareaEditor({
                     pointer-events: auto !important;
                 }
                 .tox.tox-fullscreen { z-index: 2147483645 !important; }
+                .tox-promotion, .tox-statusbar__branding, .tox-notification--warning, .tox-notification {
+                    display: none !important;
+                }
             `}</style>
 
             <Editor
@@ -85,6 +88,8 @@ export default function TextareaEditor({
                 init={{
                     // @ts-ignore
                     license_key: 'gpl',
+                    promotion: false,
+                    branding: false,
                     base_url: '/vendor/tinymce',
                     suffix: '.min',
                     height,

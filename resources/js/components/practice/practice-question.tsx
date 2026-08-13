@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Attempt, Part, Question, Section } from '@/types';
 import PracticeOption from '@/components/practice/practice-option';
+import MatchingHeadings from '@/components/practice/matching-headings';
 import { debounce } from 'lodash';
 import { buildRange } from '@/utils/rangeHelpers';
 import { toast } from 'sonner';
@@ -270,44 +271,31 @@ export default function PracticeQuestion({
     };
 
     return (
-        <div id={`question-${question.id}`} key={question.id} className={`p-1 mb-1 ${section.question_type.type === 'matching' ? 'py-0.5' : 'py-1'}`}>
-            <h2 className="font-medium text-[16px] leading-relaxed ielts-question-text">
-                <span className="font-semibold flex items-center gap-2 group cursor-pointer" onClick={toggleFlag}>
+        <div id={`question-${question.id}`} key={question.id} className={`mb-4 select-none ${section.question_type.type === 'matching' ? 'py-1' : 'py-1.5'}`}>
+            <div className="flex items-start gap-2.5">
+                <span
+                    onClick={toggleFlag}
+                    className={`flex items-center justify-center min-w-[24px] h-6 px-1.5 border ${
+                        isFlagged ? 'border-orange-500 bg-orange-50 text-orange-600 font-bold' : 'border-[#2563eb] bg-white text-[#2563eb] font-bold'
+                    } text-xs rounded-[2px] cursor-pointer shadow-2xs select-none relative mt-0.5`}
+                    title={t('flag_for_review')}
+                >
                     {(() => {
                         const count = question.is_correct_count ?? 1;
                         return count > 1
                             ? Array.from({ length: count }, (_, i) => order - count + 1 + i).join('-')
                             : order;
                     })()}
-                    .
-                    <span className={`inline-flex items-center justify-center p-1 rounded transition-colors ${isFlagged ? 'text-orange-500' : 'text-gray-400 opacity-20 group-hover:opacity-100'}`} title={t('flag_for_review')}>
-                        <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                            <path d="M14.4,6L14,4H5V21H7V14H12.6L13,16H20V6H14.4Z" />
-                        </svg>
-                    </span>
+                    {isFlagged && (
+                        <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-orange-500 rounded-full flex items-center justify-center text-[7px] text-white">★</span>
+                    )}
                 </span>
-                {renderWithBlanks(question.textarea)}
+                <div className="flex-1 font-normal text-sm leading-relaxed text-black font-sans">
+                    {renderWithBlanks(question.textarea)}
+                </div>
+            </div>
 
-                {section.question_type.type === 'matching' && (
-                    <>
-                        <select
-                            id="answer_text"
-                            value={matchingAnswer}
-                            onChange={(e) => {
-                                setMatchingAnswer(e.target.value);
-                                localStorage.setItem(`unsaved-q-${attempt.id}-${question.id}`, e.target.value);
-                                debouncedSave(question.id, e.target.value);
-                            }}
-                            className="ms-2 inline-block rounded-md border border-blue-500 px-2 py-0.5 text-sm shadow-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white align-middle"
-                        >
-                            <option value="">{t('select')}</option>
-                            {buildRange(section.from_option, section.to_option).map((opt) => (
-                                <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                        </select>
-                    </>
-                )}
-            </h2>
+
 
             {section.question_type.type === 'essay' && (
                 <div className="relative">

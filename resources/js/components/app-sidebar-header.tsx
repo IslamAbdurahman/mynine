@@ -2,6 +2,7 @@ import { Breadcrumbs } from '@/components/breadcrumbs';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { type BreadcrumbItem as BreadcrumbItemType } from '@/types';
 import LanguageBar from '@/components/language';
+import AppearanceToggleDropdown from '@/components/appearance-dropdown';
 
 export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: BreadcrumbItemType[] }) {
     return (
@@ -12,11 +13,14 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
                     <Breadcrumbs breadcrumbs={breadcrumbs} />
                 </div>
                 <div className="flex-1"></div>
-                <div className="fixed top-0 right-0 p-3 md:right-30">
+                <div className="fixed top-2.5 right-4 z-[60] flex items-center gap-2">
+                    {/* 1st: Language Switcher Dropdown */}
                     <LanguageBar />
+                    
+                    {/* 2nd: Mode Button (Dark/Light theme toggle) */}
+                    <AppearanceToggleDropdown />
                 </div>
             </header>
         </div>
-
     );
 }

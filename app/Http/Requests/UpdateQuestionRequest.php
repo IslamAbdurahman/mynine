@@ -25,6 +25,9 @@ class UpdateQuestionRequest extends FormRequest
             'textarea' => 'required|string',
             'answer_text' => 'nullable|string',
             'options' => 'nullable|array',
+            'options.*.id' => 'nullable|integer',
+            'options.*.textarea' => 'nullable|string',
+            'options.*.is_correct' => 'nullable|boolean',
         ];
     }
 }

@@ -137,21 +137,23 @@ const TestTable = ({ ...folder }: Folder) => {
 
                             {/* Actions */}
                             {(isAdmin || isTeacher) && (
-                                <div className="flex items-center gap-2 pt-2 mt-auto border-t border-gray-50 dark:border-gray-800">
+                                <div className="flex items-center gap-2 pt-2 mt-auto border-t border-gray-100 dark:border-gray-800">
                                     <button
+                                        type="button"
                                         onClick={() => handleUpdateClick(item)}
-                                        className="flex-1 flex h-9 items-center justify-center gap-2 rounded-xl bg-gray-50 text-gray-600 transition-all hover:bg-green-600 hover:text-white dark:bg-gray-800 font-bold text-xs"
+                                        className="px-3 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 dark:hover:text-white rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer shadow-xs active:scale-95"
                                     >
-                                        <PencilIcon className="h-4 w-4" />
+                                        <PencilIcon className="h-3.5 w-3.5" />
                                         {t('edit')}
                                     </button>
 
                                     <button
+                                        type="button"
                                         onClick={() => handleDeleteClick(item)}
-                                        className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-600 transition-colors hover:bg-red-600 hover:text-white dark:bg-red-900/10"
+                                        className="p-2 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-600 hover:text-white dark:hover:bg-red-600 dark:hover:text-white rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
                                         title={t('delete')}
                                     >
-                                        <TrashIcon className="h-4 w-4" />
+                                        <TrashIcon className="h-3.5 w-3.5" />
                                     </button>
                                 </div>
                             )}

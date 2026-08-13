@@ -1,64 +1,69 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { Part } from '@/types';
 
-interface PartUpdateProps {
+interface PracticeNumberBarProps {
     part: Part;
     flaggedIds: Set<number>;
+    activeQuestionId?: number | null;
+    setActiveQuestionId?: (id: number) => void;
 }
 
-export default function PracticeNumberBar({ part, flaggedIds }: PartUpdateProps) {
-    const { t } = useTranslation();
+export default function PracticeNumberBar({
+    part,
+    flaggedIds,
+    activeQuestionId,
+    setActiveQuestionId
+}: PracticeNumberBarProps) {
+    if (!part || !part.sections) return null;
 
-    if (!part || !part.sections) return null; // ✅ early return
-
-    // Start numbering safely
     let questionIndex = part.order ? Number(part.order) : 0;
 
     return (
-        <div key={part.id} className="flex flex-wrap">
+        <div key={part.id} className="flex items-center gap-2 overflow-x-auto hide-scrollbar py-0.5">
             {part.sections.map((section) => {
-                if (!section.questions) return null; // ✅ skip if no questions
+                if (!section.questions) return null;
 
                 return section.questions.map((question) => {
                     const count = question.is_correct_count ? Number(question.is_correct_count) : 1;
-
-                    const numbers = count > 1
-                        ? Array.from({ length: count }, (_, i) => questionIndex + i)
-                        : [questionIndex];
-
-                    // Move index forward
+                    const startNum = questionIndex + 1;
+                    const endNum = questionIndex + count;
                     questionIndex += count;
 
-                    return numbers.map((num, idx) => {
-                        const isAnswered = question.attempt_answer && (
-                            (question.attempt_answer.attempt_answer_options?.length ?? 0) > 0 ||
-                            (question.attempt_answer.answer_text && question.attempt_answer.answer_text.trim() !== '')
-                        );
-                        
-                        return (
-                            <span
-                                key={`${question.id}-${idx}`}
-                                onClick={() => {
-                                    const el = document.getElementById(`question-${question.id}`);
-                                    if (el) {
-                                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                    }
-                                }}
-                                className={`flex items-center justify-center w-8 h-8 md:w-9 md:h-9 m-0.5 cursor-pointer font-bold text-sm select-none hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors flex-shrink-0 relative ${
-                                    isAnswered
-                                        ? 'bg-white dark:bg-gray-800 text-black dark:text-gray-100 border-2 border-transparent border-b-gray-800 dark:border-b-gray-400'
-                                        : 'bg-white dark:bg-gray-800 text-black dark:text-gray-100 border border-gray-400 dark:border-gray-600'
-                                }`}
-                                style={isAnswered ? { borderBottomWidth: '4px' } : {}}
-                            >
-                                {num + 1}
-                                {flaggedIds.has(question.id) && (
-                                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full border border-white dark:border-gray-900" />
-                                )}
-                            </span>
-                        );
-                    });
+                    // Display text: single number "14" or range "18–19"
+                    const displayText = count > 1 ? `${startNum}–${endNum}` : `${startNum}`;
+
+                    const isAnswered = question.attempt_answer && (
+                        (question.attempt_answer.attempt_answer_options?.length ?? 0) > 0 ||
+                        (question.attempt_answer.answer_text && question.attempt_answer.answer_text.trim() !== '')
+                    );
+
+                    const isFlagged = flaggedIds.has(question.id);
+                    const isActive = activeQuestionId === question.id;
+
+                    return (
+                        <button
+                            key={question.id}
+                            onClick={() => {
+                                if (setActiveQuestionId) setActiveQuestionId(question.id);
+                                const el = document.getElementById(`question-${question.id}`);
+                                if (el) {
+                                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                }
+                            }}
+                            className={`px-1.5 py-0.5 text-xs font-sans select-none cursor-pointer rounded-[2px] transition-all relative shrink-0 ${
+                                isActive
+                                    ? 'border border-[#2563eb] text-[#2563eb] font-bold bg-blue-50/50'
+                                    : isAnswered
+                                        ? 'font-bold underline text-black hover:text-blue-600'
+                                        : 'text-gray-700 font-normal hover:text-blue-600'
+                            }`}
+                        >
+                            {displayText}
+                            {isFlagged && (
+                                <span className="absolute -top-1 -right-1 text-orange-500 text-[9px] font-extrabold">★</span>
+                            )}
+                        </button>
+                    );
                 });
             })}
         </div>

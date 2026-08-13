@@ -7,6 +7,7 @@ import { debounce } from 'lodash';
 import { toast } from 'sonner';
 import { cleanTinyMce } from '@/utils/util';
 import PracticeQuestion from '@/components/practice/practice-question';
+import MatchingHeadings from '@/components/practice/matching-headings';
 
 interface SectionUpdateProps {
     order: number;
@@ -331,7 +332,24 @@ export default function PracticeSection({
                 )}
             </div>
 
-            {(section.question_type.type !== 'complete_section' &&
+            {section.question_type.type === 'matching' ? (
+                <div className="px-3 pb-4">
+                    <MatchingHeadings
+                        section={section}
+                        attemptId={attempt.id}
+                        order={order + 1}
+                        answers={Object.fromEntries(
+                            (section.questions || []).map((q) => [
+                                q.id,
+                                selectedAnswers[q.id]?.text ?? q.attempt_answer?.answer_text ?? ''
+                            ])
+                        )}
+                        onAnswerChange={(qId, val) => {
+                            handleInputChange(qId, val);
+                        }}
+                    />
+                </div>
+            ) : (section.question_type.type !== 'complete_section' &&
                 section.question_type.type !== 'drag_and_drop' &&
                 section.question_type.type !== 'essay') && (
                 <div className="px-3 pb-4 text-sm text-gray-600 dark:text-gray-400">

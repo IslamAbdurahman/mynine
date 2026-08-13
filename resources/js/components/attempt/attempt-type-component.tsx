@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AttemptPart, AttemptType } from '@/types';
 import { CheckCircle, Minus } from 'lucide-react';
+import AIEvaluationCard from '@/components/attempt/ai-evaluation-card';
 
 const AttemptTypeComponent = ({ attempt_type }: { attempt_type: AttemptType }) => {
     const { t } = useTranslation();
@@ -219,12 +220,15 @@ const AttemptTypeComponent = ({ attempt_type }: { attempt_type: AttemptType }) =
                                                     {/* ✅ Conditional extra columns */}
                                                     {attempt_type.type?.name === 'Writing' && (
                                                         <>
-                                                            <td className="border border-gray-300 dark:border-gray-600 px-4 py-2 whitespace-pre-wrap">
-                                                                {question?.attempt_answer?.review_note_ai}
+                                                            <td className="border border-gray-300 dark:border-gray-600 p-2">
+                                                                <AIEvaluationCard
+                                                                    rawNote={question?.attempt_answer?.review_note_ai}
+                                                                    score={question?.attempt_answer?.score}
+                                                                    essayText={question?.attempt_answer?.answer_text}
+                                                                />
                                                             </td>
-                                                            <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">
-                                                                {question?.attempt_answer?.score}
-
+                                                            <td className="border border-gray-300 dark:border-gray-600 px-4 py-2 font-bold text-center">
+                                                                {question?.attempt_answer?.score ?? '-'}
                                                             </td>
                                                         </>
                                                     )}

@@ -14,25 +14,20 @@ import {
     DialogTitle,
     DialogTrigger
 } from '@/components/ui/dialog';
-import { IoCreate } from 'react-icons/io5';
 import { Section } from '@/types';
 import InputError from '@/components/input-error';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { buildRange } from '@/utils/rangeHelpers';
-import { baseButton } from '@/components/ui/baseButton';
-import { Plus } from 'lucide-react'; // ✅ assuming you have shadcn/ui Checkbox
-
+import { Plus, ClipboardList, Trash2, CheckCircle2 } from 'lucide-react';
+import QuestionTypeGuide from '@/components/question/question-type-guide';
 
 interface SectionUpdateProps {
     section: Section;
 }
 
-export default function CreateQuestionModal(
-    { section }: SectionUpdateProps
-) {
-
+export default function CreateQuestionModal({ section }: SectionUpdateProps) {
     const { t } = useTranslation();
     const [open, setOpen] = useState(false);
     const [showSmartPaste, setShowSmartPaste] = useState(false);
@@ -52,25 +47,22 @@ export default function CreateQuestionModal(
         options: []
     });
 
-    // Add new option
     const addOption = () => {
         setData('options', [...data.options, { textarea: '', is_correct: false }]);
     };
 
-    // Remove option
     const removeOption = (index: number) => {
         const updated = data.options.filter((_, i) => i !== index);
         setData('options', updated);
     };
 
-    // Handle option update
     const updateOption = (index: number, field: 'textarea' | 'is_correct', value: any) => {
         const updated = [...data.options];
         if (field === 'is_correct' && value === true) {
             const isSingular =
-                section.question_type.type === 'multiple_choice' ||
-                section.question_type.type === 'true_false' ||
-                section.question_type.type === 'yes_no';
+                section.question_type?.type === 'multiple_choice' ||
+                section.question_type?.type === 'true_false' ||
+                section.question_type?.type === 'yes_no';
 
             if (isSingular) {
                 updated.forEach((option, i) => {
@@ -97,6 +89,7 @@ export default function CreateQuestionModal(
         setData('options', [...data.options, ...parsedOptions]);
         setSmartPasteText('');
         setShowSmartPaste(false);
+        toast.success(`${parsedOptions.length} ta variant qo'shildi!`);
     };
 
     const submit: FormEventHandler = (e) => {
@@ -107,7 +100,7 @@ export default function CreateQuestionModal(
             onSuccess: () => {
                 reset();
                 clearErrors();
-                setOpen(false); // close modal
+                setOpen(false);
                 toast.success(t('created_successfully'));
             },
             onError: (err) => {
@@ -119,73 +112,96 @@ export default function CreateQuestionModal(
     };
 
     useEffect(() => {
-        if (!open) return; // only when modal is open
+        if (!open) return;
 
-        if (section.question_type.type === 'true_false') {
+        if (section.question_type?.type === 'true_false') {
             setData('options', [
                 { textarea: 'True', is_correct: false },
                 { textarea: 'False', is_correct: false },
                 { textarea: 'Not Given', is_correct: false }
             ]);
-        } else if (section.question_type.type === 'yes_no') {
+        } else if (section.question_type?.type === 'yes_no') {
             setData('options', [
                 { textarea: 'Yes', is_correct: false },
                 { textarea: 'No', is_correct: false },
                 { textarea: 'Not Given', is_correct: false }
             ]);
         }
-    }, [open, section.question_type.type]);
+    }, [open, section.question_type?.type]);
 
+    const qType = section.question_type?.type;
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <button
-                    className={`${baseButton} bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700`}
-                >
-                    <IoCreate className="w-4 h-4" />
+                <button className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-semibold text-xs rounded-lg shadow-xs transition-all cursor-pointer">
+                    <Plus className="w-4 h-4" />
                     {t('create')} {t('question')}
                 </button>
             </DialogTrigger>
 
-            <DialogContent className="sm:max-w-5xl w-full overflow-y-auto dark:border-gray-400">
-                <DialogTitle>{t('modal.create_title')}</DialogTitle>
-                <DialogDescription>{t('modal.create_description')}</DialogDescription>
+            <DialogContent className="sm:max-w-4xl w-full overflow-y-auto dark:border-gray-700">
+                <DialogTitle className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                    {t('modal.create_title') || "Yangi savol qo'shish"}
+                </DialogTitle>
+                <DialogDescription className="text-xs text-gray-500 dark:text-gray-400">
+                    {section.question_type?.name} savoli uchun ma'lumotlarni kiriting.
+                </DialogDescription>
 
-                <form onSubmit={submit} className="space-y-4">
-                    <div>
-                        <Label htmlFor="textarea">{t('textarea')}</Label>
+                <form onSubmit={submit} className="space-y-4 mt-1">
+
+                    {/* Question Type Guide */}
+                    <QuestionTypeGuide type={qType} />
+
+                    {/* Question Prompt Textarea */}
+                    <div className="space-y-1">
+                        <Label htmlFor="textarea" className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                            Savol Matni / Prompt *
+                        </Label>
                         <Input
                             id="textarea"
                             ref={nameInput}
+                            placeholder="Masalan: What is the main idea of paragraph A?"
                             value={data.textarea}
                             onChange={(e) => setData('textarea', e.target.value)}
+                            className="text-sm"
                         />
                         <InputError message={errors.textarea} />
                     </div>
 
-                    {section.question_type.type === 'fill_blank' && (
-                        <div>
-                            <Label htmlFor="answer_text">{t('answer_text')}</Label>
+                    {/* Fill in the Blank: Answer Text Input */}
+                    {qType === 'fill_blank' && (
+                        <div className="p-3 bg-blue-50/70 dark:bg-blue-950/40 rounded-xl border border-blue-200 dark:border-blue-800 space-y-1">
+                            <Label htmlFor="answer_text" className="text-sm font-semibold text-blue-900 dark:text-blue-200">
+                                To'g'ri Javob Matni (Correct Answer) *
+                            </Label>
                             <Input
                                 id="answer_text"
+                                placeholder="Masalan: climate change"
                                 value={data.answer_text}
                                 onChange={(e) => setData('answer_text', e.target.value)}
+                                className="bg-white dark:bg-gray-800"
                             />
+                            <p className="text-[11px] text-blue-600 dark:text-blue-400">
+                                Foydalanuvchi kiritgan matn ushbu so'z bilan tekshiriladi (harf kattaligi farq qilmaydi).
+                            </p>
                             <InputError message={errors.answer_text} />
                         </div>
                     )}
 
-                    {section.question_type.type === 'matching' && (
-                        <div className="sm:col-span-3">
-                            <Label htmlFor="answer_text">{t('answer_text')}</Label>
+                    {/* Matching: Select Dropdown from range A-F */}
+                    {qType === 'matching' && (
+                        <div className="p-3 bg-indigo-50/70 dark:bg-indigo-950/40 rounded-xl border border-indigo-200 dark:border-indigo-800 space-y-1">
+                            <Label htmlFor="answer_text" className="text-sm font-semibold text-indigo-900 dark:text-indigo-200">
+                                To'g'ri Mos keluvchi Harf (Select Answer) *
+                            </Label>
                             <select
                                 id="answer_text"
                                 value={data.answer_text ?? ''}
                                 onChange={(e) => setData('answer_text', e.target.value)}
-                                className="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                className="block w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2 text-sm shadow-xs focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                             >
-                                <option value="">{t('select')}</option>
+                                <option value="">{t('select') || "-- To'g'ri harfni tanlang --"}</option>
                                 {buildRange(section.from_option, section.to_option).map(opt => (
                                     <option key={opt} value={opt}>{opt}</option>
                                 ))}
@@ -194,19 +210,13 @@ export default function CreateQuestionModal(
                         </div>
                     )}
 
-                    {(
-                        section.question_type.type === 'true_false' ||
-                        section.question_type.type === 'yes_no' ||
-                        section.question_type.type === 'multiple_choice' ||
-                        section.question_type.type === 'multiple_response'
-                    ) && (
-
-                        <div className="space-y-4">
-                            {(section.question_type.type === 'true_false' ||
-                                section.question_type.type === 'yes_no') ? (
+                    {/* Multiple Choice / Response / True False / Yes No Options */}
+                    {(qType === 'true_false' || qType === 'yes_no' || qType === 'multiple_choice' || qType === 'multiple_response') && (
+                        <div className="space-y-3">
+                            {(qType === 'true_false' || qType === 'yes_no') ? (
                                 <div className="space-y-2">
-                                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                        {t('correct_answer') || 'Select Correct Answer'}
+                                    <Label className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                                        To'g'ri javob variantini belgilang *
                                     </Label>
                                     <div className="grid grid-cols-3 gap-3">
                                         {data.options.map((option, index) => (
@@ -215,21 +225,19 @@ export default function CreateQuestionModal(
                                                 onClick={() => updateOption(index, 'is_correct', true)}
                                                 className={`flex items-center justify-between p-3 border rounded-xl cursor-pointer select-none transition-all ${
                                                     option.is_correct
-                                                        ? 'border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/30 dark:border-indigo-500 ring-2 ring-indigo-600/10'
-                                                        : 'border-gray-200 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-900/50'
+                                                        ? 'border-blue-600 bg-blue-50 dark:bg-blue-950/60 dark:border-blue-500 ring-2 ring-blue-600/20'
+                                                        : 'border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800'
                                                 }`}
                                             >
-                                                <span className="font-semibold text-sm text-gray-950 dark:text-white">
+                                                <span className="font-bold text-sm text-gray-900 dark:text-white">
                                                     {option.textarea}
                                                 </span>
-                                                <div className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${
+                                                <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
                                                     option.is_correct
-                                                        ? 'border-indigo-600 bg-indigo-600 dark:border-indigo-500 dark:bg-indigo-500'
+                                                        ? 'border-blue-600 bg-blue-600 text-white'
                                                         : 'border-gray-300 dark:border-gray-600'
                                                 }`}>
-                                                    {option.is_correct && (
-                                                        <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                                                    )}
+                                                    {option.is_correct && <CheckCircle2 className="w-4 h-4" />}
                                                 </div>
                                             </div>
                                         ))}
@@ -238,102 +246,99 @@ export default function CreateQuestionModal(
                             ) : (
                                 <div className="space-y-3">
                                     <div className="flex items-center justify-between">
-                                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                            {t('options')}
+                                        <Label className="text-sm font-bold text-gray-800 dark:text-gray-200">
+                                            Javob Variantlari (Options)
                                         </Label>
-                                        {(section.question_type.type === 'multiple_choice' ||
-                                            section.question_type.type === 'multiple_response') && (
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => setShowSmartPaste(!showSmartPaste)}
-                                                className="text-xs py-1 px-2 border border-gray-300 dark:border-gray-600 rounded"
-                                            >
-                                                {showSmartPaste ? t('hide_smart_paste') : t('smart_paste')}
-                                            </Button>
-                                        )}
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => setShowSmartPaste(!showSmartPaste)}
+                                            className="text-xs gap-1.5 border-purple-300 text-purple-700 hover:bg-purple-50 dark:border-purple-800 dark:text-purple-300 dark:hover:bg-purple-950"
+                                        >
+                                            <ClipboardList className="w-3.5 h-3.5" />
+                                            {showSmartPaste ? 'Yashirish' : 'Aqlli nusxalash (Smart Paste)'}
+                                        </Button>
                                     </div>
 
                                     {showSmartPaste && (
-                                        <div className="p-3 border border-dashed rounded-lg bg-gray-50 dark:bg-gray-950 space-y-2">
-                                            <Label className="text-xs text-gray-500 block mb-1">
-                                                {t('smart_paste_desc')}
-                                            </Label>
+                                        <div className="p-3 border border-dashed border-purple-300 dark:border-purple-800 rounded-xl bg-purple-50/50 dark:bg-purple-950/30 space-y-2">
+                                            <p className="text-xs text-purple-900 dark:text-purple-200 font-medium">
+                                                Matnli variantlarni har bir qatorda nusxalab tashlang (To'g'ri javob ketidan * qo'ying):
+                                            </p>
                                             <textarea
-                                                placeholder={"A) Option A\nB) Option B*\nC) Option C\nD) Option D"}
+                                                placeholder={"A) Option 1\nB) Option 2*\nC) Option 3\nD) Option 4"}
                                                 value={smartPasteText}
                                                 onChange={(e) => setSmartPasteText(e.target.value)}
-                                                className="w-full h-24 p-2 text-xs border rounded bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-white font-mono focus:ring-1 focus:ring-blue-500 outline-none"
+                                                className="w-full h-24 p-2 text-xs border rounded-lg bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-white font-mono focus:ring-2 focus:ring-purple-500 outline-none"
                                             />
                                             <Button
                                                 type="button"
                                                 size="sm"
                                                 onClick={handleSmartPaste}
-                                                className="bg-green-600 hover:bg-green-700 text-white text-xs py-1 px-3 rounded"
+                                                className="bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold"
                                             >
-                                                {t('apply_paste')}
+                                                Variantlarni tahlil qilib qo'shish
                                             </Button>
                                         </div>
                                     )}
 
-                                    {data.options.map((option, index) => (
-                                        <div key={index} className="flex items-center gap-2">
-                                            <Input
-                                                placeholder={t('option_text')}
-                                                value={option.textarea}
-                                                onChange={(e) => updateOption(index, 'textarea', e.target.value)}
-                                            />
-
-                                            <div className="flex items-center gap-1.5 shrink-0">
-                                                <Checkbox
-                                                    checked={option.is_correct}
-                                                    onCheckedChange={(checked) =>
-                                                        updateOption(index, 'is_correct', checked === true)
-                                                    }
+                                    {/* Options list */}
+                                    <div className="space-y-2">
+                                        {data.options.map((option, index) => (
+                                            <div key={index} className="flex items-center gap-2">
+                                                <Input
+                                                    placeholder={`Variant ${String.fromCharCode(65 + index)}`}
+                                                    value={option.textarea}
+                                                    onChange={(e) => updateOption(index, 'textarea', e.target.value)}
+                                                    className="flex-1 text-sm"
                                                 />
-                                                <span className="text-sm text-gray-600 dark:text-gray-400">{t('correct')}</span>
-                                            </div>
 
-                                            {(section.question_type.type === 'multiple_choice' ||
-                                                section.question_type.type === 'multiple_response') && (
+                                                <label className="flex items-center gap-1.5 px-3 py-2 border rounded-lg cursor-pointer select-none shrink-0 hover:bg-gray-50 dark:hover:bg-gray-800">
+                                                    <Checkbox
+                                                        checked={option.is_correct}
+                                                        onCheckedChange={(checked) =>
+                                                            updateOption(index, 'is_correct', checked === true)
+                                                        }
+                                                    />
+                                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                                                        {t('correct') || "To'g'ri"}
+                                                    </span>
+                                                </label>
+
                                                 <Button
                                                     type="button"
-                                                    variant="destructive"
-                                                    size="sm"
+                                                    variant="ghost"
+                                                    size="icon"
                                                     onClick={() => removeOption(index)}
+                                                    className="text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950 shrink-0"
                                                 >
-                                                    {t('remove')}
+                                                    <Trash2 className="w-4 h-4" />
                                                 </Button>
-                                            )}
-                                        </div>
-                                    ))}
+                                            </div>
+                                        ))}
+                                    </div>
 
-                                    {(section.question_type.type === 'multiple_choice' ||
-                                        section.question_type.type === 'multiple_response') && (
-                                        <div>
-                                            <Button
-                                                type="button"
-                                                onClick={addOption}
-                                                className="bg-blue-600 text-white hover:bg-blue-700
-                                dark:bg-blue-500 dark:hover:bg-blue-600
-                                disabled:opacity-50"
-                                            >
-                                                <Plus /> {t('add_option')}
-                                            </Button>
-                                        </div>
-                                    )}
+                                    {/* Dotted + Variant qo'shish button */}
+                                    <button
+                                        type="button"
+                                        onClick={addOption}
+                                        className="w-full py-2 border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-950/30 text-gray-600 dark:text-gray-300 hover:text-blue-600 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                                    >
+                                        <Plus className="w-4 h-4" />
+                                        {t('add_option') || "Yangi variant qo'shish"}
+                                    </button>
                                 </div>
                             )}
                         </div>
-
                     )}
 
-                    <DialogFooter className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    {/* Modal Footer */}
+                    <DialogFooter className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                         <DialogClose asChild>
                             <Button
-                                variant="secondary"
-                                className="bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                                type="button"
+                                variant="outline"
                                 onClick={() => {
                                     reset();
                                     clearErrors();
@@ -347,7 +352,7 @@ export default function CreateQuestionModal(
                         <Button
                             type="submit"
                             disabled={processing}
-                            className="bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 disabled:opacity-50"
+                            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm"
                         >
                             {t('save')}
                         </Button>

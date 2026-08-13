@@ -14,6 +14,7 @@ import {
     DialogContent,
     DialogDescription,
     DialogFooter,
+    DialogHeader,
     DialogTitle
 } from '@/components/ui/dialog';
 import { Auth, Test } from '@/types';
@@ -24,14 +25,13 @@ interface UpdateTestModalProps {
     setOpen: (open: boolean) => void;
 }
 
-
 type TestForm = {
-    name: string
-    comment: string
-    audio_path: File | null
-    active: number
-    open: number
-}
+    name: string;
+    comment: string;
+    audio_path: File | null;
+    active: number;
+    open: number;
+};
 
 export default function UpdateTestModal({ test, open, setOpen }: UpdateTestModalProps) {
     const { t } = useTranslation();
@@ -45,11 +45,8 @@ export default function UpdateTestModal({ test, open, setOpen }: UpdateTestModal
         open: test.open
     });
 
-
     const { auth } = usePage().props as unknown as { auth?: Auth };
-
     const isAdmin = auth?.user?.roles?.some(role => role.name === 'Admin');
-
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -59,42 +56,48 @@ export default function UpdateTestModal({ test, open, setOpen }: UpdateTestModal
             onSuccess: () => {
                 reset();
                 clearErrors();
-                setOpen(false); // 🔒 CLOSE MODAL HERE
+                setOpen(false);
                 toast.success(t('updated_successfully'));
             },
             onError: (err) => {
                 nameInput.current?.focus();
-                // Display a friendly error message if available
-                const errorMessage = err?.error || t('create_failed'); // Use fallback error message
-                toast.error(errorMessage); // Display error message
+                const errorMessage = err?.error || t('create_failed');
+                toast.error(errorMessage);
             }
         });
-
     };
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
+            <DialogContent className="sm:max-w-lg w-full dark:border-gray-700">
+                <DialogHeader className="space-y-1 pb-2 border-b border-gray-100 dark:border-gray-800">
+                    <DialogTitle className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                        {t('modal.update_title') || "Testni tahrirlash"}
+                    </DialogTitle>
+                    <DialogDescription className="text-xs text-gray-500 dark:text-gray-400">
+                        {t('modal.update_description') || "Test ma'lumotlarini yangilang."}
+                    </DialogDescription>
+                </DialogHeader>
 
-            <DialogContent className="dark:border-gray-400">
-                <DialogDescription>
-                    <DialogTitle>{t('modal.update_title')}</DialogTitle>
-                    <DialogDescription>{t('modal.update_description')}</DialogDescription>
-                </DialogDescription>
-
-                <form onSubmit={submit} className="space-y-4">
-                    <div>
-                        <Label htmlFor="name">{t('name')}</Label>
+                <form onSubmit={submit} className="space-y-4 mt-2">
+                    <div className="space-y-1">
+                        <Label htmlFor="name" className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                            {t('name')} *
+                        </Label>
                         <Input
                             id="name"
                             ref={nameInput}
                             value={data.name}
                             onChange={(e) => setData('name', e.target.value)}
+                            required
                         />
                         <InputError message={errors.name} />
                     </div>
 
-                    <div>
-                        <Label htmlFor="comment">{t('comment')}</Label>
+                    <div className="space-y-1">
+                        <Label htmlFor="comment" className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                            {t('comment')}
+                        </Label>
                         <Input
                             id="comment"
                             value={data.comment}
@@ -103,8 +106,10 @@ export default function UpdateTestModal({ test, open, setOpen }: UpdateTestModal
                         <InputError message={errors.comment} />
                     </div>
 
-                    <div>
-                        <Label htmlFor="audio_path">{t('audio_path')}</Label>
+                    <div className="space-y-1">
+                        <Label htmlFor="audio_path" className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                            {t('audio_path') || 'Audio fayl'}
+                        </Label>
                         <Input
                             type="file"
                             id="audio_path"
@@ -114,51 +119,56 @@ export default function UpdateTestModal({ test, open, setOpen }: UpdateTestModal
                         <InputError message={errors.audio_path} />
                     </div>
 
-                    <div>
-                        <Label htmlFor="status" className="mb-3 block">
-                            {t('status')}
-                        </Label>
-                        <label className="inline-flex items-center cursor-pointer">
-                            <input
-                                type="checkbox"
-                                id="status"
-                                className="sr-only peer"
-                                checked={data.active === 1}
-                                onChange={(e) => setData('active', e.target.checked ? 1 : 0)}
-                            />
-                            <div
-                                className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:w-5 after:h-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
-                        </label>
-                        <InputError message={errors.active} />
-                    </div>
-
-                    {isAdmin && (
-
-                        <div>
-                            <Label htmlFor="open" className="mb-3 block">
-                                {t('open')}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                            <Label htmlFor="status" className="text-sm font-semibold text-gray-700 dark:text-gray-200 block">
+                                {t('status')}
                             </Label>
-                            <label className="inline-flex items-center cursor-pointer">
+                            <label className="inline-flex items-center cursor-pointer gap-2">
                                 <input
                                     type="checkbox"
-                                    id="open"
+                                    id="status"
                                     className="sr-only peer"
-                                    checked={data.open === 1}
-                                    onChange={(e) => setData('open', e.target.checked ? 1 : 0)}
+                                    checked={data.active === 1}
+                                    onChange={(e) => setData('active', e.target.checked ? 1 : 0)}
                                 />
-                                <div
-                                    className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:w-5 after:h-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
+                                <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500/20 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:w-5 after:h-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
+                                <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
+                                    {data.active === 1 ? 'Aktiv' : 'Nofaol'}
+                                </span>
                             </label>
-                            <InputError message={errors.open} />
+                            <InputError message={errors.active} />
                         </div>
 
-                    )}
+                        {isAdmin && (
+                            <div className="space-y-1">
+                                <Label htmlFor="open" className="text-sm font-semibold text-gray-700 dark:text-gray-200 block">
+                                    {t('open') || 'Ochiq test'}
+                                </Label>
+                                <label className="inline-flex items-center cursor-pointer gap-2">
+                                    <input
+                                        type="checkbox"
+                                        id="open"
+                                        className="sr-only peer"
+                                        checked={data.open === 1}
+                                        onChange={(e) => setData('open', e.target.checked ? 1 : 0)}
+                                    />
+                                    <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500/20 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:w-5 after:h-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
+                                    <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
+                                        {data.open === 1 ? 'Ochiq' : 'Yopiq'}
+                                    </span>
+                                </label>
+                                <InputError message={errors.open} />
+                            </div>
+                        )}
+                    </div>
 
-                    <DialogFooter className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <DialogFooter className="flex items-center justify-end gap-3 pt-4 mt-4 border-t border-gray-100 dark:border-gray-800">
                         <DialogClose asChild>
                             <Button
-                                variant="secondary"
-                                className="bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                                type="button"
+                                variant="outline"
+                                className="border-gray-300 dark:border-gray-700"
                                 onClick={() => {
                                     reset();
                                     clearErrors();
@@ -172,7 +182,7 @@ export default function UpdateTestModal({ test, open, setOpen }: UpdateTestModal
                         <Button
                             type="submit"
                             disabled={processing}
-                            className="bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 disabled:opacity-50"
+                            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-xs"
                         >
                             {t('save')}
                         </Button>
@@ -181,6 +191,5 @@ export default function UpdateTestModal({ test, open, setOpen }: UpdateTestModal
                 </form>
             </DialogContent>
         </Dialog>
-
     );
 }

@@ -57,95 +57,91 @@ const UserTable = ({ roles, searchData, ...user }: UserTableProps) => {
 
     return (
         <div>
-            {/* Table */}
-            <div className="overflow-x-auto">
-                <table className="border-collapse w-full text-sm text-left text-gray-800 dark:text-gray-100">
-                    <thead className="bg-gray-100 dark:bg-gray-700">
+            {/* Table Container */}
+            <div className="overflow-x-auto rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xs">
+                <table className="w-full text-xs text-left border-collapse">
+                    <thead className="bg-gray-50 dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 font-bold uppercase text-[10px] tracking-wider border-b border-gray-200 dark:border-gray-800">
                     <tr>
-                        <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">{t('n')}</td>
-                        <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">{t('name')}</td>
-                        <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">{t('username')}</td>
-                        <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">{t('telegram_id')}</td>
-                        <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">{t('phone')}</td>
-                        <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">{t('email')}</td>
-                        <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">{t('created_at')}</td>
-                        <th className="border border-gray-300 dark:border-gray-600 px-4 py-2">
+                        <th className="px-4 py-3 font-bold">{t('n')}</th>
+                        <th className="px-4 py-3 font-bold">{t('name')}</th>
+                        <th className="px-4 py-3 font-bold">{t('username')}</th>
+                        <th className="px-4 py-3 font-bold">{t('telegram_id')}</th>
+                        <th className="px-4 py-3 font-bold">{t('phone')}</th>
+                        <th className="px-4 py-3 font-bold">{t('email')}</th>
+                        <th className="px-4 py-3 font-bold">{t('created_at')}</th>
+                        <th className="px-4 py-3 font-bold text-right">
                             {/*<CreateUserModal />*/}
                         </th>
                     </tr>
                     </thead>
-                    <tbody className="bg-white dark:bg-gray-800">
+                    <tbody className="divide-y divide-gray-100 dark:divide-gray-800/60">
                     {user.data.map((item, index) => {
                         const globalIndex = (user.current_page - 1) * user.per_page + index + 1;
                         return (
-                            <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                                <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">{globalIndex}</td>
-                                <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">
-                                    <Link href={`/user/${item.id}`}>
+                            <tr key={item.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/40 transition-colors">
+                                <td className="px-4 py-3 font-semibold text-gray-400 dark:text-gray-500">#{globalIndex}</td>
+                                <td className="px-4 py-3 font-bold text-gray-900 dark:text-gray-100">
+                                    <Link href={`/user/${item.id}`} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                                         {item.name}
-                                        ( {item.roles?.map((role) => {
-                                        return (
-                                            <span key={role.id}>{role.name}</span>
-                                        );
-                                    })} )
+                                        <span className="ml-1.5 text-[11px] font-medium text-gray-400 dark:text-gray-500">
+                                            ( {item.roles?.map((role) => role.name).join(', ')} )
+                                        </span>
                                     </Link>
                                 </td>
-                                <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">{item.username}</td>
-                                <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">{item.telegram_id}</td>
-                                <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">{item.phone}</td>
-                                <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">{item.email}</td>
-                                <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">
+                                <td className="px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">{item.username || '-'}</td>
+                                <td className="px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">{item.telegram_id || '-'}</td>
+                                <td className="px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">{item.phone || '-'}</td>
+                                <td className="px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">{item.email || '-'}</td>
+                                <td className="px-4 py-3 text-gray-500 dark:text-gray-400 text-[11px]">
                                     {new Date(item.created_at).toLocaleString('sv-SE').replace('T', ' ')}
                                 </td>
-                                <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">
-
-                                    <div className="inline-flex shadow-sm rounded-md overflow-hidden">
+                                <td className="px-4 py-3 text-right">
+                                    <div className="flex items-center justify-end gap-2">
                                         <button
+                                            type="button"
                                             onClick={() => handleUpdateClick(item)}
-                                            className="bg-green-600 text-white px-4 py-2 text-sm font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 dark:focus:ring-green-500"
+                                            className="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 dark:hover:text-white rounded-xl font-semibold text-xs transition-all cursor-pointer shadow-xs active:scale-95"
+                                            title={t('edit')}
                                         >
-                                            <PencilIcon className="w-4 h-4" />
+                                            <PencilIcon className="w-3.5 h-3.5" />
                                         </button>
-
                                         {isAdmin && (
                                             <button
+                                                type="button"
                                                 onClick={() => handleDeleteClick(item)}
-                                                className="bg-red-500 text-white px-4 py-2 text-sm font-medium hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 dark:focus:ring-red-500"
+                                                className="p-2 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-600 hover:text-white dark:hover:bg-red-600 dark:hover:text-white rounded-xl font-semibold text-xs transition-all cursor-pointer shadow-xs active:scale-95"
+                                                title={t('delete')}
                                             >
-                                                <TrashIcon className="w-4 h-4" />
+                                                <TrashIcon className="w-3.5 h-3.5" />
                                             </button>
                                         )}
-
                                     </div>
-
-
                                 </td>
                             </tr>
                         );
                     })}
                     </tbody>
-
-                    {/* Place the UpdateUserModal here */}
-                    {selectedUser && open && (
-                        <UpdateUserModal
-                            roles={roles}
-                            user={selectedUser}
-                            open={open}
-                            setOpen={setOpen}
-                        />
-                    )}
-
-                    {/* Pass selected user to the DeleteUserModal */}
-                    {selectedUser && openDelete && (
-                        <DeleteItemModal
-                            item={selectedUser}
-                            open={openDelete}  // Assuming you have a separate state for openDelete
-                            setOpen={setOpenDelete}  // Or you can manage this in its own state
-                            onDelete={handleDelete} // Handle deletion
-                        />
-                    )}
-
                 </table>
+            </div>
+
+            {/* Modals */}
+            {selectedUser && open && (
+                <UpdateUserModal
+                    roles={roles}
+                    user={selectedUser}
+                    open={open}
+                    setOpen={setOpen}
+                />
+            )}
+
+            {selectedUser && openDelete && (
+                <DeleteItemModal
+                    item={selectedUser}
+                    open={openDelete}
+                    setOpen={setOpenDelete}
+                    onDelete={handleDelete}
+                />
+            )}
 
                 {/* Pagination */}
                 <div className="mt-4 flex justify-between items-center text-sm text-gray-600 dark:text-gray-300">
@@ -173,10 +169,7 @@ const UserTable = ({ roles, searchData, ...user }: UserTableProps) => {
                         ))}
                     </div>
                 </div>
-
-
             </div>
-        </div>
     );
 };
 

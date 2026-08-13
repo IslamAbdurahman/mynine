@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Editor } from '@tinymce/tinymce-react';
+import TextareaEditor from '@/components/textarea-editor';
 import { route } from 'ziggy-js';
 
 export default function CreatePart() {
@@ -130,30 +130,10 @@ export default function CreatePart() {
                         {/*    <InputError message={errors.minute} />*/}
                         {/*</div>*/}
 
-                        <Editor
-                            apiKey="2dze5jtbx912ir9l3xn1gmu90c06jnpomzy2lyypdq5xqcm8" // 👈 bo‘sh qoldirsangiz — community version (bepul)
-                            onInit={(_evt, editor) => (editorRef.current = editor)}
-                            initialValue=""
-
-                            onEditorChange={(content) => setData('textarea', content)} // ✅ To‘g‘ri usul
-                            init={{
-                                height: 600,
-                                menubar: 'file edit view insert format tools table help',
-                                plugins: [
-                                    'advlist', 'anchor', 'autolink', 'charmap', 'code', 'codesample',
-                                    'directionality', 'emoticons', 'fullscreen', 'help', 'image',
-                                    'importcss', 'insertdatetime', 'link', 'lists', 'media',
-                                    'preview', 'searchreplace', 'table', 'visualblocks',
-                                    'visualchars', 'wordcount'
-                                ],
-                                toolbar:
-                                    'undo redo | blocks fontfamily fontsize | ' +
-                                    'bold italic underline strikethrough forecolor backcolor | ' +
-                                    'link image media table emoticons | alignleft aligncenter ' +
-                                    'alignright alignjustify | bullist numlist outdent indent | ' +
-                                    'removeformat | code fullscreen preview | help',
-                                content_style: 'body { font-family:Arial,sans-serif; line-height:2; }'
-                            }}
+                        <TextareaEditor
+                            value={data.textarea}
+                            onChange={(content) => setData('textarea', content)}
+                            height={600}
                         />
 
                         <div className="flex gap-3">

@@ -85,13 +85,61 @@ class QuestionController extends Controller
     public function update(UpdateQuestionRequest $request, Question $question)
     {
         try {
+            $data = $request->validated();
 
-            $question->update($request->validated());
+            DB::beginTransaction();
+
+            $question->update([
+                'textarea' => $data['textarea'],
+                'answer_text' => $data['answer_text'] ?? null,
+            ]);
+
+            if (array_key_exists('options', $data) && is_array($data['options'])) {
+                $existingOptions = $question->options()->get()->keyBy('id');
+                $keptIds = [];
+
+                foreach ($data['options'] as $optData) {
+                    if (!isset($optData['textarea']) || trim($optData['textarea']) === '') {
+                        continue;
+                    }
+
+                    $optId = isset($optData['id']) ? (int) $optData['id'] : null;
+                    $isCorrect = !empty($optData['is_correct']) ? 1 : 0;
+
+                    if ($optId && $existingOptions->has($optId)) {
+                        $existingOption = $existingOptions->get($optId);
+                        $existingOption->update([
+                            'textarea' => $optData['textarea'],
+                            'is_correct' => $isCorrect,
+                        ]);
+                        $keptIds[] = $optId;
+                    } else {
+                        $newOption = $question->options()->create([
+                            'textarea' => $optData['textarea'],
+                            'is_correct' => $isCorrect,
+                        ]);
+                        $keptIds[] = $newOption->id;
+                    }
+                }
+
+                // Remove options that were deleted in UI, if they have no attempt_answer_options references
+                foreach ($existingOptions as $optId => $oldOption) {
+                    if (!in_array($optId, $keptIds)) {
+                        if (!$oldOption->attempt_answer_options()->exists()) {
+                            $oldOption->delete();
+                        } else {
+                            $oldOption->update(['is_correct' => 0]);
+                        }
+                    }
+                }
+            }
+
+            DB::commit();
 
             return back()->with('success', __('updated_successfully'));
 
         } catch (\Exception $e) {
-            // Proper Inertia error response
+            DB::rollBack();
             throw ValidationException::withMessages([
                 'error' => [$e->getMessage()],
             ]);

@@ -1,6 +1,6 @@
-import AppearanceTabs from '@/components/appearance-tabs';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Check, Globe } from 'lucide-react';
 
 interface LanguageBarProps {
     variant?: 'light' | 'dark';
@@ -11,6 +11,8 @@ const LanguageBar = ({ variant, placement }: LanguageBarProps) => {
     const { i18n, t } = useTranslation();
     const [open, setOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
+
+    const currentLang = i18n.language || 'uz';
 
     const changeLanguage = (lang: string) => {
         i18n.changeLanguage(lang);
@@ -29,40 +31,51 @@ const LanguageBar = ({ variant, placement }: LanguageBarProps) => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    const languages = [
+        { code: 'uz', flag: '🇺🇿', label: 'O\'zbek' },
+        { code: 'en', flag: '🇬🇧', label: 'English' },
+        { code: 'ru', flag: '🇷🇺', label: 'Русский' },
+    ];
+
+    const currentLangObj = languages.find(l => l.code === currentLang) || languages[0];
+
     const buttonClass = variant === 'dark'
-        ? "rounded border border-white/20 bg-white/10 px-3 py-1 text-sm shadow hover:bg-white/20 text-white backdrop-blur-sm transition-colors"
-        : "rounded border border-gray-300 bg-white px-3 py-1 text-sm shadow hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 transition-colors";
+        ? "inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-sm hover:bg-white/20 transition-all cursor-pointer shadow-xs"
+        : "inline-flex items-center gap-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all cursor-pointer shadow-xs";
 
     return (
-        <div className="relative flex justify-end" ref={dropdownRef}>
+        <div className="relative inline-block text-left" ref={dropdownRef}>
             <button
+                type="button"
                 onClick={() => setOpen(!open)}
                 className={buttonClass}
             >
-                🌐 {t('lang.title') ?? 'Language'}
+                <Globe className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
+                <span>{currentLangObj.flag} {currentLangObj.code.toUpperCase()}</span>
             </button>
 
             {open && (
-                <div className="absolute right-0 z-50 mt-2 w-36 rounded border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
-                    <button
-                        onClick={() => changeLanguage('uz')}
-                        className="w-full px-4 py-2 text-left hover:bg-gray-100 text-gray-900 dark:text-white dark:hover:bg-gray-700"
-                    >
-                        🇺🇿 {t('lang.uz')}
-                    </button>
-                    <button
-                        onClick={() => changeLanguage('en')}
-                        className="w-full px-4 py-2 text-left hover:bg-gray-100 text-gray-900 dark:text-white dark:hover:bg-gray-700"
-                    >
-                        🇬🇧 {t('lang.en')}
-                    </button>
-                    <button
-                        onClick={() => changeLanguage('ru')}
-                        className="w-full px-4 py-2 text-left hover:bg-gray-100 text-gray-900 dark:text-white dark:hover:bg-gray-700"
-                    >
-                        🇷🇺 {t('lang.ru')}
-                    </button>
-                    <AppearanceTabs className={'flex flex-col gap-1'} />
+                <div className={`absolute ${placement === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'} right-0 z-50 w-36 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-1 shadow-lg`}>
+                    {languages.map((lang) => (
+                        <button
+                            key={lang.code}
+                            type="button"
+                            onClick={() => changeLanguage(lang.code)}
+                            className={`flex w-full items-center justify-between px-3 py-2 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
+                                currentLang === lang.code
+                                    ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
+                                    : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                            }`}
+                        >
+                            <span className="flex items-center gap-2">
+                                <span>{lang.flag}</span>
+                                <span>{lang.label}</span>
+                            </span>
+                            {currentLang === lang.code && (
+                                <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                            )}
+                        </button>
+                    ))}
                 </div>
             )}
         </div>

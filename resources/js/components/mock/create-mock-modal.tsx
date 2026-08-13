@@ -18,6 +18,7 @@ import {
     DialogContent,
     DialogDescription,
     DialogFooter,
+    DialogHeader,
     DialogTitle,
     DialogTrigger
 } from '@/components/ui/dialog';
@@ -65,16 +66,23 @@ export default function CreateMockModal({ tests }: { tests: Test[] }) {
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <button
-                    className={`${baseButton} bg-blue-600 hover:bg-blue-700 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700`}
+                    type="button"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
                 >
                     <IoCreate className="w-4 h-4" />
-                    {t('create')}
+                    {t('create')} {t('mock')}
                 </button>
             </DialogTrigger>
 
-            <DialogContent className={'dark:border-gray-400'}>
-                <DialogTitle>{t('modal.create_title')}</DialogTitle>
-                <DialogDescription>{t('modal.create_description')}</DialogDescription>
+            <DialogContent className="sm:max-w-lg w-full rounded-2xl border border-gray-200 dark:border-gray-800 shadow-2xl bg-white dark:bg-gray-900">
+                <DialogHeader className="space-y-1 pb-2 border-b border-gray-100 dark:border-gray-800">
+                    <DialogTitle className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                        {t('modal.create_mock_title')}
+                    </DialogTitle>
+                    <DialogDescription className="text-xs text-gray-500 dark:text-gray-400">
+                        {t('modal.create_mock_desc')}
+                    </DialogDescription>
+                </DialogHeader>
 
                 <form onSubmit={submit} className="space-y-4">
                     <div>

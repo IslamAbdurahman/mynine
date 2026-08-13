@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Editor } from '@tinymce/tinymce-react';
+import TextareaEditor from '@/components/textarea-editor';
 import { route } from 'ziggy-js';
 
 export default function EditPart() {
@@ -123,51 +123,11 @@ export default function EditPart() {
                         {/*    <InputError message={errors.minute} />*/}
                         {/*</div>*/}
 
-                        {/* Textarea (TinyMCE Editor) */}
-                        <Editor
-                            apiKey="2dze5jtbx912ir9l3xn1gmu90c06jnpomzy2lyypdq5xqcm8"
-                            onInit={(_evt, editor) => (editorRef.current = editor)}
-                            initialValue={part.textarea} // ✅ keep existing content
-                            onEditorChange={(content) => setData('textarea', content)}
-                            init={{
-                                height: 600,
-                                menubar:
-                                    'file edit view insert format tools table help',
-                                plugins: [
-                                    'advlist',
-                                    'anchor',
-                                    'autolink',
-                                    'charmap',
-                                    'code',
-                                    'codesample',
-                                    'directionality',
-                                    'emoticons',
-                                    'fullscreen',
-                                    'help',
-                                    'image',
-                                    'importcss',
-                                    'insertdatetime',
-                                    'link',
-                                    'lists',
-                                    'media',
-                                    'preview',
-                                    'searchreplace',
-                                    'table',
-                                    'visualblocks',
-                                    'visualchars',
-                                    'wordcount',
-                                ],
-                                toolbar:
-                                    'undo redo | blocks fontfamily fontsize | ' +
-                                    'bold italic underline strikethrough forecolor backcolor | ' +
-                                    'link image media table emoticons | alignleft aligncenter ' +
-                                    'alignright alignjustify | bullist numlist outdent indent | ' +
-                                    'removeformat | code fullscreen preview | help',
-                                content_style:
-                                    'body { font-family:Arial,sans-serif; line-height:2; }',
-                            }}
+                        <TextareaEditor
+                            value={data.textarea}
+                            onChange={(content) => setData('textarea', content)}
+                            height={600}
                         />
-
 
                         <div className="flex gap-3">
                             {/* Primary Save */}

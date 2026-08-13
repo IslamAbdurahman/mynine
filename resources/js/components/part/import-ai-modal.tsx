@@ -17,7 +17,6 @@ import {
 import { Part } from '@/types';
 import InputError from '@/components/input-error';
 import { Label } from '@/components/ui/label';
-import { baseButton } from '@/components/ui/baseButton';
 
 interface ImportAiModalProps {
     part: Part;
@@ -30,6 +29,7 @@ export default function ImportAiModal({ part }: ImportAiModalProps) {
     const { data, setData, post, processing, reset, errors, clearErrors } = useForm<{
         text: string;
         file: File | null;
+        error?: string;
     }>({
         text: '',
         file: null
@@ -56,10 +56,8 @@ export default function ImportAiModal({ part }: ImportAiModalProps) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <button
-                    className={`${baseButton} bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold flex items-center gap-1.5 shadow-sm active:scale-95 transition-all py-1.5 px-3 rounded-lg text-xs self-center`}
-                >
-                    <Sparkles className="w-3.5 h-3.5" />
+                <button className="inline-flex items-center justify-center gap-2 h-9 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer shrink-0">
+                    <Sparkles className="w-4 h-4 shrink-0" />
                     {t('ai_import')}
                 </button>
             </DialogTrigger>

@@ -14,16 +14,15 @@ import {
     DialogContent,
     DialogDescription,
     DialogFooter,
+    DialogHeader,
     DialogTitle,
     DialogTrigger
 } from '@/components/ui/dialog';
-import { IoCreate } from 'react-icons/io5';
-import { baseButton } from '@/components/ui/baseButton';
+import { Plus } from 'lucide-react';
 
 export default function CreateFolderModal() {
     const { t } = useTranslation();
     const [open, setOpen] = useState(false);
-
     const nameInput = useRef<HTMLInputElement>(null);
 
     const { data, setData, post, processing, reset, errors, clearErrors } = useForm({
@@ -39,14 +38,13 @@ export default function CreateFolderModal() {
             onSuccess: () => {
                 reset();
                 clearErrors();
-                setOpen(false); // 🔒 CLOSE MODAL HERE
+                setOpen(false);
                 toast.success(t('created_successfully'));
             },
             onError: (err) => {
                 nameInput.current?.focus();
-                // Display a friendly error message if available
-                const errorMessage = err?.error || t('create_failed'); // Use fallback error message
-                toast.error(errorMessage); // Display error message
+                const errorMessage = err?.error || t('create_failed');
+                toast.error(errorMessage);
             }
         });
     };
@@ -54,45 +52,57 @@ export default function CreateFolderModal() {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <button
-                    className={`${baseButton} bg-blue-600 hover:bg-blue-700 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700`}
-                >
-                    <IoCreate className="w-4 h-4" />
-                    {t('create')}
+                <button className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer">
+                    <Plus className="w-4 h-4" />
+                    {t('create')} {t('folder')}
                 </button>
             </DialogTrigger>
 
-            <DialogContent className={'dark:border-gray-400'}>
-                <DialogTitle>{t('modal.create_title')}</DialogTitle>
-                <DialogDescription>{t('modal.create_description')}</DialogDescription>
+            <DialogContent className="sm:max-w-lg w-full rounded-2xl border border-gray-200 dark:border-gray-800 shadow-2xl bg-white dark:bg-gray-900">
+                <DialogHeader className="space-y-1 pb-2 border-b border-gray-100 dark:border-gray-800">
+                    <DialogTitle className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                        {t('modal.create_folder_title')}
+                    </DialogTitle>
+                    <DialogDescription className="text-xs text-gray-500 dark:text-gray-400">
+                        {t('modal.create_folder_desc')}
+                    </DialogDescription>
+                </DialogHeader>
 
-                <form onSubmit={submit} className="space-y-4">
-                    <div>
-                        <Label htmlFor="name">{t('name')}</Label>
+                <form onSubmit={submit} className="space-y-4 mt-2">
+                    <div className="space-y-1">
+                        <Label htmlFor="name" className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                            {t('name')} *
+                        </Label>
                         <Input
                             id="name"
                             ref={nameInput}
+                            placeholder="Masalan: IELTS Reading Tests"
                             value={data.name}
                             onChange={(e) => setData('name', e.target.value)}
+                            required
                         />
                         <InputError message={errors.name} />
                     </div>
 
-                    <div>
-                        <Label htmlFor="comment">{t('comment')}</Label>
+                    <div className="space-y-1">
+                        <Label htmlFor="comment" className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                            {t('comment')}
+                        </Label>
                         <Input
                             id="comment"
+                            placeholder="Papka haqida izoh (ixtiyoriy)"
                             value={data.comment}
                             onChange={(e) => setData('comment', e.target.value)}
                         />
                         <InputError message={errors.comment} />
                     </div>
 
-                    <DialogFooter className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <DialogFooter className="flex items-center justify-end gap-3 pt-4 mt-4 border-t border-gray-100 dark:border-gray-800">
                         <DialogClose asChild>
                             <Button
-                                variant="secondary"
-                                className="bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                                type="button"
+                                variant="outline"
+                                className="border-gray-300 dark:border-gray-700"
                                 onClick={() => {
                                     reset();
                                     clearErrors();
@@ -106,7 +116,7 @@ export default function CreateFolderModal() {
                         <Button
                             type="submit"
                             disabled={processing}
-                            className="bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 disabled:opacity-50"
+                            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-xs"
                         >
                             {t('save')}
                         </Button>

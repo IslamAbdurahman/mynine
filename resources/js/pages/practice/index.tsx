@@ -6,6 +6,8 @@ import PracticePart from '@/components/practice/practice-part';
 import PracticeSection from '@/components/practice/practice-section';
 import PracticeEssay from '@/components/practice/practice-essay';
 import PracticeNumberBar from '@/components/practice/practice-number-bar';
+import InsperaHeader from '@/components/practice/inspera-header';
+import TextHighlighter from '@/components/practice/text-highlighter';
 import { CheckIcon } from 'lucide-react';
 import { CountdownTimer } from '@/components/practice/countdown-timer';
 import AppearanceTabs from '@/components/appearance-tabs';
@@ -26,6 +28,24 @@ export default function Practice() {
     const [serverTimeOffset, setServerTimeOffset] = useState<number>(0);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [leftWidth, setLeftWidth] = useState<number>(50); // percentage
+
+    // Accessibility States (localStorage backed)
+    const [textSize, setTextSizeState] = useState<'normal' | 'large' | 'xlarge'>(() => {
+        return (localStorage.getItem('ielts_player_text_size') as any) || 'normal';
+    });
+    const [colorScheme, setColorSchemeState] = useState<'standard' | 'yellow-black' | 'blue-white'>(() => {
+        return (localStorage.getItem('ielts_player_color_scheme') as any) || 'standard';
+    });
+
+    const setTextSize = (size: 'normal' | 'large' | 'xlarge') => {
+        setTextSizeState(size);
+        localStorage.setItem('ielts_player_text_size', size);
+    };
+
+    const setColorScheme = (scheme: 'standard' | 'yellow-black' | 'blue-white') => {
+        setColorSchemeState(scheme);
+        localStorage.setItem('ielts_player_color_scheme', scheme);
+    };
 
     const startResize = (mouseDownEvent: React.MouseEvent) => {
         mouseDownEvent.preventDefault();
@@ -181,59 +201,27 @@ export default function Practice() {
 
             <Head title="IELTS Practice" />
 
-            {/* Header (Always Visible) */}
-            <div className="flex-none h-14 bg-black/80 backdrop-blur-md text-white flex justify-between items-center px-6 shadow-md z-50">
-                <div className="flex items-center gap-4">
-                    <span className="text-xl font-bold italic tracking-wider text-white">IELTS</span>
-                    {testType && (
-                        <span className="text-sm font-semibold border-l pl-4 border-gray-600">
-                            {testType.type?.name}
-                        </span>
-                    )}
-                </div>
-
-                {testType && (
-                    <div className="flex items-center">
-                        <div className="flex flex-col items-center text-xl font-bold font-mono tracking-widest text-red-500 bg-black/50 px-3 py-1 rounded">
-                            <CountdownTimer
-                                finishedAt={resAttempt.attempt_types.find(
-                                    (t) => t.type_id === (selectedPart?.test_type?.type_id ?? testType.type_id)
-                                )?.finished_at ?? null}
-                                serverTimeOffset={serverTimeOffset}
-                                onExpire={() => {
-                                    console.log('⏰ Time is up! Returning to menu...');
-                                    setIsTimeUp(true);
-                                    setTestType(null);
-                                    setSelectedPart(null);
-                                }}
-                            />
-                        </div>
-                    </div>
-                )}
-
-                <div className="flex flex-row items-center gap-6">
-                    <div className="absolute top-0 right-0 p-3 lg:right-24 flex flex-row items-center gap-4">
-                        
-                    {testType && testType.type?.name?.toLowerCase() === 'listening' && !isTimeUp && (() => {
-                        const finishedAtValue = resAttempt?.attempt_types.find(
-                            (t) => t.type_id === selectedPart?.test_type?.type_id
-                        )?.finished_at ?? null;
-                        if (!finishedAtValue) return null;
-                        const finishedAtDate = new Date(finishedAtValue);
-                        return finishedAtDate.getTime() > (Date.now() + serverTimeOffset) && testType?.test?.audio_path ? (
-                            <AudioEqualizer
-                                src={`/${testType?.test?.audio_path}`}
-                                autoPlay
-                                endTime={finishedAtDate.toISOString()}
-                            />
-                        ) : null;
-                    })()}
-
-                        <span className="text-sm font-medium">{resAttempt.user?.name}</span>
-                        <LanguageBar variant="dark" />
-                    </div>
-                </div>
-            </div>
+            {/* Inspera IELTS Header */}
+            <InsperaHeader
+                testTypeName={testType?.type?.name}
+                candidateName={resAttempt.user?.name}
+                finishedAt={resAttempt.attempt_types.find(
+                    (t) => t.type_id === (selectedPart?.test_type?.type_id ?? testType?.type_id)
+                )?.finished_at ?? null}
+                serverTimeOffset={serverTimeOffset}
+                audioPath={testType?.test?.audio_path}
+                isTimeUp={isTimeUp}
+                onExpire={() => {
+                    console.log('⏰ Time is up! Returning to menu...');
+                    setIsTimeUp(true);
+                    setTestType(null);
+                    setSelectedPart(null);
+                }}
+                textSize={textSize}
+                setTextSize={setTextSize}
+                colorScheme={colorScheme}
+                setColorScheme={setColorScheme}
+            />
 
             {/* Main Content Area */}
             <div className="flex-1 relative overflow-hidden flex flex-col">
@@ -334,10 +322,64 @@ export default function Practice() {
 
             {selectedPart && (() => {
                 const isSplit = selectedPart.test_type.type.name === 'Reading' || selectedPart.test_type.type.name === 'Writing';
+                const themeClass = colorScheme === 'yellow-black'
+                    ? 'theme-yellow-black bg-black text-yellow-300'
+                    : colorScheme === 'blue-white'
+                        ? 'theme-blue-white bg-[#002b49] text-white'
+                        : 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100';
+
+                const sizeClass = textSize === 'large'
+                    ? 'text-size-large'
+                    : textSize === 'xlarge'
+                        ? 'text-size-xlarge'
+                        : 'text-size-normal';
+
                 return (
-                    <div className="flex-1 overflow-hidden">
+                    <div className={`flex-1 overflow-hidden ${themeClass} ${sizeClass}`}>
+                        <style>{`
+                            .text-size-large,
+                            .text-size-large p,
+                            .text-size-large span,
+                            .text-size-large div,
+                            .text-size-large label,
+                            .text-size-large input,
+                            .text-size-large button:not(.header-btn) {
+                                font-size: 1.15rem !important;
+                                line-height: 1.6 !important;
+                            }
+                            .text-size-xlarge,
+                            .text-size-xlarge p,
+                            .text-size-xlarge span,
+                            .text-size-xlarge div,
+                            .text-size-xlarge label,
+                            .text-size-xlarge input,
+                            .text-size-xlarge button:not(.header-btn) {
+                                font-size: 1.3rem !important;
+                                line-height: 1.7 !important;
+                            }
+                            .theme-yellow-black,
+                            .theme-yellow-black *:not(mark):not(button):not(input):not(select):not(textarea) {
+                                background-color: #000000 !important;
+                                color: #fde047 !important;
+                            }
+                            .theme-yellow-black mark,
+                            .theme-yellow-black mark * {
+                                background-color: #84cc16 !important;
+                                color: #000000 !important;
+                            }
+                            .theme-blue-white,
+                            .theme-blue-white *:not(mark):not(button):not(input):not(select):not(textarea) {
+                                background-color: #002b49 !important;
+                                color: #ffffff !important;
+                            }
+                            .theme-blue-white mark,
+                            .theme-blue-white mark * {
+                                background-color: #fde047 !important;
+                                color: #000000 !important;
+                            }
+                        `}</style>
                         <div
-                            className={`h-full flex flex-col sm:flex-row bg-white dark:bg-gray-900 ${selectedPart.test_type.type.name === 'Listening'
+                            className={`h-full flex flex-col sm:flex-row ${selectedPart.test_type.type.name === 'Listening'
                                 ? 'justify-center items-start'
                                 : ''
                                 }`}
@@ -352,17 +394,20 @@ export default function Practice() {
                                 >
                                     <PracticePart
                                         attempt={attempt}
-                                        part={selectedPart} />
+                                        part={selectedPart}
+                                    />
                                 </div>
                             )}
 
                             {/* Resizable Divider */}
                             {isSplit && (
                                 <div
-                                    className="w-1 bg-gray-300 dark:bg-gray-700 hover:bg-black dark:hover:bg-white cursor-col-resize h-full transition-all flex items-center justify-center select-none z-30"
+                                    className="w-2.5 bg-gray-300 dark:bg-gray-700 hover:bg-blue-600 dark:hover:bg-blue-500 cursor-col-resize h-full transition-colors flex items-center justify-center select-none z-30 relative"
                                     onMouseDown={startResize}
                                 >
-                                    <div className="w-[2px] h-6 bg-gray-400 dark:bg-gray-600 rounded"></div>
+                                    <div className="w-5 h-8 bg-white dark:bg-gray-800 border border-gray-400 dark:border-gray-600 rounded-[3px] shadow-sm flex items-center justify-center text-[10px] font-mono text-gray-600 dark:text-gray-300">
+                                        ⟷
+                                    </div>
                                 </div>
                             )}
 
@@ -456,64 +501,107 @@ export default function Practice() {
                 </div>
             )}
 
+            {/* Bottom Footer Bar — parts in order, active=50%, each inactive splits remaining 50% */}
+            <div
+                className="flex-none bg-white border-t border-gray-200 shrink-0 z-40 text-gray-900 select-none flex w-full"
+                style={{ height: '52px' }}
+            >
+                {testType?.parts && (() => {
+                    const parts = testType.parts;
+                    const ci = parts.findIndex(p => p.id === selectedPart?.id);
+                    const inactiveCount = parts.length - 1;
+                    // Each inactive part gets equal share of remaining 50%
+                    const inactivePct = inactiveCount > 0 ? 50 / inactiveCount : 50;
+
+                    return parts.map((p, idx) => {
+                        const isActive = idx === ci;
+                        let answered = 0;
+                        const total = p.sections?.reduce((s, sec) => {
+                            sec.questions?.forEach(q => {
+                                if (q.attempt_answer && (
+                                    (q.attempt_answer.attempt_answer_options?.length ?? 0) > 0 ||
+                                    (q.attempt_answer.answer_text?.trim())
+                                )) answered++;
+                            });
+                            return s + (sec.questions?.length || 0);
+                        }, 0) || 0;
+
+                        const isLast = idx === parts.length - 1;
+
+                        if (isActive) {
+                            return (
+                                <div
+                                    key={p.id}
+                                    className="flex items-center h-full border-r border-gray-200 px-3 gap-2 overflow-x-auto hide-scrollbar shrink-0"
+                                    style={{ width: '50%' }}
+                                >
+                                    <span className="text-sm font-bold text-gray-800 shrink-0">
+                                        {p.name}
+                                    </span>
+                                    <PracticeNumberBar
+                                        part={selectedPart as Part}
+                                        flaggedIds={flaggedIds}
+                                    />
+                                </div>
+                            );
+                        }
+
+                        return (
+                            <button
+                                key={p.id}
+                                onClick={() => handlePart(p.id)}
+                                className={`flex items-center justify-center gap-1.5 h-full hover:bg-gray-50 transition-colors whitespace-nowrap group shrink-0 ${!isLast ? 'border-r border-gray-200' : ''}`}
+                                style={{ width: `${inactivePct}%` }}
+                            >
+                                <span className="text-sm font-semibold text-gray-600 group-hover:text-blue-600">{p.name}</span>
+                                <span className="text-xs text-gray-400">{answered} of {total}</span>
+                            </button>
+                        );
+                    });
+                })()}
+
+                {/* Submit button — always at far right */}
+                <button
+                    onClick={handleSubmitTestType}
+                    className="w-9 h-full border-l border-gray-200 bg-white hover:bg-gray-50 text-gray-600 flex items-center justify-center shadow-sm transition-colors shrink-0"
+                    title={t('finish') || 'Submit Test'}
+                >
+                    <CheckIcon className="w-3.5 h-3.5" />
+                </button>
+
             </div>
 
-            {/* Bottom Bar (Always Visible) */}
-            <div className="flex-none bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-t-2 border-gray-300 dark:border-gray-800 px-4 py-2 flex flex-col sm:flex-row justify-between items-center h-auto sm:h-20 shrink-0 z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] text-gray-900 dark:text-gray-100">
-
-                <div className="flex-1 flex overflow-x-auto pb-2 sm:pb-0 items-center hide-scrollbar">
-                    <PracticeNumberBar
-                        part={selectedPart as Part}
-                        flaggedIds={flaggedIds}
-                    />
+            {/* ◄ ► Navigation arrows — fixed at bottom-right, exactly like Inspera */}
+            {selectedPart && (
+                <div className="fixed bottom-0 right-0 flex z-50">
+                    <button
+                        className="w-11 h-11 bg-gray-600 hover:bg-gray-500 disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center font-bold text-base transition-colors"
+                        disabled={!testType || !selectedPart || (testType.parts?.findIndex(p => p.id === selectedPart.id) ?? -1) <= 0}
+                        onClick={() => {
+                            if (!testType || !selectedPart) return;
+                            const ci = testType.parts?.findIndex(p => p.id === selectedPart.id) ?? -1;
+                            if (ci > 0 && testType.parts) handlePart(testType.parts[ci - 1].id);
+                        }}
+                        title="Previous Part"
+                    >
+                        ◄
+                    </button>
+                    <button
+                        className="w-11 h-11 bg-black hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center font-bold text-base transition-colors"
+                        disabled={!testType || !selectedPart || (testType.parts?.findIndex(p => p.id === selectedPart.id) ?? -1) >= (testType.parts?.length ?? 0) - 1}
+                        onClick={() => {
+                            if (!testType || !selectedPart) return;
+                            const ci = testType.parts?.findIndex(p => p.id === selectedPart.id) ?? -1;
+                            if (ci !== -1 && testType.parts && ci < testType.parts.length - 1) handlePart(testType.parts[ci + 1].id);
+                        }}
+                        title="Next Part"
+                    >
+                        ►
+                    </button>
                 </div>
+            )}
 
-                <div className="flex items-center gap-4">
-                    {selectedPart && (
-                        <>
-                            {/* Previous button */}
-                            <button
-                                className="bg-black dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded transition-colors flex items-center gap-1 uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
-                                disabled={!testType || !selectedPart || (testType.parts?.findIndex(p => p.id === selectedPart.id) ?? -1) <= 0}
-                                onClick={() => {
-                                    if (!testType || !selectedPart) return;
-                                    const currentIndex = testType.parts?.findIndex(p => p.id === selectedPart.id) ?? -1;
-                                    if (currentIndex > 0 && testType.parts) {
-                                        handlePart(testType.parts[currentIndex - 1].id);
-                                    }
-                                }}
-                            >
-                                ⬅ {t('prev') ?? 'Prev'}
-                            </button>
-
-                            {/* Next button */}
-                            <button
-                                className="bg-black dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded transition-colors flex items-center gap-1 uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
-                                disabled={!testType || !selectedPart || (testType.parts?.findIndex(p => p.id === selectedPart.id) ?? -1) >= (testType.parts?.length ?? 0) - 1}
-                                onClick={() => {
-                                    if (!testType || !selectedPart) return;
-                                    const currentIndex = testType.parts?.findIndex(p => p.id === selectedPart.id) ?? -1;
-                                    if (currentIndex !== -1 && testType.parts && currentIndex < testType.parts.length - 1) {
-                                        handlePart(testType.parts[currentIndex + 1].id);
-                                    }
-                                }}
-                            >
-                                {t('next') ?? 'Next'} ➔
-                            </button>
-                        </>
-                    )}
-
-                    {testType && (
-                        <button
-                            onClick={handleSubmitTestType}
-                            className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded transition-colors flex items-center gap-2 uppercase tracking-wide"
-                        >
-                            {t('finish')} <CheckIcon className="w-5 h-5" />
-                        </button>
-                    )}
-                </div>
-            </div>
-
+        </div>
         </div>
     );
 }

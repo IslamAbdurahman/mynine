@@ -14,6 +14,7 @@ import {
     DialogContent,
     DialogDescription,
     DialogFooter,
+    DialogHeader,
     DialogTitle
 } from '@/components/ui/dialog';
 import { Mock, Test } from '@/types';
@@ -76,11 +77,15 @@ export default function UpdateMockModal({ tests, mock, open, setOpen }: UpdateMo
     return (
         <Dialog open={open} onOpenChange={setOpen}>
 
-            <DialogContent className="dark:border-gray-400">
-                <DialogDescription>
-                    <DialogTitle>{t('modal.update_title')}</DialogTitle>
-                    <DialogDescription>{t('modal.update_description')}</DialogDescription>
-                </DialogDescription>
+            <DialogContent className="sm:max-w-lg w-full dark:border-gray-700">
+                <DialogHeader className="space-y-1 pb-2 border-b border-gray-100 dark:border-gray-800">
+                    <DialogTitle className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                        {t('modal.update_mock_title')}
+                    </DialogTitle>
+                    <DialogDescription className="text-xs text-gray-500 dark:text-gray-400">
+                        {t('modal.update_mock_desc')}
+                    </DialogDescription>
+                </DialogHeader>
 
                 <form onSubmit={submit} className="space-y-4">
                     <div>

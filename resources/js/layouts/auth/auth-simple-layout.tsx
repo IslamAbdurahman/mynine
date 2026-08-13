@@ -1,5 +1,6 @@
 import AppLogo from '@/components/app-logo';
 import LanguageBar from '@/components/language';
+import AppearanceToggleDropdown from '@/components/appearance-dropdown';
 import { Link } from '@inertiajs/react';
 import { type PropsWithChildren } from 'react';
 
@@ -21,8 +22,9 @@ export default function AuthSimpleLayout({ children, title, description }: Props
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] dark:opacity-[0.05]" />
             </div>
 
-            <div className="absolute top-6 left-6 z-50 hidden sm:block">
+            <div className="absolute top-6 right-6 z-50 hidden sm:flex items-center gap-2">
                 <LanguageBar />
+                <AppearanceToggleDropdown />
             </div>
 
             <div className="relative z-10 w-full max-w-sm">

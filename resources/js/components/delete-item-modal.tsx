@@ -4,42 +4,57 @@ import {
     DialogClose,
     DialogContent,
     DialogFooter,
+    DialogHeader,
     DialogTitle,
     DialogDescription
 } from '@/components/ui/dialog';
 import { useTranslation } from 'react-i18next';
+import { AlertTriangle } from 'lucide-react';
 
 interface DeleteItemModalProps {
-    item: { id: number, name?: string };
+    item: { id: number; name?: string; textarea?: string };
     open: boolean;
     setOpen: (open: boolean) => void;
-    onDelete: (id: number) => void; // Callback function to handle deletion
+    onDelete: (id: number) => void;
 }
 
 export default function DeleteItemModal({ item, open, setOpen, onDelete }: DeleteItemModalProps) {
     const { t } = useTranslation();
 
     const handleDelete = () => {
-        onDelete(item.id); // Call the onDelete function passed as a prop
-        setOpen(false); // Close the modal
+        onDelete(item.id);
+        setOpen(false);
     };
+
+    const displayName = item.name || (item.textarea ? item.textarea.replace(/<[^>]*>/g, '').slice(0, 40) : null);
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent>
-                <DialogTitle>{t('modal.delete_title')}</DialogTitle>
-                <DialogDescription asChild>
-                    <div className="text-sm text-muted-foreground">
-                        <p>{t('modal.delete_confirmation')}</p>
-                        <p>{t('delete')} {item.name}</p>
+            <DialogContent className="sm:max-w-md w-full dark:border-gray-700">
+                <DialogHeader className="space-y-1 pb-2 border-b border-gray-100 dark:border-gray-800">
+                    <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+                        <AlertTriangle className="w-5 h-5 shrink-0" />
+                        <DialogTitle className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                            {t('modal.delete_title') || "O'chirishni tasdiqlang"}
+                        </DialogTitle>
                     </div>
-                </DialogDescription>
+                    <DialogDescription className="text-xs text-gray-500 dark:text-gray-400">
+                        {t('modal.delete_confirmation') || "Ushbu ma'lumotni o'chirishga ishonchingiz komilmi? Ushbu amalni ortga qaytarib bo'lmaydi."}
+                    </DialogDescription>
+                </DialogHeader>
 
-                <DialogFooter className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                {displayName && (
+                    <div className="p-3 my-1 rounded-lg bg-red-50/60 dark:bg-red-950/30 border border-red-100 dark:border-red-900 text-xs font-semibold text-red-900 dark:text-red-200 truncate">
+                        "{displayName}"
+                    </div>
+                )}
+
+                <DialogFooter className="flex items-center justify-end gap-3 pt-3 mt-2 border-t border-gray-100 dark:border-gray-800">
                     <DialogClose asChild>
                         <Button
-                            variant="secondary"
-                            className="bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                            type="button"
+                            variant="outline"
+                            className="border-gray-300 dark:border-gray-700"
                             onClick={() => setOpen(false)}
                         >
                             {t('cancel')}
@@ -47,16 +62,15 @@ export default function DeleteItemModal({ item, open, setOpen, onDelete }: Delet
                     </DialogClose>
 
                     <Button
+                        type="button"
                         variant="destructive"
                         onClick={handleDelete}
-                        className="bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600"
+                        className="bg-red-600 hover:bg-red-700 text-white font-semibold shadow-xs"
                     >
                         {t('delete')}
                     </Button>
                 </DialogFooter>
-
             </DialogContent>
         </Dialog>
-
     );
 }

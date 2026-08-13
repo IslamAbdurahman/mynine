@@ -1,6 +1,7 @@
 import LoginCard from '@/components/auth/login-card';
 import RegisterCard from '@/components/auth/register-card';
 import LanguageBar from '@/components/language';
+import AppearanceToggleDropdown from '@/components/appearance-dropdown';
 import FindMockModal from '@/components/mock/find-mock-modal';
 import type { SharedData } from '@/types';
 import { Icon } from '@iconify/react';
@@ -71,9 +72,10 @@ const Header: React.FC = () => {
                             <FindMockModal />
                         </div>
 
-                        <div className="h-6 w-px bg-slate-200 dark:bg-slate-800" />
-
-                        <LanguageBar />
+                        <div className="flex items-center gap-2">
+                            <LanguageBar />
+                            <AppearanceToggleDropdown />
+                        </div>
 
                         <div className="flex items-center gap-3">
                             {auth.user ? (
@@ -105,8 +107,9 @@ const Header: React.FC = () => {
                     </nav>
 
                     {/* Mobile Controls (Always visible on mobile) */}
-                    <div className="flex items-center gap-4 lg:hidden">
+                    <div className="flex items-center gap-2 lg:hidden">
                         <LanguageBar />
+                        <AppearanceToggleDropdown />
                         <button
                             onClick={() => setNavbarOpen(!navbarOpen)}
                             className="block rounded-lg p-2 focus:outline-none"

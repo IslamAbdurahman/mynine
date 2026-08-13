@@ -12,6 +12,7 @@ import {
     DialogContent,
     DialogDescription,
     DialogFooter,
+    DialogHeader,
     DialogTitle
 } from '@/components/ui/dialog';
 import { QuestionType, Section } from '@/types';
@@ -78,13 +79,17 @@ export default function UpdateSectionModal({ section, open, setOpen }: UpdateSec
     return (
         <Dialog open={open} onOpenChange={setOpen}>
 
-            <DialogContent className="sm:max-w-5xl w-full  overflow-y-auto dark:border-gray-400">
-                <DialogDescription>
-                    <DialogTitle>{t('modal.update_title')}</DialogTitle>
-                    <DialogDescription>{t('modal.update_description')}</DialogDescription>
-                </DialogDescription>
+            <DialogContent className="sm:max-w-5xl w-full overflow-y-auto dark:border-gray-700">
+                <DialogHeader className="space-y-1 pb-2 border-b border-gray-100 dark:border-gray-800">
+                    <DialogTitle className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                        {t('modal.update_title') || "Bo'limni tahrirlash"}
+                    </DialogTitle>
+                    <DialogDescription className="text-xs text-gray-500 dark:text-gray-400">
+                        {t('modal.update_description') || "Bo'lim ma'lumotlarini va savol turini yangilang."}
+                    </DialogDescription>
+                </DialogHeader>
 
-                <form onSubmit={submit} className="space-y-4">
+                <form onSubmit={submit} className="space-y-4 mt-2">
 
                     <div>
                         <TextareaEditor
@@ -94,24 +99,19 @@ export default function UpdateSectionModal({ section, open, setOpen }: UpdateSec
                         />
                     </div>
 
-
                     <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-9">
 
                         {/* Question Type */}
                         <div className="sm:col-span-3">
                             <Label htmlFor="question_type">{t('question_type')}</Label>
                             <select
+                                value={data.question_type_id ?? ''}
                                 onChange={(e) => setData('question_type_id', Number(e.target.value) || 0)}
-
                                 className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                             >
                                 <option value="">{t('select')}</option>
                                 {questionTypes.map((type) => (
-                                    <option
-                                        key={type.id}
-                                        value={type.id}
-                                        selected={type.id === data.question_type_id}
-                                    >
+                                    <option key={type.id} value={type.id}>
                                         {type.name}
                                     </option>
                                 ))}

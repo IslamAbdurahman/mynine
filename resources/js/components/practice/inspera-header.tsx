@@ -76,7 +76,7 @@ export default function InsperaHeader({
                 <span className="text-gray-300 font-light text-base">|</span>
                 <span className="font-bold text-sm text-gray-900 shrink-0">{testTypeName || 'Reading'}</span>
                 <span className="text-gray-500 text-sm hidden lg:inline shrink-0">
-                    Read the text and answer questions.
+                    {t('ielts_instruction_hint') || 'Read the text and answer questions.'}
                 </span>
             </div>
 
@@ -97,18 +97,18 @@ export default function InsperaHeader({
                 <button
                     onClick={cycleTextSize}
                     className="header-btn text-xs font-bold px-2.5 py-1 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-[2px] transition-colors uppercase text-gray-800 shrink-0 cursor-pointer"
-                    title="Change Text Size (Standard / Large / Extra-Large)"
+                    title={t('text_size') || 'Change Text Size (Standard / Large / Extra-Large)'}
                 >
-                    {textSize === 'normal' ? 'Standard' : textSize === 'large' ? 'Large' : 'X-Large'}
+                    {textSize === 'normal' ? (t('standard') || 'Standard') : textSize === 'large' ? (t('large') || 'Large') : (t('xlarge') || 'X-Large')}
                 </button>
 
                 {/* Color Scheme Button */}
                 <button
                     onClick={cycleColorScheme}
                     className="header-btn text-xs font-bold px-2.5 py-1 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-[2px] transition-colors uppercase text-gray-800 shrink-0 cursor-pointer"
-                    title="Change Color Contrast Scheme"
+                    title={t('color_contrast') || 'Change Color Contrast Scheme'}
                 >
-                    {colorScheme === 'standard' ? 'Standard' : colorScheme === 'yellow-black' ? 'Yellow/Black' : 'Blue/White'}
+                    {colorScheme === 'standard' ? (t('standard') || 'Standard') : colorScheme === 'yellow-black' ? (t('yellow_black') || 'Yellow/Black') : (t('blue_white') || 'Blue/White')}
                 </button>
 
                 {/* Language Switcher */}
@@ -116,7 +116,7 @@ export default function InsperaHeader({
 
                 {/* Timer Display */}
                 <div className="flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-[2px] border border-gray-300 font-mono text-sm shrink-0">
-                    <span className="text-xs font-bold text-gray-500 uppercase">TIME REMAINING:</span>
+                    <span className="text-xs font-bold text-gray-500 uppercase">{t('time_remaining') || 'TIME REMAINING:'}</span>
                     {isTimerHidden ? (
                         <span className="font-bold text-gray-400">--:--:--</span>
                     ) : (
@@ -198,20 +198,20 @@ export default function InsperaHeader({
                             <div>
                                 <div className="flex items-center gap-2 mb-4 text-emerald-600">
                                     <CheckCircle className="w-6 h-6" />
-                                    <h3 className="text-lg font-bold text-gray-900">Network Connection Status</h3>
+                                    <h3 className="text-lg font-bold text-gray-900">{t('network_connection_status') || 'Network Connection Status'}</h3>
                                 </div>
                                 <div className="space-y-2 text-sm text-gray-600">
                                     <div className="flex justify-between py-1.5 border-b border-gray-100">
-                                        <span className="font-semibold text-gray-700">Status:</span>
-                                        <span className="text-emerald-600 font-bold">Online (Stable)</span>
+                                        <span className="font-semibold text-gray-700">{t('status') || 'Status'}:</span>
+                                        <span className="text-emerald-600 font-bold">{t('online_stable') || 'Online (Stable)'}</span>
                                     </div>
                                     <div className="flex justify-between py-1.5 border-b border-gray-100">
-                                        <span className="font-semibold text-gray-700">Latency:</span>
+                                        <span className="font-semibold text-gray-700">{t('latency') || 'Latency'}:</span>
                                         <span>18 ms</span>
                                     </div>
                                     <div className="flex justify-between py-1.5 border-b border-gray-100">
-                                        <span className="font-semibold text-gray-700">Auto-Sync:</span>
-                                        <span>Active (Realtime response saving)</span>
+                                        <span className="font-semibold text-gray-700">{t('auto_sync') || 'Auto-Sync'}:</span>
+                                        <span>{t('realtime_saving') || 'Active (Realtime response saving)'}</span>
                                     </div>
                                 </div>
                             </div>
@@ -221,12 +221,12 @@ export default function InsperaHeader({
                             <div>
                                 <div className="flex items-center gap-2 mb-4 text-blue-600">
                                     <Bell className="w-6 h-6" />
-                                    <h3 className="text-lg font-bold text-gray-900">Test Notifications</h3>
+                                    <h3 className="text-lg font-bold text-gray-900">{t('test_notifications') || 'Test Notifications'}</h3>
                                 </div>
                                 <div className="p-3 bg-blue-50 border border-blue-200 rounded text-sm text-blue-900 mb-2">
-                                    <strong>Official Notice:</strong> Your answers are automatically saved as you navigate through questions.
+                                    <strong>{t('official_notice') || 'Official Notice:'}</strong> {t('auto_save_notice') || 'Your answers are automatically saved as you navigate through questions.'}
                                 </div>
-                                <p className="text-xs text-gray-500 mt-2">No unread alerts for this session.</p>
+                                <p className="text-xs text-gray-500 mt-2">{t('no_unread_alerts') || 'No unread alerts for this session.'}</p>
                             </div>
                         )}
 
@@ -234,11 +234,11 @@ export default function InsperaHeader({
                             <div>
                                 <div className="flex items-center gap-2 mb-4 text-gray-800">
                                     <Settings className="w-6 h-6" />
-                                    <h3 className="text-lg font-bold text-gray-900">Test Options & Settings</h3>
+                                    <h3 className="text-lg font-bold text-gray-900">{t('test_options_settings') || 'Test Options & Settings'}</h3>
                                 </div>
                                 <div className="space-y-3 text-sm">
                                     <div className="p-3 bg-gray-50 rounded border border-gray-200">
-                                        <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Text Size</label>
+                                        <label className="block text-xs font-bold text-gray-700 uppercase mb-1">{t('text_size') || 'Text Size'}</label>
                                         <div className="flex gap-2">
                                             {(['normal', 'large', 'xlarge'] as const).map((s) => (
                                                 <button
@@ -246,14 +246,14 @@ export default function InsperaHeader({
                                                     onClick={() => setTextSize(s)}
                                                     className={`px-3 py-1 text-xs font-semibold rounded border ${textSize === s ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300'}`}
                                                 >
-                                                    {s.toUpperCase()}
+                                                    {s === 'normal' ? (t('standard') || 'Standard') : s === 'large' ? (t('large') || 'Large') : (t('xlarge') || 'Extra Large')}
                                                 </button>
                                             ))}
                                         </div>
                                     </div>
 
                                     <div className="p-3 bg-gray-50 rounded border border-gray-200">
-                                        <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Color Contrast</label>
+                                        <label className="block text-xs font-bold text-gray-700 uppercase mb-1">{t('color_contrast') || 'Color Contrast'}</label>
                                         <div className="flex gap-2">
                                             {(['standard', 'yellow-black', 'blue-white'] as const).map((c) => (
                                                 <button
@@ -261,19 +261,19 @@ export default function InsperaHeader({
                                                     onClick={() => setColorScheme(c)}
                                                     className={`px-2.5 py-1 text-xs font-semibold rounded border ${colorScheme === c ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300'}`}
                                                 >
-                                                    {c === 'standard' ? 'Standard' : c === 'yellow-black' ? 'Yellow/Black' : 'Blue/White'}
+                                                    {c === 'standard' ? (t('standard') || 'Standard') : c === 'yellow-black' ? (t('yellow_black') || 'Yellow/Black') : (t('blue_white') || 'Blue/White')}
                                                 </button>
                                             ))}
                                         </div>
                                     </div>
 
                                     <div className="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-200">
-                                        <span className="text-xs font-bold text-gray-700 uppercase">Hide Timer</span>
+                                        <span className="text-xs font-bold text-gray-700 uppercase">{isTimerHidden ? (t('show_timer') || 'Show Timer') : (t('hide_timer') || 'Hide Timer')}</span>
                                         <button
                                             onClick={toggleTimerHidden}
-                                            className="px-3 py-1 text-xs font-semibold bg-white border border-gray-300 rounded text-gray-800"
+                                            className="px-3 py-1 text-xs font-semibold bg-white border border-gray-300 rounded text-gray-800 cursor-pointer hover:bg-gray-50"
                                         >
-                                            {isTimerHidden ? 'Show Timer' : 'Hide Timer'}
+                                            {isTimerHidden ? (t('show_timer') || 'Show Timer') : (t('hide_timer') || 'Hide Timer')}
                                         </button>
                                     </div>
                                 </div>
@@ -283,9 +283,9 @@ export default function InsperaHeader({
                         <div className="mt-5 flex justify-end">
                             <button
                                 onClick={() => setActiveModal('none')}
-                                className="px-4 py-1.5 bg-black text-white text-xs font-semibold rounded hover:bg-gray-800 transition-colors"
+                                className="px-4 py-1.5 bg-black text-white text-xs font-semibold rounded hover:bg-gray-800 transition-colors cursor-pointer"
                             >
-                                Close
+                                {t('common.cancel') || 'Close'}
                             </button>
                         </div>
                     </div>

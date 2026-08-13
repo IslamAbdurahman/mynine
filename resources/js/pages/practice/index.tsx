@@ -595,7 +595,7 @@ export default function Practice() {
                                     style={{ width: `${equalPct}%` }}
                                 >
                                     <span className="text-sm font-bold text-gray-500 group-hover:text-gray-900 transition-colors">{p.name}</span>
-                                    <span className="text-xs font-semibold text-gray-400 group-hover:text-gray-600 bg-gray-200/80 px-1.5 py-0.5 rounded-[2px] transition-colors">{answered} of {total}</span>
+                                    <span className="text-xs font-semibold text-gray-400 group-hover:text-gray-600 bg-gray-200/80 px-1.5 py-0.5 rounded-[2px] transition-colors">{t('answered_of_total', { answered, total }) || `${answered} / ${total}`}</span>
                                 </button>
                             );
                         });

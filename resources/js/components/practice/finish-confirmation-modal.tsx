@@ -47,7 +47,7 @@ export default function FinishConfirmationModal({
                             <h3 className="font-bold text-base text-gray-900 dark:text-gray-100 leading-tight">
                                 {isFullExam
                                     ? (t('confirm_submit_test_title') || 'Imtihonni yakunlash')
-                                    : `${testTypeName || 'Bo\'lim'}ni yakunlash`}
+                                    : (t('finish_section_title', { name: testTypeName || t('section') }) || `${testTypeName || 'Bo\'lim'}ni yakunlash`)}
                             </h3>
                             <p className="text-xs text-gray-500 dark:text-gray-400">
                                 {t('confirm_finish_modal_desc') || 'Muddatidan oldin yakunlashni tasdiqlash'}
@@ -103,7 +103,8 @@ export default function FinishConfirmationModal({
                         <div className="p-3.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 rounded-xl flex items-start gap-3">
                             <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                             <div className="text-xs text-amber-900 dark:text-amber-200 leading-relaxed">
-                                <strong>{t('attention') || 'Diqqat!'}:</strong> Sizda <span className="font-bold text-amber-700 dark:text-amber-300">{unansweredCount} ta</span> javob berilmagan savol bor. Agarda muddatidan oldin yakunlasangiz, belgilatlanmagan savollarga ball berilmaydi.
+                                <strong>{t('attention') || 'Diqqat!'}:</strong>{' '}
+                                {t('unanswered_warning', { count: unansweredCount }) || `Sizda ${unansweredCount} ta javob berilmagan savol bor. Agarda muddatidan oldin yakunlasangiz, belgilatlanmagan savollarga ball berilmaydi.`}
                             </div>
                         </div>
                     ) : (

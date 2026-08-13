@@ -53,7 +53,7 @@ class Question extends Model
 
     public function getIsCorrectCountAttribute()
     {
-        return DB::table('options')
+        return (int) DB::table('options')
             ->where('options.question_id', $this->id)
             ->selectRaw("
             CASE

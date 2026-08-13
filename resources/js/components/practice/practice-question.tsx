@@ -281,10 +281,11 @@ export default function PracticeQuestion({
                     title={t('flag_for_review')}
                 >
                     {(() => {
-                        const count = question.is_correct_count ?? 1;
+                        const count = Number(question.is_correct_count) || 1;
+                        const numOrder = Number(order) || 1;
                         return count > 1
-                            ? Array.from({ length: count }, (_, i) => order - count + 1 + i).join('-')
-                            : order;
+                            ? Array.from({ length: count }, (_, i) => numOrder - count + 1 + i).join('-')
+                            : numOrder;
                     })()}
                     {isFlagged && (
                         <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-orange-500 rounded-full flex items-center justify-center text-[7px] text-white">★</span>

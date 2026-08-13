@@ -46,10 +46,11 @@ export default function SectionQuestion({
     };
 
     const questionNumberStr = (() => {
-        const count = question.is_correct_count ?? 1;
+        const count = Number(question.is_correct_count) || 1;
+        const numIndex = Number(globalIndex) || 1;
         return count > 1
-            ? Array.from({ length: count }, (_, i) => globalIndex - count + 1 + i).join('-')
-            : globalIndex;
+            ? Array.from({ length: count }, (_, i) => numIndex - count + 1 + i).join('-')
+            : numIndex;
     })();
 
     return (

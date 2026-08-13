@@ -78,7 +78,7 @@ class Part extends Model
             ->selectRaw("COALESCE(SUM(CASE WHEN t.option_count = 0 THEN 1 ELSE t.correct_count END), 0) as result")
             ->value('result');
 
-        return $part_start_number;
+        return (int) $part_start_number;
 
     }
 }

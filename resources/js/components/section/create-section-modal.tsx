@@ -123,12 +123,12 @@ export default function CreateSectionModal({ part, question_types }: SectionUpda
                     {isMatchingType && (
                         <div className="p-4 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 space-y-3">
                             <div className="text-xs font-bold text-indigo-900 dark:text-indigo-200 uppercase tracking-wider">
-                                Matching (Moslashtirish) Variantlar Diapazoni *
+                                {t('matching_options_range') || "Matching (Moslashtirish) Variantlar Diapazoni"} *
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <Label htmlFor="from_option" className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-                                        Boshlanish harfi / soni (From)
+                                        {t('from_char_or_num') || "Boshlanish harfi / soni (From)"}
                                     </Label>
                                     <Input
                                         id="from_option"
@@ -142,7 +142,7 @@ export default function CreateSectionModal({ part, question_types }: SectionUpda
                                 </div>
                                 <div>
                                     <Label htmlFor="to_option" className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-                                        Tugash harfi / soni (To)
+                                        {t('to_char_or_num') || "Tugash harfi / soni (To)"}
                                     </Label>
                                     <Input
                                         id="to_option"
@@ -156,7 +156,7 @@ export default function CreateSectionModal({ part, question_types }: SectionUpda
                                 </div>
                             </div>
                             <p className="text-[11px] text-indigo-700 dark:text-indigo-300">
-                                Har bir savol kiritishda foydalanuvchi tanlashi uchun harflar ro'yxati (masalan A, B, C, D, E, F) hosil bo'ladi.
+                                {t('matching_range_hint')}
                             </p>
                         </div>
                     )}
@@ -165,7 +165,7 @@ export default function CreateSectionModal({ part, question_types }: SectionUpda
                     <div className="space-y-1.5">
                         <div className="flex items-center justify-between">
                             <Label className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-                                Bo'lim Yo'riqnomasi / Matni (Instructions) *
+                                {t('section_instructions') || "Bo'lim Yo'riqnomasi / Matni"} *
                             </Label>
                             {(selectedTypeObj?.type === 'complete_section' || selectedTypeObj?.type === 'drag_and_drop') && (
                                 <button
@@ -175,7 +175,7 @@ export default function CreateSectionModal({ part, question_types }: SectionUpda
                                     }}
                                     className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-1 rounded-lg border border-blue-200 dark:border-blue-800 transition-colors cursor-pointer"
                                 >
-                                    + &#123; &#125; Savol qavsi qo'shish
+                                    + &#123; &#125; {t('insert_bracket_gap') || "Savol qavsi qo'shish"}
                                 </button>
                             )}
                         </div>

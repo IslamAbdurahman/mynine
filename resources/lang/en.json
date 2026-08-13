@@ -38,6 +38,7 @@
     "all_tests": "All tests",
     "all_time_hourly_distribution": "All-time hourly distribution",
     "all_time_weekly_attempts_distribution": "All-time Weekly Attempts Distribution",
+    "alternative_answers_count": "alternative answers",
     "amount": "Amount",
     "analyticsComingSoon": "📊 Analytics coming soon...",
     "answer": "Answer",
@@ -120,6 +121,7 @@
     "copy_link": "Copy link",
     "correct": "Correct",
     "correct_answer": "Correct answer",
+    "correct_answer_text": "Correct answer text",
     "count": "Count",
     "create": "Create",
     "create_failed": "Creation failed",
@@ -192,11 +194,83 @@
         "support_telegram": "Support Telegram"
     },
     "from": "From",
+    "from_char_or_num": "Starting letter / number (From)",
     "from_option": "From option",
     "gaps_detected_count": "{{count}} questions (gaps) detected in text",
     "gaps_instructions_hint": "Write correct answer inside { answer }. For alternative answers, use / or | (e.g. { 14000 / 14,000 }).",
     "gone": "Gone",
     "good_luck": "Good luck! 🍀",
+    "guide": {
+        "guide_button": "Instructions & Rules",
+        "view_instructions": "View instructions for this question type",
+        "close": "Close",
+        "example_label": "Example",
+        "multiple_choice": {
+            "title": "Multiple Choice (Single answer)",
+            "desc": "Multiple options are given, only 1 option is correct.",
+            "step1": "Enter the question text.",
+            "step2": "Add options one by one or paste them using 'Smart Paste'.",
+            "step3": "Select the radio button next to the correct option.",
+            "example": "A) Option 1 | B) Option 2 (1 is correct)"
+        },
+        "multiple_response": {
+            "title": "Multiple Response (Multiple answers)",
+            "desc": "User selects 2 or more correct options (e.g. Choose TWO letters).",
+            "step1": "Enter question text (e.g. Which TWO reasons are mentioned?).",
+            "step2": "Add options and mark the checkbox for ALL correct answers.",
+            "example": "Option A (correct) + Option C (correct)"
+        },
+        "true_false": {
+            "title": "True / False / Not Given",
+            "desc": "Task to identify whether statements agree with factual information in the text.",
+            "step1": "Enter the statement in the question prompt.",
+            "step2": "Select the correct answer from 'True', 'False', or 'Not Given' cards below.",
+            "example": "True (Agrees), False (Contradicts), Not Given (No information)"
+        },
+        "yes_no": {
+            "title": "Yes / No / Not Given",
+            "desc": "Task to identify whether statements agree with the views/claims of the writer.",
+            "step1": "Enter the writer's claim or view in the question prompt.",
+            "step2": "Select the correct answer from 'Yes', 'No', or 'Not Given' cards below."
+        },
+        "fill_blank": {
+            "title": "Fill in the Blank (Sentence completion)",
+            "desc": "User types the correct word/number into the blank space.",
+            "step1": "Enter the question text.",
+            "step2": "Enter the target answer word into the 'Correct Answer' field.",
+            "step3": "Case-insensitivity and alternative answers (/ or |) are automatically handled.",
+            "example": "Correct answer: 'climate change'"
+        },
+        "matching": {
+            "title": "Matching (Headings / Features / Information)",
+            "desc": "Task to match questions with correct option letters (A, B, C...).",
+            "step1": "1. When creating Section, specify options range in 'from_option' and 'to_option' (e.g. A to F).",
+            "step2": "2. Select the correct letter (A, B, C...) from the list for each question.",
+            "warning": "If option range (A-F) is not defined in Section, answers cannot be selected in questions!",
+            "example": "Answer: B"
+        },
+        "essay": {
+            "title": "Essay (Writing Task)",
+            "desc": "User writes an essay or text response.",
+            "step1": "Write the task prompt and instructions.",
+            "step2": "A writing area with a live word counter will be provided to the user."
+        },
+        "complete_section": {
+            "title": "Complete Section (Note / Summary Completion)",
+            "desc": "Insert gaps as { correct_answer } directly into the text. The system automatically converts them into questions.",
+            "step1": "1. Write { answer } for each gap in the section text (e.g. { caves }).",
+            "step2": "2. For multiple acceptable answers, separate with '/' or '|' (e.g. { 14000 / 14,000 } or { stone / stones }).",
+            "step3": "3. Verify all detected questions in the 'Live Questions Detector' below.",
+            "example": "Excavations inside { caves } revealed axes made of { stone / stones } dating from around { 11700 / 11,700 } years ago."
+        },
+        "drag_and_drop": {
+            "title": "Drag and Drop",
+            "desc": "Drag words/phrases from the options pool into the blank spaces in the text.",
+            "step1": "1. Write gaps in text as { correct_word }.",
+            "step2": "2. Add extra distractor options under 'Incorrect Options' after creating the section.",
+            "example": "Axes were made out of { stone }."
+        }
+    },
     "header": {
         "dashboard": "Dashboard",
         "menu": {
@@ -226,6 +300,7 @@
     "in_progress": "In Progress",
     "inactive": "Inactive",
     "incorrect_options": "Incorrect options",
+    "insert_bracket_gap": "Insert question gap",
     "is_correct": "Is correct",
     "label": "Status",
     "landing": {
@@ -288,6 +363,8 @@
     },
     "mac_address": "MAC address",
     "mark": "Mark",
+    "matching_options_range": "Matching Options Range",
+    "matching_range_hint": "A list of option letters (e.g. A, B, C, D, E, F) will be generated for selection.",
     "minute": "Minute",
     "mock": "Mock",
     "mock_table": {
@@ -356,6 +433,7 @@
     "option": "Option",
     "option_text": "Option text",
     "options": "Options",
+    "or": "or",
     "pagination_label": "Pages",
     "pagination_optionAll": "All",
     "part": "Part",
@@ -394,6 +472,7 @@
         "verification_link_sent": "A new verification link has been sent to your email address."
     },
     "question": "Question",
+    "question_prompt": "Question Prompt / Text",
     "question_type": "Question type",
     "questions_count": "questions",
     "quick_start": "Quick Start",
@@ -436,6 +515,7 @@
     "search_and_filters": "Search and filters",
     "search_placeholder": "Search...",
     "section": "Section",
+    "section_instructions": "Section Instructions / Text",
     "select": "Select",
     "select_branch": "Select Branch",
     "select_firm": "Select Firm",
@@ -519,6 +599,7 @@
     "textarea": "Textarea",
     "time_remaining": "TIME REMAINING:",
     "to": "To",
+    "to_char_or_num": "Ending letter / number (To)",
     "to_option": "To option",
     "todays_hourly_stats": "Today's hourly stats",
     "totalAttempts": "Attempts this month",

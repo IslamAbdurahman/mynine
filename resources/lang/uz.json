@@ -38,6 +38,7 @@
     "all_tests": "Barcha testlar",
     "all_time_hourly_distribution": "Barcha vaqtdagi soatlik taqsimot",
     "all_time_weekly_attempts_distribution": "Barcha vaqtdagi haftalik urinishlar taqsimoti",
+    "alternative_answers_count": "ta muqobil javob",
     "amount": "Miqdor",
     "analyticsComingSoon": "📊 Tez orada tahlillar qo‘shiladi...",
     "answer": "Javob",
@@ -120,6 +121,7 @@
     "copy_link": "Havolani nusxalash",
     "correct": "To‘g‘ri",
     "correct_answer": "To'g'ri javob",
+    "correct_answer_text": "To'g'ri javob matni",
     "count": "Soni",
     "create": "Qo'shish",
     "create_failed": "Yaratish muvaffaqiyatsiz",
@@ -192,11 +194,83 @@
         "support_telegram": "Telegram yordam"
     },
     "from": "Dan",
+    "from_char_or_num": "Boshlanish harfi / soni (From)",
     "from_option": "Variantdan",
     "gaps_detected_count": "Matnda {{count}} ta savol (bo'sh joy) aniqlandi",
     "gaps_instructions_hint": "Matn ichida to'g'ri javobni { javob } shaklida yozing. Agar bir nechta to'g'ri variant bo'lsa (masalan: 14000 yoki 14,000), ularni { 14000 / 14,000 } ko'rinishida yozing.",
     "gone": "Ketgan",
     "good_luck": "Omad yor bo'lsin! 🍀",
+    "guide": {
+        "guide_button": "Ko'rsatma va qoidalar",
+        "view_instructions": "Savol turi bo'yicha yo'riqnomani ko'rish",
+        "close": "Yopish",
+        "example_label": "Misol",
+        "multiple_choice": {
+            "title": "Multiple Choice (Bir to'g'ri javobli test)",
+            "desc": "Foydalanuvchiga bir nechta variant beriladi, faqat 1 tasi to'g'ri bo'ladi.",
+            "step1": "Savol matnini yozing.",
+            "step2": "Variantlarni birma-bir yozing yoki 'Aqlli nusxalash' tugmasi bilan birga tashlang.",
+            "step3": "To'g'ri variant yonidagi radiotugmani belgilang.",
+            "example": "A) Variant 1 | B) Variant 2 (1 tasi to'g'ri)"
+        },
+        "multiple_response": {
+            "title": "Multiple Response (Ko'p to'g'ri javobli test)",
+            "desc": "Foydalanuvchi 2 va undan ortiq to'g'ri variantni tanlaydi (Masalan: Choose TWO letters).",
+            "step1": "Savol matnini kiriting (Masalan: Which TWO reasons are mentioned?).",
+            "step2": "Variantlarni qo'shing va BARCHA to'g'ri javoblar katakchasini (checkbox) belgilang.",
+            "example": "Variant A (to'g'ri) + Variant C (to'g'ri)"
+        },
+        "true_false": {
+            "title": "True / False / Not Given",
+            "desc": "Matndagi faktlarga mos kelishini aniqlash testi.",
+            "step1": "Savol matniga tasdiq gapni kiriting.",
+            "step2": "Pastdagi 'True', 'False' yoki 'Not Given' kartalaridan to'g'ri variantni tanlang.",
+            "example": "True (To'g'ri), False (Noto'g'ri), Not Given (Matnda yo'q)"
+        },
+        "yes_no": {
+            "title": "Yes / No / Not Given",
+            "desc": "Muallifning fikriga yoki qarashlariga mos kelishini aniqlash.",
+            "step1": "Savol matniga muallif mulohazasini kiriting.",
+            "step2": "Pastdagi 'Yes', 'No' yoki 'Not Given' kartalaridan to'g'ri javobni tanlang."
+        },
+        "fill_blank": {
+            "title": "Fill in the Blank (Bo'sh joyni to'ldirish)",
+            "desc": "Foydalanuvchi javob so'zini klaviaturada yozib to'ldiradi.",
+            "step1": "Savol matnini kiriting.",
+            "step2": "'To'g'ri javob matni' maydoniga kiritilishi kerak bo'lgan so'zni yozing.",
+            "step3": "Harf kattaligi va bir nechta muqobil javoblar (/ yoki |) avtomatik tekshiriladi.",
+            "example": "To'g'ri javob: 'climate change'"
+        },
+        "matching": {
+            "title": "Matching (Moslashtirish / Headings)",
+            "desc": "Savolga mos harfni (A, B, C...) tanlash testi.",
+            "step1": "1. Bo'lim (Section) yaratishda 'from_option' va 'to_option' variantlar diapazonini bering (Masalan: A va F).",
+            "step2": "2. Har bir savol uchun javoblar ro'yxatidan to'g'ri harfni (A, B, C...) tanlang.",
+            "warning": "Agar Bo'limda variant diapazoni (A-F) berilmagan bo'lsa, savolda javob tanlab bo'lmaydi!",
+            "example": "Javob: B"
+        },
+        "essay": {
+            "title": "Essay (Writing Task / Insho)",
+            "desc": "Foydalanuvchi yozma insho yoki javob matnini kiritadi.",
+            "step1": "Topshiriq va yo'riqnomani (Prompt/Task) yozing.",
+            "step2": "Foydalanuvchiga yozuv maydoni va so'zlar hisoblagichi taqdim etiladi."
+        },
+        "complete_section": {
+            "title": "Complete Section (Bo'sh joylarni to'ldirish / Note Completion)",
+            "desc": "Matn ichiga { to'g'ri_javob } shaklida bo'sh joylar kiritiladi. Tizim ularni avtomatik tarzda savollarga aylantiradi.",
+            "step1": "1. Bo'lim matnida har bir bo'sh joy o'rniga { to'g'ri_javob } deb yozing (Masalan: { caves }).",
+            "step2": "2. Agar bir nechta to'g'ri variant bo'lsa, ularni '/' yoki '|' bilan ajrating (Masalan: { 14000 / 14,000 } yoki { stone / stones }).",
+            "step3": "3. Pastdagi 'Jonli savollar detektori' orqali barcha savollar to'g'ri chiqqanini tekshiring.",
+            "example": "Excavations inside { caves } revealed axes made of { stone / stones } dating from around { 11700 / 11,700 } years ago."
+        },
+        "drag_and_drop": {
+            "title": "Drag and Drop (Sudrab joylashtirish)",
+            "desc": "Matndagi bo'sh joylarga variantlar so'zlarini sudrab joylashtirish.",
+            "step1": "1. Matn ichidagi bo'sh joylarni { to'g'ri_so'z } shaklida yozing.",
+            "step2": "2. Qo'shimcha (chalg'ituvchi) noto'g'ri variantlarni bo'lim yaratilgach, 'Noto'g'ri variantlar' bo'limiga qo'shing.",
+            "example": "Axes were made out of { stone }."
+        }
+    },
     "header": {
         "dashboard": "Boshqaruv paneli",
         "menu": {
@@ -226,6 +300,7 @@
     "in_progress": "Davom etmoqda",
     "inactive": "Nofaol",
     "incorrect_options": "Noto‘g‘ri variantlar",
+    "insert_bracket_gap": "Savol qavsi qo'shish",
     "is_correct": "To‘g‘rimi",
     "label": "Holat",
     "landing": {
@@ -288,6 +363,8 @@
     },
     "mac_address": "MAC manzil",
     "mark": "Belgi",
+    "matching_options_range": "Matching (Moslashtirish) Variantlar Diapazoni",
+    "matching_range_hint": "Har bir savol kiritishda foydalanuvchi tanlashi uchun harflar ro'yxati (masalan A, B, C, D, E, F) hosil bo'ladi.",
     "minute": "Daqiqa",
     "mock": "Mock",
     "mock_table": {
@@ -356,6 +433,7 @@
     "option": "Variant",
     "option_text": "Variant matni",
     "options": "Variantlar",
+    "or": "yoki",
     "pagination_label": "Sahifalar",
     "pagination_optionAll": "Hammasi",
     "part": "Qism",
@@ -394,6 +472,7 @@
         "verification_link_sent": "Email manzilingizga yangi tasdiqlash havolasi yuborildi."
     },
     "question": "Savol",
+    "question_prompt": "Savol Matni / Prompt",
     "question_type": "Savol turi",
     "questions_count": "ta savol",
     "quick_start": "Tezkor boshlash",
@@ -436,6 +515,7 @@
     "search_and_filters": "Qidiruv va filtrlar",
     "search_placeholder": "Qidirish...",
     "section": "Bo‘lim",
+    "section_instructions": "Bo'lim Yo'riqnomasi / Matni",
     "select": "Tanlash",
     "select_branch": "Filialni tanlang",
     "select_firm": "Firmani tanlang",
@@ -519,6 +599,7 @@
     "textarea": "Matn maydoni",
     "time_remaining": "QOLGAN VAQT:",
     "to": "Gacha",
+    "to_char_or_num": "Tugash harfi / soni (To)",
     "to_option": "Variantgacha",
     "todays_hourly_stats": "Bugungi soatlik statistika",
     "totalAttempts": "Hozirgi oydagi urinishlar",

@@ -155,14 +155,14 @@ export default function LiveGapDetector({
                                                             </span>
                                                             {ai < gap.alternatives.length - 1 && (
                                                                 <span className="text-[10px] text-purple-600 dark:text-purple-400 font-normal">
-                                                                    yoki
+                                                                    {t('or') || 'yoki'}
                                                                 </span>
                                                             )}
                                                         </React.Fragment>
                                                     ))}
                                                 </div>
                                                 <span className="block text-[9px] text-purple-600 dark:text-purple-400 mt-0.5">
-                                                    {gap.alternatives.length} ta muqobil javob
+                                                    {gap.alternatives.length} {t('alternative_answers_count') || "ta muqobil javob"}
                                                 </span>
                                             </div>
                                         ) : (
@@ -186,7 +186,7 @@ export default function LiveGapDetector({
                         {t('gaps_instructions_hint') || "Matn ichida to'g'ri javobni { javob } shaklida yozing. Agar bir nechta to'g'ri variant bo'lsa (masalan: 14000 yoki 14,000), ularni { 14000 / 14,000 } ko'rinishida yozing."}
                     </p>
                     <div className="pt-1 text-[11px] font-mono text-blue-700 dark:text-blue-300">
-                        Misol: <code>Excavations inside &#123; caves &#125; revealed axes made of &#123; stone / stones &#125;</code>
+                        {t('guide.example_label') || "Misol"}: <code>Excavations inside &#123; caves &#125; revealed axes made of &#123; stone / stones &#125;</code>
                     </div>
                 </div>
             )}

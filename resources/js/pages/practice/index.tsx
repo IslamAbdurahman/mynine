@@ -14,6 +14,7 @@ import AppearanceTabs from '@/components/appearance-tabs';
 import { FaCirclePlay } from 'react-icons/fa6';
 import AudioEqualizer from '@/components/practice/audio-equalizer';
 import LanguageBar from '@/components/language';
+import FinishConfirmationModal from '@/components/practice/finish-confirmation-modal';
 
 export default function Practice() {
     const { attempt } = usePage<{ attempt: Attempt }>().props;
@@ -28,6 +29,11 @@ export default function Practice() {
     const [serverTimeOffset, setServerTimeOffset] = useState<number>(0);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [leftWidth, setLeftWidth] = useState<number>(50); // percentage
+
+    // Finish Confirmation Modal State
+    const [isFinishModalOpen, setIsFinishModalOpen] = useState<boolean>(false);
+    const [isFullExamSubmit, setIsFullExamSubmit] = useState<boolean>(false);
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
     // Accessibility States (localStorage backed)
     const [textSize, setTextSizeState] = useState<'normal' | 'large' | 'xlarge'>(() => {
@@ -145,31 +151,71 @@ export default function Practice() {
             });
     };
 
-    const handleSubmitTestType = () => {
-        if (!testType) return;
-        if (confirm(t('confirm_finish_test_type') ?? `Finish ${testType.type?.name}?`)) {
-            fetch(route('practice-test-type-submit', {
-                attempt_id: attempt.id,
-                type_id: testType.type_id
-            }))
-                .then((res) => res.json())
-                .then((res) => {
-                    if (res.success) {
-                        setTestType(null);
-                        setSelectedPart(null);
-                        // Refresh attempt data
-                        fetch(route('practice-attempt', attempt.id))
-                            .then((res) => res.json())
-                            .then((res: any) => {
-                                if (res.server_time) {
-                                    setServerTimeOffset(new Date(res.server_time).getTime() - Date.now());
-                                }
-                                setResAttempt(res.data ?? res);
-                            });
-                    }
-                })
-                .catch((err) => console.error('handleSubmitTestType error:', err));
+    const getQuestionStats = () => {
+        let answered = 0;
+        let total = 0;
+
+        if (testType?.parts) {
+            testType.parts.forEach((part) => {
+                const currentPartObj = selectedPart?.id === part.id ? selectedPart : part;
+                currentPartObj.sections?.forEach((section) => {
+                    section.questions?.forEach((question) => {
+                        const count = question.is_correct_count ? Number(question.is_correct_count) : 1;
+                        total += count;
+                        const isAns = question.attempt_answer && (
+                            (question.attempt_answer.attempt_answer_options?.length ?? 0) > 0 ||
+                            (question.attempt_answer.answer_text && question.attempt_answer.answer_text.trim() !== '')
+                        );
+                        if (isAns) answered += count;
+                    });
+                });
+            });
         }
+
+        return { answered, total };
+    };
+
+    const handleOpenFinishModal = (fullExam: boolean = false) => {
+        setIsFullExamSubmit(fullExam);
+        setIsFinishModalOpen(true);
+    };
+
+    const handleConfirmFinish = () => {
+        if (isFullExamSubmit) {
+            setIsSubmitting(true);
+            window.location.href = route('practice-attempt-submit', attempt.id);
+            return;
+        }
+
+        if (!testType) return;
+        setIsSubmitting(true);
+        fetch(route('practice-test-type-submit', {
+            attempt_id: attempt.id,
+            type_id: testType.type_id
+        }))
+            .then((res) => res.json())
+            .then((res) => {
+                setIsSubmitting(false);
+                setIsFinishModalOpen(false);
+                if (res.success) {
+                    setTestType(null);
+                    setSelectedPart(null);
+                    // Refresh attempt data
+                    fetch(route('practice-attempt', attempt.id))
+                        .then((res) => res.json())
+                        .then((res: any) => {
+                            if (res.server_time) {
+                                setServerTimeOffset(new Date(res.server_time).getTime() - Date.now());
+                            }
+                            setResAttempt(res.data ?? res);
+                        });
+                }
+            })
+            .catch((err) => {
+                console.error('handleSubmitTestType error:', err);
+                setIsSubmitting(false);
+                setIsFinishModalOpen(false);
+            });
     };
 
     useEffect(() => {
@@ -221,6 +267,7 @@ export default function Practice() {
                 setTextSize={setTextSize}
                 colorScheme={colorScheme}
                 setColorScheme={setColorScheme}
+                onFinish={testType ? () => handleOpenFinishModal(false) : undefined}
             />
 
             {/* Main Content Area */}
@@ -301,12 +348,8 @@ export default function Practice() {
                                 return (
                                     <div className="mt-8 flex justify-end border-t border-gray-200 dark:border-gray-700 pt-6">
                                         <button
-                                            className="bg-black dark:bg-gray-100 hover:bg-gray-800 dark:hover:bg-white text-white dark:text-gray-900 font-bold py-3 px-8 rounded transition-colors uppercase tracking-wide text-lg flex items-center gap-2"
-                                            onClick={() => {
-                                                if (confirm(t('confirm_submit_test'))) {
-                                                    window.location.href = route('practice-attempt-submit', attempt.id);
-                                                }
-                                            }}
+                                            className="bg-black dark:bg-gray-100 hover:bg-gray-800 dark:hover:bg-white text-white dark:text-gray-900 font-bold py-3 px-8 rounded transition-colors uppercase tracking-wide text-lg flex items-center gap-2 cursor-pointer"
+                                            onClick={() => handleOpenFinishModal(true)}
                                         >
                                             {t('submit_test')} <CheckIcon className="w-6 h-6 ml-2 text-green-500" />
                                         </button>
@@ -500,6 +543,7 @@ export default function Practice() {
                     </div>
                 </div>
             )}
+            </div>
 
             {/* Bottom Footer Bar — parts in order, active=50%, each inactive splits remaining 50% */}
             <div
@@ -561,13 +605,16 @@ export default function Practice() {
                 })()}
 
                 {/* Submit button — always at far right */}
-                <button
-                    onClick={handleSubmitTestType}
-                    className="w-9 h-full border-l border-gray-200 bg-white hover:bg-gray-50 text-gray-600 flex items-center justify-center shadow-sm transition-colors shrink-0"
-                    title={t('finish') || 'Submit Test'}
-                >
-                    <CheckIcon className="w-3.5 h-3.5" />
-                </button>
+                {testType && (
+                    <button
+                        onClick={() => handleOpenFinishModal(false)}
+                        className="h-full px-3.5 bg-[#e11d48] hover:bg-[#be123c] text-white flex items-center justify-center gap-1.5 shadow-xs transition-colors shrink-0 text-xs font-bold uppercase tracking-wider cursor-pointer"
+                        title={t('finish') || 'Yakunlash'}
+                    >
+                        <CheckIcon className="w-4 h-4" />
+                        <span className="hidden sm:inline">{t('finish') || 'Yakunlash'}</span>
+                    </button>
+                )}
 
             </div>
 
@@ -601,7 +648,23 @@ export default function Practice() {
                 </div>
             )}
 
-        </div>
+            {/* Early Finish Confirmation Modal */}
+            {(() => {
+                const stats = getQuestionStats();
+                return (
+                    <FinishConfirmationModal
+                        isOpen={isFinishModalOpen}
+                        onClose={() => setIsFinishModalOpen(false)}
+                        onConfirm={handleConfirmFinish}
+                        testTypeName={testType?.type?.name}
+                        answeredCount={stats.answered}
+                        totalCount={stats.total}
+                        isLoading={isSubmitting}
+                        isFullExam={isFullExamSubmit}
+                    />
+                );
+            })()}
+
         </div>
     );
 }

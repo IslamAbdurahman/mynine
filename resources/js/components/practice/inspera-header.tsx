@@ -16,6 +16,7 @@ interface InsperaHeaderProps {
     setTextSize: (size: 'normal' | 'large' | 'xlarge') => void;
     colorScheme: 'standard' | 'yellow-black' | 'blue-white';
     setColorScheme: (scheme: 'standard' | 'yellow-black' | 'blue-white') => void;
+    onFinish?: () => void;
 }
 
 export default function InsperaHeader({
@@ -29,7 +30,8 @@ export default function InsperaHeader({
     textSize,
     setTextSize,
     colorScheme,
-    setColorScheme
+    setColorScheme,
+    onFinish,
 }: InsperaHeaderProps) {
     const { t } = useTranslation();
     const [isTimerHidden, setIsTimerHidden] = useState<boolean>(() => {
@@ -130,6 +132,17 @@ export default function InsperaHeader({
                         {isTimerHidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                     </button>
                 </div>
+
+                {onFinish && testTypeName && (
+                    <button
+                        onClick={onFinish}
+                        className="header-btn text-xs font-bold px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-[2px] transition-colors uppercase tracking-wider shrink-0 cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                        title={t('finish') || 'Yakunlash'}
+                    >
+                        <CheckCircle className="w-3.5 h-3.5" />
+                        <span>{t('finish') || 'Yakunlash'}</span>
+                    </button>
+                )}
 
                 <span className="text-gray-300 font-light text-sm">|</span>
 

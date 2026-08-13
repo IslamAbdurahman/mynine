@@ -10,7 +10,7 @@ interface TextareaEditorProps {
     value?: string;
     onChange?: (content: string) => void;
     error?: string | null;
-    height?: number;
+    height?: number | string;
     className?: string;
 }
 
@@ -18,7 +18,7 @@ export default function TextareaEditor({
     value = "",
     onChange = () => { },
     error = null,
-    height = 600,
+    height = 500,
     className,
 }: TextareaEditorProps) {
     const editorRef = useRef<TinyMCEEditorInstance | null>(null);

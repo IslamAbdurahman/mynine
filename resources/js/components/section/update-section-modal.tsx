@@ -83,7 +83,7 @@ export default function UpdateSectionModal({ section, open, setOpen }: UpdateSec
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="sm:max-w-6xl w-full max-h-[92vh] flex flex-col p-0 overflow-hidden dark:border-gray-700">
+            <DialogContent className="sm:max-w-6xl w-full h-[80vh] max-h-[80vh] flex flex-col p-0 overflow-hidden dark:border-gray-700">
                 <div className="px-5 py-3 border-b border-gray-100 dark:border-gray-800 shrink-0 bg-white dark:bg-gray-900">
                     <DialogTitle className="text-base font-bold text-gray-900 dark:text-gray-100">
                         {t('modal.update_title') || "Bo'limni tahrirlash"}
@@ -93,8 +93,8 @@ export default function UpdateSectionModal({ section, open, setOpen }: UpdateSec
                     </DialogDescription>
                 </div>
 
-                <form onSubmit={submit} id="update-section-form" className="flex-1 overflow-y-auto px-5 py-3">
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+                <form onSubmit={submit} id="update-section-form" className="flex-1 overflow-y-auto px-5 py-3 flex flex-col">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start flex-1">
                         {/* Chap tomon: Boshqa ma'lumotlar va Gaps Detector */}
                         <div className="lg:col-span-5 space-y-3">
                             {/* Question Type + Guide Trigger */}
@@ -172,7 +172,7 @@ export default function UpdateSectionModal({ section, open, setOpen }: UpdateSec
                         </div>
 
                         {/* O'ng tomon: TinyMCE Editor */}
-                        <div className="lg:col-span-7 space-y-1.5 flex flex-col">
+                        <div className="lg:col-span-7 space-y-1.5 flex flex-col h-full">
                             <div className="flex items-center justify-between">
                                 <Label className="text-xs font-semibold text-gray-700 dark:text-gray-200">
                                     {t('section_instructions') || "Bo'lim Yo'riqnomasi / Matni"} *
@@ -189,12 +189,14 @@ export default function UpdateSectionModal({ section, open, setOpen }: UpdateSec
                                     </button>
                                 )}
                             </div>
-                            <TextareaEditor
-                                value={data.textarea}
-                                onChange={(content) => setData("textarea", content)}
-                                error={errors.textarea}
-                                height={380}
-                            />
+                            <div className="flex-1">
+                                <TextareaEditor
+                                    value={data.textarea}
+                                    onChange={(content) => setData("textarea", content)}
+                                    error={errors.textarea}
+                                    height={500}
+                                />
+                            </div>
                         </div>
                     </div>
                 </form>

@@ -19,8 +19,12 @@ export default function Folder() {
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
-            title: t('folder'),
-            href: '/dashboard'
+            title: t('dashboard') || 'Boshqaruv paneli',
+            href: route('dashboard')
+        },
+        {
+            title: t('folders') || 'Jildlar',
+            href: route('folder.index')
         }
     ];
 

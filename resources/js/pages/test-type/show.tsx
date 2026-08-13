@@ -19,7 +19,39 @@ export default function TestTypeShow() {
     }>().props;
     const { t } = useTranslation();
 
-    const breadcrumbs: BreadcrumbItem[] = [{ title: t('part'), href: '/dashboard' }];
+    const folder = testType.test?.folder;
+    const test = testType.test;
+    const type = testType.type;
+    const folderName = folder?.name || t('folder') || 'Jild';
+    const testName = test?.name || t('test') || 'Test';
+    const typeName = type?.name || 'Module';
+
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: t('folders') || 'Jildlar',
+            href: route('folder.index'),
+        },
+        ...(folder?.id
+            ? [
+                  {
+                      title: folderName,
+                      href: route('folder.show', folder.id),
+                  },
+              ]
+            : []),
+        ...(test?.id
+            ? [
+                  {
+                      title: testName,
+                      href: folder?.id ? route('folder.show', folder.id) : route('folder.index'),
+                  },
+              ]
+            : []),
+        {
+            title: typeName,
+            href: route('test-type.show', testType.id),
+        },
+    ];
 
     const [selectedPartId, setSelectedPartId] = useState<number>(
         testType.parts?.[0]?.id ?? 0
@@ -58,7 +90,7 @@ export default function TestTypeShow() {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={testType.test?.name ?? 'Part'} />
+            <Head title={`${testName} - ${typeName}`} />
 
             {/* Full-height flex column inside AppLayout content */}
             <div className="flex flex-col overflow-hidden" style={{ height: 'calc(100vh - 112px)' }}>
@@ -66,17 +98,40 @@ export default function TestTypeShow() {
                 {/* ══════════ STICKY SUBHEADER ══════════ */}
                 <div className="flex-none flex items-center gap-3 px-4 py-2 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 z-30">
                     {/* Breadcrumb */}
-                    <div className="flex items-center gap-1 text-sm text-gray-500 shrink-0 min-w-0 overflow-hidden">
-                        <Link href="/folder" className="hover:text-blue-600 shrink-0 truncate max-w-[80px]">
-                            {testType.test?.folder?.name ?? t('folder')}
-                        </Link>
-                        <span className="text-gray-300">/</span>
-                        <span className="font-semibold text-gray-800 dark:text-gray-100 shrink-0 truncate max-w-[100px]">
-                            {testType.test?.name}
-                        </span>
-                        <span className="text-gray-300">/</span>
-                        <span className="shrink-0 px-2 py-0.5 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 rounded text-xs font-bold">
-                            {testType.type?.name}
+                    <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 shrink-0 min-w-0">
+                        {folder?.id ? (
+                            <Link
+                                href={route('folder.show', folder.id)}
+                                className="font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors shrink-0 max-w-[130px] truncate"
+                                title={folderName}
+                            >
+                                {folderName}
+                            </Link>
+                        ) : (
+                            <Link
+                                href={route('folder.index')}
+                                className="font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors shrink-0 max-w-[130px] truncate"
+                            >
+                                {folderName}
+                            </Link>
+                        )}
+                        <span className="text-gray-300 dark:text-gray-600">/</span>
+                        {folder?.id ? (
+                            <Link
+                                href={route('folder.show', folder.id)}
+                                className="font-semibold text-gray-800 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors shrink-0 max-w-[150px] truncate"
+                                title={testName}
+                            >
+                                {testName}
+                            </Link>
+                        ) : (
+                            <span className="font-semibold text-gray-800 dark:text-gray-100 shrink-0 max-w-[150px] truncate">
+                                {testName}
+                            </span>
+                        )}
+                        <span className="text-gray-300 dark:text-gray-600">/</span>
+                        <span className="shrink-0 px-2.5 py-0.5 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200/80 dark:border-blue-800 rounded-md text-xs font-bold">
+                            {typeName}
                         </span>
                     </div>
 

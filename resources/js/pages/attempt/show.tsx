@@ -15,8 +15,12 @@ export default function AttemptShow() {
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
-            title: t('attempt'),
-            href: '/attempt'
+            title: t('attempts') || 'Urinishlar',
+            href: route('attempt.index')
+        },
+        {
+            title: `#${attempt.id} - ${attempt.user?.name || t('attempt')}`,
+            href: route('attempt.show', attempt.id)
         }
     ];
 

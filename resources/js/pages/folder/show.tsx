@@ -14,8 +14,12 @@ export default function Test() {
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
-            title: t('test'),
-            href: '/dashboard'
+            title: t('folders') || 'Jildlar',
+            href: route('folder.index')
+        },
+        {
+            title: folder.name,
+            href: route('folder.show', folder.id)
         }
     ];
 

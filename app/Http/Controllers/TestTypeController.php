@@ -42,7 +42,7 @@ class TestTypeController extends Controller
     public function show(TestType $testType)
     {
         $testType->load([
-            'test',
+            'test.folder',
             'type',
             'parts',
         ]);

@@ -1,6 +1,7 @@
 import DeleteItemModal from '@/components/delete-item-modal';
 import CreateMockModal from '@/components/mock/create-mock-modal';
 import UpdateMockModal from '@/components/mock/update-mock-modal';
+import MockStudentManager from '@/components/mock/mock-student-manager';
 import { baseButton } from '@/components/ui/baseButton';
 import { Auth, Mock, type MockPaginate, SearchData, Test } from '@/types';
 import { Link, useForm, usePage } from '@inertiajs/react';
@@ -122,34 +123,44 @@ const MockTable = ({ tests, searchData, ...mock }: MockTableProps) => {
                             </div>
 
                             {/* Actions */}
-                            <div className="flex items-center gap-2 pt-2">
-                                <button
-                                    onClick={() => handleUpdateClick(item)}
-                                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-50 text-green-600 transition-colors hover:bg-green-600 hover:text-white dark:bg-green-900/10"
-                                    title={t('edit')}
-                                >
-                                    <PencilIcon className="h-4 w-4" />
-                                </button>
+                            <div className="flex items-center justify-between gap-2 pt-3 border-t border-gray-100 dark:border-gray-800">
+                                <MockStudentManager
+                                    mockId={item.id}
+                                    mockName={item.name}
+                                    students={(item as any).students ?? []}
+                                />
 
-                                <button
-                                    onClick={() => handleDeleteClick(item)}
-                                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-600 transition-colors hover:bg-red-600 hover:text-white dark:bg-red-900/10"
-                                    title={t('delete')}
-                                >
-                                    <TrashIcon className="h-4 w-4" />
-                                </button>
+                                <div className="flex items-center gap-1.5">
+                                    <button
+                                        type="button"
+                                        onClick={() => handleUpdateClick(item)}
+                                        className="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 dark:hover:text-white rounded-xl font-semibold text-xs transition-all cursor-pointer shadow-xs active:scale-95"
+                                        title={t('edit')}
+                                    >
+                                        <PencilIcon className="h-3.5 w-3.5" />
+                                    </button>
 
-                                <button
-                                    onClick={() => {
-                                        navigator.clipboard.writeText(`${item.slug}`);
-                                        toast.success(t('link_copied'));
-                                    }}
-                                    className="flex h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 font-bold text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md active:scale-95"
-                                >
-                                    <Copy className="h-4 w-4" />
-                                    <span className="text-xs uppercase tracking-wider">{t('copy_link')}</span>
-                                </button>
-                            </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleDeleteClick(item)}
+                                        className="p-2 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-600 hover:text-white dark:hover:bg-red-600 dark:hover:text-white rounded-xl font-semibold text-xs transition-all cursor-pointer shadow-xs active:scale-95"
+                                        title={t('delete')}
+                                    >
+                                        <TrashIcon className="h-3.5 w-3.5" />
+                                    </button>
+                                </div>
+                            </div> 
+                            
+                            <button
+                                onClick={() => {
+                                    navigator.clipboard.writeText(`${item.slug}`);
+                                    toast.success(t('link_copied'));
+                                }}
+                                className="flex h-10 w-full mt-3 items-center justify-center gap-2 rounded-xl bg-blue-600 font-bold text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md active:scale-95 cursor-pointer"
+                            >
+                                <Copy className="h-4 w-4" />
+                                <span className="text-xs uppercase tracking-wider">{t('copy_link')}</span>
+                            </button>
                         </div>
                     );
                 })}

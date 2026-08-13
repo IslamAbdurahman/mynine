@@ -17,12 +17,18 @@ class Attempt extends Model
     protected $fillable = [
         'name',
         'mock_id',
+        'mock_student_id',
         'user_id',
         'test_id',
         'started_at',
         'finished_at',
         'status',
     ];
+
+    public function mockStudent()
+    {
+        return $this->belongsTo(MockStudent::class, 'mock_student_id');
+    }
 
 
 

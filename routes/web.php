@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\TelegramLoginController;
 
 
 Route::post('/webapp-login', [TelegramAuthController::class, 'login']);
+Route::post('/mock-student/enter', [\App\Http\Controllers\MockStudentController::class, 'enter'])->name('mock-student.enter');
 
 Route::any('/bot/webhook', [TelegramController::class, 'handle']);
 Route::any('/bot/MynineUzBot/webhook', [MynineUzBotController::class, 'handle']);
@@ -85,6 +86,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('practice-part/{part_id}', [\App\Http\Controllers\PracticeController::class, 'practice_part'])->name('practice-part');
 
     Route::resource('mock', \App\Http\Controllers\MockController::class);
+    Route::post('/mock-student', [\App\Http\Controllers\MockStudentController::class, 'store'])->name('mock-student.store');
+    Route::delete('/mock-student/{mockStudent}', [\App\Http\Controllers\MockStudentController::class, 'destroy'])->name('mock-student.destroy');
 });
 
 Route::get('attempt-pdf/{attempt}', [\App\Http\Controllers\AttemptController::class, 'pdf'])->name('attempt.pdf');

@@ -31,7 +31,8 @@ class MockController extends Controller
         $per_page = $request->per_page === 'all' ? 100 : min((int)($request->per_page ?? 10), 100);
 
         $mock = Mock::with([
-
+            'students.attempt',
+            'test.folder',
         ]);
 
         if ($request->search) {

@@ -44,4 +44,9 @@ class Mock extends Model
         return $this->hasMany(Attempt::class, 'mock_id');
     }
 
+    public function students()
+    {
+        return $this->hasMany(MockStudent::class, 'mock_id');
+    }
+
 }

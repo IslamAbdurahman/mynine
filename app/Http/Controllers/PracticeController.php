@@ -37,7 +37,10 @@ class PracticeController extends Controller
             }
 
             if ($attempt->user_id !== Auth::id()) {
-                return back()->with('error', __('error.unauthorized_attempt'));
+                $sessionMockStudentId = session('mock_student_id');
+                if (!$sessionMockStudentId || (int)$attempt->mock_student_id !== (int)$sessionMockStudentId) {
+                    return back()->with('error', __('error.unauthorized_attempt'));
+                }
             }
 
             if ($attempt->finished_at !== null) {

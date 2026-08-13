@@ -202,7 +202,7 @@ export default function TestTypeShow() {
                                 ) : (
                                     selectedPart.sections.map((section: Section, sectionIndex: number) => {
                                         const sectionCount = section.questions.reduce(
-                                            (acc, q) => acc + (Number(q.is_correct_count) || 0),
+                                            (acc, q) => acc + (Number(q.is_correct_count) || 1),
                                             0
                                         );
                                         const globalIndex = order;

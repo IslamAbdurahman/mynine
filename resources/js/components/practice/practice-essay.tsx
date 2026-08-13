@@ -22,28 +22,34 @@ export default function PracticeEssay({
                                        }: SectionUpdateProps) {
     const { t } = useTranslation();
 
-    const section_order = order ?? 0;
+    let currentOrder = order ?? 0;
     return (
         <div>
-
             {/* Active Section */}
             {part.sections.map(
                 (section, index) =>
                     (
                         <div key={section.id} className="p-2">
-                            {section.questions.map((question, qIndex) => (
-                                <PracticeQuestion
-                                    setSelectedPart={setSelectedPart}
-                                    key={qIndex}
-                                    order={order}
-                                    attempt={attempt}
-                                    section={section}
-                                    question={question}
-                                    index={qIndex}
-                                    isFlagged={isFlagged}
-                                    toggleFlag={() => toggleFlag(question.id)}
-                                />
-                            ))}
+                            {section.questions.map((question, qIndex) => {
+                                const increment = question.is_correct_count
+                                    ? Number(question.is_correct_count)
+                                    : 1;
+                                currentOrder += (increment || 1);
+
+                                return (
+                                    <PracticeQuestion
+                                        setSelectedPart={setSelectedPart}
+                                        key={qIndex}
+                                        order={currentOrder}
+                                        attempt={attempt}
+                                        section={section}
+                                        question={question}
+                                        index={qIndex}
+                                        isFlagged={isFlagged}
+                                        toggleFlag={() => toggleFlag(question.id)}
+                                    />
+                                );
+                            })}
                         </div>
                     )
             )}

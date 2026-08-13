@@ -144,7 +144,7 @@ export default function PartSection({ section, partIndex, globalIndex, sectionIn
                     {section.questions?.length > 0 && (
                         <div className="space-y-4">
                             {section.questions.map((question, qIndex) => {
-                                globalIndex += Number(question.is_correct_count);
+                                globalIndex += (Number(question.is_correct_count) || 1);
                                 return (
                                     <SectionQuestion
                                         key={qIndex}

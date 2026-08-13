@@ -79,15 +79,17 @@ export default function CreateSectionModal({ part, question_types }: SectionUpda
                 </button>
             </DialogTrigger>
 
-            <DialogContent className="sm:max-w-4xl w-full overflow-y-auto dark:border-gray-700">
-                <DialogTitle className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                    {t('modal.create_title') || "Yangi bo'lim qo'shish"}
-                </DialogTitle>
-                <DialogDescription className="text-xs text-gray-500 dark:text-gray-400">
-                    {t('modal.create_description') || "Bo'lim yo'riqnomasi va savol turini belgilang."}
-                </DialogDescription>
+            <DialogContent className="sm:max-w-4xl w-full max-h-[92vh] flex flex-col p-0 overflow-hidden dark:border-gray-700">
+                <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 shrink-0 bg-white dark:bg-gray-900">
+                    <DialogTitle className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                        {t('modal.create_title') || "Yangi bo'lim qo'shish"}
+                    </DialogTitle>
+                    <DialogDescription className="text-xs text-gray-500 dark:text-gray-400">
+                        {t('modal.create_description') || "Bo'lim yo'riqnomasi va savol turini belgilang."}
+                    </DialogDescription>
+                </div>
 
-                <form onSubmit={submit} className="space-y-5 mt-2">
+                <form onSubmit={submit} id="create-section-form" className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
 
                     {/* Question Type Selection */}
                     <div className="space-y-1.5">
@@ -181,6 +183,7 @@ export default function CreateSectionModal({ part, question_types }: SectionUpda
                             value={data.textarea}
                             onChange={(content) => setData("textarea", content)}
                             error={errors.textarea}
+                            height={300}
                         />
                     </div>
 
@@ -189,33 +192,34 @@ export default function CreateSectionModal({ part, question_types }: SectionUpda
                         <LiveGapDetector textarea={data.textarea} />
                     )}
 
-                    {/* Modal Footer */}
-                    <DialogFooter className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                        <DialogClose asChild>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                className="border-gray-300 dark:border-gray-700"
-                                onClick={() => {
-                                    reset();
-                                    clearErrors();
-                                    setOpen(false);
-                                }}
-                            >
-                                {t('cancel')}
-                            </Button>
-                        </DialogClose>
-
-                        <Button
-                            type="submit"
-                            disabled={processing}
-                            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm"
-                        >
-                            {t('save')}
-                        </Button>
-                    </DialogFooter>
-
                 </form>
+
+                {/* Modal Footer */}
+                <DialogFooter className="px-6 py-3 border-t border-gray-100 dark:border-gray-800 shrink-0 bg-gray-50/90 dark:bg-gray-900 flex items-center justify-end gap-3">
+                    <DialogClose asChild>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="border-gray-300 dark:border-gray-700"
+                            onClick={() => {
+                                reset();
+                                clearErrors();
+                                setOpen(false);
+                            }}
+                        >
+                            {t('cancel')}
+                        </Button>
+                    </DialogClose>
+
+                    <Button
+                        type="submit"
+                        form="create-section-form"
+                        disabled={processing}
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm"
+                    >
+                        {t('save')}
+                    </Button>
+                </DialogFooter>
             </DialogContent>
         </Dialog>
     );

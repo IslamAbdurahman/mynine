@@ -347,6 +347,8 @@ export default function PracticeSection({
                         onAnswerChange={(qId, val) => {
                             handleInputChange(qId, val);
                         }}
+                        flaggedIds={flaggedIds}
+                        toggleFlag={toggleFlag}
                     />
                 </div>
             ) : (section.question_type.type !== 'complete_section' &&

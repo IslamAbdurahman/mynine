@@ -9,6 +9,8 @@ interface MatchingHeadingsProps {
     order: number;
     answers: Record<number, string>; // questionId -> answerText
     onAnswerChange: (questionId: number, value: string) => void;
+    flaggedIds?: Set<number>;
+    toggleFlag?: (questionId: number) => void;
 }
 
 export default function MatchingHeadings({
@@ -16,7 +18,9 @@ export default function MatchingHeadings({
     attemptId,
     order,
     answers,
-    onAnswerChange
+    onAnswerChange,
+    flaggedIds,
+    toggleFlag
 }: MatchingHeadingsProps) {
     const [selectedHeading, setSelectedHeading] = useState<string | null>(null);
     const [draggedHeading, setDraggedHeading] = useState<string | null>(null);
@@ -102,16 +106,29 @@ export default function MatchingHeadings({
                     const currentAnswer = answers[q.id] || '';
                     const qNumber = order + qIdx;
 
+                    const isFlagged = flaggedIds?.has(q.id) ?? false;
+
                     return (
                         <div
+                            id={`question-${q.id}`}
                             key={q.id}
                             className="p-3.5 border border-gray-200 dark:border-gray-700/80 bg-white dark:bg-gray-900 rounded-md shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                         >
-                            <div className="flex items-center gap-2">
-                                <span className="w-7 h-7 flex items-center justify-center bg-black dark:bg-gray-700 text-white font-bold text-xs rounded-full">
+                            <div className="flex items-start sm:items-center gap-2.5 flex-1 min-w-0">
+                                <span
+                                    onClick={() => toggleFlag?.(q.id)}
+                                    className={`flex items-center justify-center min-w-[24px] h-6 px-1.5 border ${
+                                        isFlagged
+                                            ? 'border-orange-500 bg-orange-50 text-orange-600 font-bold'
+                                            : 'border-[#2563eb] bg-white dark:bg-gray-800 text-[#2563eb] font-bold'
+                                    } text-xs rounded-[2px] ${toggleFlag ? 'cursor-pointer' : ''} shadow-2xs select-none relative shrink-0`}
+                                >
                                     {qNumber}
+                                    {isFlagged && (
+                                        <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-orange-500 rounded-full flex items-center justify-center text-[7px] text-white">★</span>
+                                    )}
                                 </span>
-                                <span className="font-semibold text-sm text-gray-800 dark:text-gray-200">
+                                <span className="font-semibold text-sm text-gray-800 dark:text-gray-200 leading-snug">
                                     {q.textarea || `Section / Paragraph ${qNumber}`}
                                 </span>
                             </div>

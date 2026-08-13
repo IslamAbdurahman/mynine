@@ -341,6 +341,7 @@ export interface AttemptPaginate {
     to: number;
     total: number;
     current_page: number;
+    last_page: number;
     links: Link[];         // Array of Link
 }
 

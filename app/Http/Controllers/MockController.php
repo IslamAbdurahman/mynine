@@ -148,7 +148,21 @@ class MockController extends Controller
      */
     public function show(Request $request, Mock $mock)
     {
-        //
+        $this->authorize('view', $mock);
+
+        $mock->load([
+            'test.folder',
+            'user',
+            'students.attempt',
+            'attempts.user',
+            'attempts.mockStudent',
+            'attempts.attempt_types',
+        ]);
+
+        return Inertia::render('mock/show', [
+            'mock' => $mock,
+            'isAdmin' => Auth::user()->hasRole('Admin'),
+        ]);
     }
 
 

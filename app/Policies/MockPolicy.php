@@ -20,31 +20,22 @@ class MockPolicy
      */
     public function view(User $user, Mock $mock): bool
     {
-        return false;
+        return $user->hasRole('Admin') || $mock->user_id === $user->id || $mock->active == 1;
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
     public function create(User $user): bool
     {
-        return false;
+        return $user->hasRole('Admin') || $user->hasRole('Teacher');
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
     public function update(User $user, Mock $mock): bool
     {
-        return false;
+        return $user->hasRole('Admin') || $mock->user_id === $user->id;
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
     public function delete(User $user, Mock $mock): bool
     {
-        return false;
+        return $user->hasRole('Admin') || $mock->user_id === $user->id;
     }
 
     /**

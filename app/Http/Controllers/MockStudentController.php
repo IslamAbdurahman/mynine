@@ -118,6 +118,6 @@ class MockStudentController extends Controller
             'mock_attempt_id' => $attempt->id,
         ]);
 
-        return redirect()->route('practice-attempt', $attempt->id);
+        return redirect()->route('practice.index', ['attempt_id' => $attempt->id]);
     }
 }

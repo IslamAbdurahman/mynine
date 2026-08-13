@@ -128,7 +128,7 @@ export default function TextareaEditor({
                         "link image media table emoticons | alignleft aligncenter " +
                         "alignright alignjustify | bullist numlist outdent indent | " +
                         "removeformat | code fullscreen preview | help",
-                    content_style: "body { font-family:Arial,sans-serif; line-height:1.5; }",
+                    content_style: "body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #1e293b; padding: 12px; }",
                 }}
             />
 

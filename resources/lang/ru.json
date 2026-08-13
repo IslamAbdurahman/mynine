@@ -309,7 +309,7 @@
     "clear_all_options": "Очистить все",
     "option_row_placeholder": "Введите текст варианта...",
     "insert_bracket_gap": "Вставить пропуск вопроса",
-    "is_correct": "Правильный?",
+    "is_correct": "Правильный",
     "label": "Статус",
     "landing": {
         "ai_evaluation": "Премиальная оценка ИИ",

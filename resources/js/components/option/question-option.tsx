@@ -48,9 +48,11 @@ export default function QuestionOption({ option, index, question_type }: Questio
 
             <div className="flex items-center gap-1.5 shrink-0">
                 {Boolean(option.is_correct) && (
-                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
-                        <CheckCircle2 className="w-3 h-3" />
-                        {t('is_correct')}
+                    <span
+                        className="inline-flex items-center justify-center p-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 shrink-0"
+                        title={t('is_correct') || "To'g'ri"}
+                    >
+                        <CheckCircle2 className="w-3.5 h-3.5" />
                     </span>
                 )}
 

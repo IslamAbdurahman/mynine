@@ -80,8 +80,8 @@ export default function CreateSectionModal({ part, question_types }: SectionUpda
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-4xl w-full max-h-[92vh] flex flex-col p-0 overflow-hidden dark:border-gray-700">
-                <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 shrink-0 bg-white dark:bg-gray-900">
-                    <DialogTitle className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                <div className="px-5 py-3 border-b border-gray-100 dark:border-gray-800 shrink-0 bg-white dark:bg-gray-900">
+                    <DialogTitle className="text-base font-bold text-gray-900 dark:text-gray-100">
                         {t('modal.create_title') || "Yangi bo'lim qo'shish"}
                     </DialogTitle>
                     <DialogDescription className="text-xs text-gray-500 dark:text-gray-400">
@@ -89,20 +89,25 @@ export default function CreateSectionModal({ part, question_types }: SectionUpda
                     </DialogDescription>
                 </div>
 
-                <form onSubmit={submit} id="create-section-form" className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+                <form onSubmit={submit} id="create-section-form" className="flex-1 overflow-y-auto px-5 py-3 space-y-3">
 
-                    {/* Question Type Selection */}
-                    <div className="space-y-1.5">
-                        <Label htmlFor="question_type" className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-                            {t('question_type')} *
-                        </Label>
+                    {/* Question Type Selection + Guide trigger */}
+                    <div className="space-y-1">
+                        <div className="flex items-center justify-between gap-2">
+                            <Label htmlFor="question_type" className="text-xs font-semibold text-gray-700 dark:text-gray-200">
+                                {t('question_type')} *
+                            </Label>
+                            {selectedTypeObj && (
+                                <QuestionTypeGuide type={selectedTypeObj.type} />
+                            )}
+                        </div>
                         <select
                             id="question_type"
                             value={data.question_type_id ?? ''}
                             onChange={(e) =>
                                 setData('question_type_id', e.target.value ? Number(e.target.value) : null)
                             }
-                            className="block w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm font-medium shadow-xs focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                            className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-medium shadow-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                         >
                             <option value="">{t('select') || '-- Savol turini tanlang --'}</option>
                             {question_types.map((type) => (
@@ -114,20 +119,15 @@ export default function CreateSectionModal({ part, question_types }: SectionUpda
                         <InputError message={errors.question_type_id} />
                     </div>
 
-                    {/* Dynamic Question Type Guide */}
-                    {selectedTypeObj && (
-                        <QuestionTypeGuide type={selectedTypeObj.type} />
-                    )}
-
                     {/* Conditional fields for Matching (diapazon: A - F) */}
                     {isMatchingType && (
-                        <div className="p-4 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 space-y-3">
-                            <div className="text-xs font-bold text-indigo-900 dark:text-indigo-200 uppercase tracking-wider">
+                        <div className="p-2.5 rounded-lg bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 space-y-2">
+                            <div className="text-[11px] font-bold text-indigo-900 dark:text-indigo-200 uppercase tracking-wider">
                                 {t('matching_options_range') || "Matching (Moslashtirish) Variantlar Diapazoni"} *
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <Label htmlFor="from_option" className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                                    <Label htmlFor="from_option" className="text-[11px] font-semibold text-gray-700 dark:text-gray-300">
                                         {t('from_char_or_num') || "Boshlanish harfi / soni (From)"}
                                     </Label>
                                     <Input
@@ -136,12 +136,12 @@ export default function CreateSectionModal({ part, question_types }: SectionUpda
                                         value={data.from_option}
                                         required={true}
                                         onChange={(e) => setData('from_option', e.target.value.toUpperCase())}
-                                        className="mt-1 font-mono font-bold uppercase"
+                                        className="mt-0.5 h-8 text-xs font-mono font-bold uppercase"
                                     />
                                     <InputError message={errors.from_option} />
                                 </div>
                                 <div>
-                                    <Label htmlFor="to_option" className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                                    <Label htmlFor="to_option" className="text-[11px] font-semibold text-gray-700 dark:text-gray-300">
                                         {t('to_char_or_num') || "Tugash harfi / soni (To)"}
                                     </Label>
                                     <Input
@@ -150,21 +150,21 @@ export default function CreateSectionModal({ part, question_types }: SectionUpda
                                         value={data.to_option}
                                         required={true}
                                         onChange={(e) => setData('to_option', e.target.value.toUpperCase())}
-                                        className="mt-1 font-mono font-bold uppercase"
+                                        className="mt-0.5 h-8 text-xs font-mono font-bold uppercase"
                                     />
                                     <InputError message={errors.to_option} />
                                 </div>
                             </div>
-                            <p className="text-[11px] text-indigo-700 dark:text-indigo-300">
+                            <p className="text-[10px] text-indigo-700 dark:text-indigo-300">
                                 {t('matching_range_hint')}
                             </p>
                         </div>
                     )}
 
                     {/* Textarea Editor */}
-                    <div className="space-y-1.5">
+                    <div className="space-y-1">
                         <div className="flex items-center justify-between">
-                            <Label className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                            <Label className="text-xs font-semibold text-gray-700 dark:text-gray-200">
                                 {t('section_instructions') || "Bo'lim Yo'riqnomasi / Matni"} *
                             </Label>
                             {(selectedTypeObj?.type === 'complete_section' || selectedTypeObj?.type === 'drag_and_drop') && (
@@ -173,7 +173,7 @@ export default function CreateSectionModal({ part, question_types }: SectionUpda
                                     onClick={() => {
                                         setData("textarea", (data.textarea || '') + " { to'g'ri_javob } ");
                                     }}
-                                    className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-1 rounded-lg border border-blue-200 dark:border-blue-800 transition-colors cursor-pointer"
+                                    className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-md border border-blue-200 dark:border-blue-800 transition-colors cursor-pointer"
                                 >
                                     + &#123; &#125; {t('insert_bracket_gap') || "Savol qavsi qo'shish"}
                                 </button>
@@ -183,7 +183,7 @@ export default function CreateSectionModal({ part, question_types }: SectionUpda
                             value={data.textarea}
                             onChange={(content) => setData("textarea", content)}
                             error={errors.textarea}
-                            height={300}
+                            height={230}
                         />
                     </div>
 
@@ -195,12 +195,12 @@ export default function CreateSectionModal({ part, question_types }: SectionUpda
                 </form>
 
                 {/* Modal Footer */}
-                <DialogFooter className="px-6 py-3 border-t border-gray-100 dark:border-gray-800 shrink-0 bg-gray-50/90 dark:bg-gray-900 flex items-center justify-end gap-3">
+                <DialogFooter className="px-5 py-2.5 border-t border-gray-100 dark:border-gray-800 shrink-0 bg-gray-50/90 dark:bg-gray-900 flex items-center justify-end gap-2.5">
                     <DialogClose asChild>
                         <Button
                             type="button"
                             variant="outline"
-                            className="border-gray-300 dark:border-gray-700"
+                            className="h-8 text-xs border-gray-300 dark:border-gray-700"
                             onClick={() => {
                                 reset();
                                 clearErrors();
@@ -215,7 +215,7 @@ export default function CreateSectionModal({ part, question_types }: SectionUpda
                         type="submit"
                         form="create-section-form"
                         disabled={processing}
-                        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm"
+                        className="h-8 text-xs bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-xs"
                     >
                         {t('save')}
                     </Button>

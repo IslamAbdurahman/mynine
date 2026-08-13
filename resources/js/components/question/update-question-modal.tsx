@@ -160,14 +160,14 @@ export default function UpdateQuestionModal({ question, section, open, setOpen }
 
                 <form onSubmit={submit} className="space-y-4 mt-1">
 
-                    {/* Question Type Guide */}
-                    <QuestionTypeGuide type={qType} />
-
-                    {/* Question Prompt Textarea */}
+                    {/* Question Prompt Textarea + Guide trigger */}
                     <div className="space-y-1">
-                        <Label htmlFor="textarea" className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-                            Savol Matni / Prompt *
-                        </Label>
+                        <div className="flex items-center justify-between gap-2">
+                            <Label htmlFor="textarea" className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                                {t('question_prompt') || "Savol Matni / Prompt"} *
+                            </Label>
+                            <QuestionTypeGuide type={qType} />
+                        </div>
                         <Input
                             id="textarea"
                             ref={nameInput}

@@ -573,10 +573,10 @@ export default function Practice() {
                                 return (
                                     <div
                                         key={p.id}
-                                        className="flex items-center h-full border-r border-gray-200 px-3 gap-2 overflow-x-auto hide-scrollbar shrink-0 bg-gray-50/50"
+                                        className="flex items-center h-full border-r border-gray-300 px-3 gap-2 overflow-x-auto hide-scrollbar shrink-0 bg-white border-t-3 border-t-blue-600 shadow-2xs"
                                         style={{ width: `${equalPct}%` }}
                                     >
-                                        <span className="text-sm font-bold text-gray-900 shrink-0">
+                                        <span className="text-sm font-extrabold text-blue-600 shrink-0 uppercase tracking-tight">
                                             {p.name}
                                         </span>
                                         <PracticeNumberBar
@@ -591,11 +591,11 @@ export default function Practice() {
                                 <button
                                     key={p.id}
                                     onClick={() => handlePart(p.id)}
-                                    className="flex items-center justify-center gap-1.5 h-full hover:bg-gray-100/80 transition-colors whitespace-nowrap group shrink-0 border-r border-gray-200 cursor-pointer"
+                                    className="flex items-center justify-center gap-2 h-full bg-[#f3f4f6] hover:bg-gray-200/80 transition-colors whitespace-nowrap group shrink-0 border-r border-gray-300 border-t-3 border-t-transparent cursor-pointer"
                                     style={{ width: `${equalPct}%` }}
                                 >
-                                    <span className="text-sm font-semibold text-gray-600 group-hover:text-blue-600">{p.name}</span>
-                                    <span className="text-xs text-gray-400">{answered} of {total}</span>
+                                    <span className="text-sm font-bold text-gray-500 group-hover:text-gray-900 transition-colors">{p.name}</span>
+                                    <span className="text-xs font-semibold text-gray-400 group-hover:text-gray-600 bg-gray-200/80 px-1.5 py-0.5 rounded-[2px] transition-colors">{answered} of {total}</span>
                                 </button>
                             );
                         });

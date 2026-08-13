@@ -114,7 +114,8 @@ export default function PracticePart({ attempt, part }: PartUpdateProps) {
             NodeFilter.SHOW_TEXT,
             {
                 acceptNode: (node) => {
-                    if (!node.nodeValue?.trim()) return NodeFilter.FILTER_REJECT;
+                    // Do NOT reject whitespace-only nodes — spaces between words must also be wrapped
+                    // so highlights appear as a single continuous background bar.
                     if (node.parentElement?.classList.contains('highlight'))
                         return NodeFilter.FILTER_REJECT;
 
@@ -399,14 +400,22 @@ export default function PracticePart({ attempt, part }: PartUpdateProps) {
 
             <style>{`
                 mark.highlight {
-                  background-color: rgba(253, 224, 71, 0.5);
+                  background-color: rgba(253, 224, 71, 0.65);
                   color: inherit;
-                  border-radius: 2px;
+                  border-radius: 0;
                   padding: 1px 0;
+                  margin: 0;
+                  box-decoration-break: clone;
+                  -webkit-box-decoration-break: clone;
                   transition: background-color 0.2s;
                 }
                 mark.note-highlight {
-                  background-color: rgba(147, 197, 253, 0.5);
+                  background-color: rgba(147, 197, 253, 0.6);
+                  border-radius: 0;
+                  padding: 1px 0;
+                  margin: 0;
+                  box-decoration-break: clone;
+                  -webkit-box-decoration-break: clone;
                   border-bottom: 2px solid #2563eb;
                 }
             `}</style>

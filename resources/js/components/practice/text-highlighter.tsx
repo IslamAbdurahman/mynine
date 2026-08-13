@@ -91,8 +91,16 @@ export default function TextHighlighter({ attemptId, partId, children }: TextHig
 
         try {
             const mark = document.createElement('mark');
-            mark.className = 'bg-yellow-300 dark:bg-yellow-600 text-black dark:text-white px-0.5 rounded cursor-pointer ielts-highlight-span shadow-2xs hover:opacity-90';
+            mark.className = 'ielts-highlight-span cursor-pointer hover:opacity-80';
             mark.setAttribute('data-hl-id', hlId);
+            mark.setAttribute('style', [
+                'background-color: rgba(253, 224, 71, 0.75)',
+                'color: inherit',
+                'padding: 1px 0',
+                'border-radius: 0',
+                'box-decoration-break: clone',
+                '-webkit-box-decoration-break: clone',
+            ].join(';'));
             range.surroundContents(mark);
         } catch (e) {
             console.warn('Range surround contents fallback:', e);

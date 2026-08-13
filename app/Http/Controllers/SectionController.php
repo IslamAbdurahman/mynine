@@ -133,14 +133,23 @@ class SectionController extends Controller
 
         $currentOrders = [];
 
-        foreach ($matches[1] as $index => $number) {
+        foreach ($matches[1] as $index => $rawAnswer) {
+            // TinyMCE tomonidan qavs ichiga tushib qolgan HTML teglarni tozalash (masalan <span>caves</span>)
+            $cleanAnswer = trim(strip_tags($rawAnswer));
+            // Ketma-ket kelgan bo'shliqlarni bitta bo'shliqqa keltirish
+            $cleanAnswer = preg_replace('/\s+/', ' ', $cleanAnswer);
+
+            if ($cleanAnswer === '') {
+                continue;
+            }
+
             $question = $section->questions()->updateOrCreate(
                 [
                     'section_id' => $section->id,
                     'order' => $index + 1,
                 ],
                 [
-                    'answer_text' => $number,
+                    'answer_text' => $cleanAnswer,
                 ]
             );
 

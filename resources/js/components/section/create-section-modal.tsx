@@ -21,6 +21,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import TextareaEditor from '@/components/textarea-editor';
 import QuestionTypeGuide from '@/components/question/question-type-guide';
+import LiveGapDetector from '@/components/section/live-gap-detector';
 
 interface SectionUpdateProps {
     part: Part;
@@ -160,15 +161,33 @@ export default function CreateSectionModal({ part, question_types }: SectionUpda
 
                     {/* Textarea Editor */}
                     <div className="space-y-1.5">
-                        <Label className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-                            Bo'lim Yo'riqnomasi / Matni (Instructions)
-                        </Label>
+                        <div className="flex items-center justify-between">
+                            <Label className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                                Bo'lim Yo'riqnomasi / Matni (Instructions) *
+                            </Label>
+                            {(selectedTypeObj?.type === 'complete_section' || selectedTypeObj?.type === 'drag_and_drop') && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setData("textarea", (data.textarea || '') + " { to'g'ri_javob } ");
+                                    }}
+                                    className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-1 rounded-lg border border-blue-200 dark:border-blue-800 transition-colors cursor-pointer"
+                                >
+                                    + &#123; &#125; Savol qavsi qo'shish
+                                </button>
+                            )}
+                        </div>
                         <TextareaEditor
                             value={data.textarea}
                             onChange={(content) => setData("textarea", content)}
                             error={errors.textarea}
                         />
                     </div>
+
+                    {/* Live Gap Detector for complete_section / drag_and_drop */}
+                    {(selectedTypeObj?.type === 'complete_section' || selectedTypeObj?.type === 'drag_and_drop') && (
+                        <LiveGapDetector textarea={data.textarea} />
+                    )}
 
                     {/* Modal Footer */}
                     <DialogFooter className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">

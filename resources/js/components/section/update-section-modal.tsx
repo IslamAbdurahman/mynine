@@ -15,10 +15,11 @@ import {
     DialogHeader,
     DialogTitle
 } from '@/components/ui/dialog';
-import { QuestionType, Section } from '@/types';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import TextareaEditor from '@/components/textarea-editor';
+import LiveGapDetector from '@/components/section/live-gap-detector';
+import QuestionTypeGuide from '@/components/question/question-type-guide';
 
 interface UpdateSectionModalProps {
     section: Section;
@@ -76,6 +77,10 @@ export default function UpdateSectionModal({ section, open, setOpen }: UpdateSec
 
     };
 
+    const selectedTypeObj = questionTypes.find(qt => qt.id === data.question_type_id) ?? section.question_type;
+    const isMatchingType = selectedTypeObj?.type === 'matching' || data.question_type_id === 6;
+    const isCompleteOrDrag = selectedTypeObj?.type === 'complete_section' || selectedTypeObj?.type === 'drag_and_drop';
+
     return (
         <Dialog open={open} onOpenChange={setOpen}>
 
@@ -91,7 +96,89 @@ export default function UpdateSectionModal({ section, open, setOpen }: UpdateSec
 
                 <form onSubmit={submit} className="space-y-4 mt-2">
 
-                    <div>
+                    {/* Question Type */}
+                    <div className="space-y-1.5">
+                        <Label htmlFor="question_type" className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                            {t('question_type')} *
+                        </Label>
+                        <select
+                            id="question_type"
+                            value={data.question_type_id ?? ''}
+                            onChange={(e) => setData('question_type_id', Number(e.target.value) || 0)}
+                            className="block w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm font-medium shadow-xs focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                        >
+                            <option value="">{t('select') || '-- Savol turini tanlang --'}</option>
+                            {questionTypes.map((type) => (
+                                <option key={type.id} value={type.id}>
+                                    {type.name}
+                                </option>
+                            ))}
+                        </select>
+                        <InputError message={errors.question_type_id} />
+                    </div>
+
+                    {/* Question Type Guide */}
+                    {selectedTypeObj && (
+                        <QuestionTypeGuide type={selectedTypeObj.type} />
+                    )}
+
+                    {/* Conditional fields for Matching (diapazon: A - F) */}
+                    {isMatchingType && (
+                        <div className="p-4 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 space-y-3">
+                            <div className="text-xs font-bold text-indigo-900 dark:text-indigo-200 uppercase tracking-wider">
+                                Matching (Moslashtirish) Variantlar Diapazoni *
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <Label htmlFor="from_option" className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                                        Boshlanish harfi / soni (From)
+                                    </Label>
+                                    <Input
+                                        id="from_option"
+                                        placeholder="Masalan: A"
+                                        value={data.from_option}
+                                        required={true}
+                                        onChange={(e) => setData('from_option', e.target.value.toUpperCase())}
+                                        className="mt-1 font-mono font-bold uppercase"
+                                    />
+                                    <InputError message={errors.from_option} />
+                                </div>
+                                <div>
+                                    <Label htmlFor="to_option" className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                                        Tugash harfi / soni (To)
+                                    </Label>
+                                    <Input
+                                        id="to_option"
+                                        placeholder="Masalan: F"
+                                        value={data.to_option}
+                                        required={true}
+                                        onChange={(e) => setData('to_option', e.target.value.toUpperCase())}
+                                        className="mt-1 font-mono font-bold uppercase"
+                                    />
+                                    <InputError message={errors.to_option} />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Textarea Editor */}
+                    <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                            <Label className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                                Bo'lim Yo'riqnomasi / Matni (Instructions) *
+                            </Label>
+                            {isCompleteOrDrag && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setData("textarea", (data.textarea || '') + " { to'g'ri_javob } ");
+                                    }}
+                                    className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-1 rounded-lg border border-blue-200 dark:border-blue-800 transition-colors cursor-pointer"
+                                >
+                                    + &#123; &#125; Savol qavsi qo'shish
+                                </button>
+                            )}
+                        </div>
                         <TextareaEditor
                             value={data.textarea}
                             onChange={(content) => setData("textarea", content)}
@@ -99,56 +186,10 @@ export default function UpdateSectionModal({ section, open, setOpen }: UpdateSec
                         />
                     </div>
 
-                    <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-9">
-
-                        {/* Question Type */}
-                        <div className="sm:col-span-3">
-                            <Label htmlFor="question_type">{t('question_type')}</Label>
-                            <select
-                                value={data.question_type_id ?? ''}
-                                onChange={(e) => setData('question_type_id', Number(e.target.value) || 0)}
-                                className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                            >
-                                <option value="">{t('select')}</option>
-                                {questionTypes.map((type) => (
-                                    <option key={type.id} value={type.id}>
-                                        {type.name}
-                                    </option>
-                                ))}
-                            </select>
-
-                            <InputError message={errors.question_type_id} />
-                        </div>
-
-                        {/* Conditional fields */}
-                        {data.question_type_id === 6 && (
-                            <>
-                                <div className="sm:col-span-3">
-                                    <Label htmlFor="from_option">{t('from_option')}</Label>
-                                    <Input
-                                        id="from_option"
-                                        value={data.from_option}
-                                        required={true}
-                                        onChange={(e) => setData('from_option', e.target.value)}
-                                    />
-                                    <InputError message={errors.from_option} />
-                                </div>
-
-                                <div className="sm:col-span-3">
-                                    <Label htmlFor="to_option">{t('to_option')}</Label>
-                                    <Input
-                                        id="to_option"
-                                        value={data.to_option}
-                                        required={true}
-                                        onChange={(e) => setData('to_option', e.target.value)}
-                                    />
-                                    <InputError message={errors.to_option} />
-                                </div>
-                            </>
-                        )}
-
-
-                    </div>
+                    {/* Live Gap Detector for complete_section / drag_and_drop */}
+                    {isCompleteOrDrag && (
+                        <LiveGapDetector textarea={data.textarea} />
+                    )}
 
 
                     <DialogFooter className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">

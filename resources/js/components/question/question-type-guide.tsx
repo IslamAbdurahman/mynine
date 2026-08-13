@@ -79,21 +79,23 @@ const GUIDES: Record<string, GuideContent> = {
         ]
     },
     complete_section: {
-        title: "Complete Section (Matn ichidagi bo'sh joylar)",
-        description: "Butun matn bo'ylab bo'sh joylar joylashtiriladi.",
+        title: "Complete Section (Bo'sh joylarni to'ldirish / Note Completion)",
+        description: "Matn ichiga { to'g'ri_javob } shaklida bo'sh joylar kiritiladi. Tizim ularni avtomatik tarzda savollarga aylantiradi.",
         steps: [
-            "Bo'lim matni (Section textarea) ichida bo'sh joylarni matn bilan birga yozing.",
-            "Har bir bo'sh joy tartib bilan mos savollarga bog'lanadi."
-        ]
+            "1. Bo'lim matnida har bir bo'sh joy o'rniga { to'g'ri_javob } deb yozing (Masalan: { caves }).",
+            "2. Agar bir nechta to'g'ri variant bo'lsa, ularni '/' yoki '|' bilan ajrating (Masalan: { 14000 / 14,000 } yoki { stone / stones }).",
+            "3. Pastdagi 'Jonli savollar detektori' orqali barcha savollar to'g'ri chiqqanini tekshiring."
+        ],
+        example: "Excavations inside { caves } revealed axes made of { stone / stones } dating from around { 11700 / 11,700 } years ago."
     },
     drag_and_drop: {
         title: "Drag and Drop (Sudrab joylashtirish)",
-        description: "Variantlar so'zlarini bo'sh joylarga sudrab qo'yish.",
+        description: "Matndagi bo'sh joylarga variantlar so'zlarini sudrab joylashtirish.",
         steps: [
-            "1. Har bir savolga to'g'ri keluvchi so'zni savol javobiga yozing.",
-            "2. Ortiqcha (chalg'ituvchi) noto'g'ri so'zlarni Bo'limdagi 'Noto'g'ri variantlar' qismiga qo'shing."
+            "1. Matn ichidagi bo'sh joylarni { to'g'ri_so'z } shaklida yozing.",
+            "2. Qo'shimcha (chalg'ituvchi) noto'g'ri variantlarni bo'lim yaratilgach, 'Noto'g'ri variantlar' bo'limiga qo'shing."
         ],
-        example: "To'g'ri so'zlar savollarda, ortiqcha so mezonlar Bo'limda."
+        example: "Axes were made out of { stone }."
     }
 };
 

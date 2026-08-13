@@ -122,7 +122,7 @@ class AttemptType extends Model
                     continue;
                 }
 
-                $delimiters = ['/', ';'];
+                $delimiters = ['/', ';', '|'];
                 $normalizedCorrectAnswers = [$correctAnswerText];
                 
                 foreach ($delimiters as $delimiter) {
@@ -137,11 +137,30 @@ class AttemptType extends Model
                     $normalizedCorrectAnswers = $tempAnswers;
                 }
 
-                $normalizedCorrectAnswers = array_map(function($val) {
-                    return trim(strtolower($val));
-                }, $normalizedCorrectAnswers);
+                $expandedAnswers = [];
+                foreach ($normalizedCorrectAnswers as $val) {
+                    $clean = trim(strtolower($val));
+                    if ($clean === '') continue;
+                    $expandedAnswers[] = $clean;
+                    
+                    // Sonlardagi vergulni hisobga olish: 14,000 -> 14000 yoki aksincha
+                    if (str_contains($clean, ',')) {
+                        $withoutComma = str_replace(',', '', $clean);
+                        if (!in_array($withoutComma, $expandedAnswers)) {
+                            $expandedAnswers[] = $withoutComma;
+                        }
+                    } elseif (is_numeric($clean) && strlen($clean) > 3) {
+                        $withComma = number_format((float)$clean);
+                        if (!in_array($withComma, $expandedAnswers)) {
+                            $expandedAnswers[] = strtolower($withComma);
+                        }
+                    }
+                }
 
-                if (in_array($studentAnswer, $normalizedCorrectAnswers)) {
+                $studentClean = trim(strtolower($studentAnswer));
+                $studentWithoutComma = str_replace(',', '', $studentClean);
+
+                if (in_array($studentClean, $expandedAnswers) || in_array($studentWithoutComma, $expandedAnswers)) {
                     $correctCount += 1;
                 }
             }

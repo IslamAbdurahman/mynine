@@ -41,6 +41,40 @@ const AttemptTypeComponent = ({ attempt_type }: { attempt_type: AttemptType }) =
         return text.trim().toLowerCase();
     };
 
+    const checkAnswerCorrect = (correctAnswer?: string | null, studentAnswer?: string | null): boolean => {
+        if (!correctAnswer || !studentAnswer) return false;
+        const student = studentAnswer.trim().toLowerCase();
+        if (!student) return false;
+
+        const delimiters = ['/', ';', '|'];
+        let normalized = [correctAnswer];
+        delimiters.forEach(d => {
+            const temp: string[] = [];
+            normalized.forEach(val => {
+                if (val.includes(d)) {
+                    temp.push(...val.split(d));
+                } else {
+                    temp.push(val);
+                }
+            });
+            normalized = temp;
+        });
+
+        const expanded: string[] = [];
+        normalized.forEach(val => {
+            const clean = val.trim().toLowerCase();
+            if (!clean) return;
+            expanded.push(clean);
+            if (clean.includes(',')) {
+                const noComma = clean.replace(/,/g, '');
+                if (!expanded.includes(noComma)) expanded.push(noComma);
+            }
+        });
+
+        const studentNoComma = student.replace(/,/g, '');
+        return expanded.includes(student) || expanded.includes(studentNoComma);
+    };
+
     // ✅ Compute total score safely
     const sum_is_correct = useMemo(() => {
         let total = 0;
@@ -49,11 +83,8 @@ const AttemptTypeComponent = ({ attempt_type }: { attempt_type: AttemptType }) =
             attemptPart.part?.sections.forEach((section) => {
                 section.questions.forEach((question) => {
                     if (question.options.length === 0) {
-                        // Case-insensitive and space-insensitive comparison
-                        if (
-                            normalizeText(question.answer_text) ===
-                            normalizeText(question.attempt_answer?.answer_text)
-                        ) {
+                        // Multi-answer, case-insensitive and comma-resilient comparison
+                        if (checkAnswerCorrect(question.answer_text, question.attempt_answer?.answer_text)) {
                             total += 1;
                         }
                     } else {
@@ -181,7 +212,7 @@ const AttemptTypeComponent = ({ attempt_type }: { attempt_type: AttemptType }) =
                                                         <>
                                                             <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">
                                                                 {question.options.length === 0 ? (
-                                                                    normalizeText(question.answer_text) === normalizeText(question.attempt_answer?.answer_text) ? (
+                                                                    checkAnswerCorrect(question.answer_text, question.attempt_answer?.answer_text) ? (
                                                                         <CheckCircle className="text-green-600" />
                                                                     ) : (
                                                                         <Minus className="text-red-600" />

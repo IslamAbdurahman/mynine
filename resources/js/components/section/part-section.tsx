@@ -9,7 +9,7 @@ import CreateQuestionModal from '@/components/question/create-question-modal';
 import SectionQuestion from '@/components/question/section-question';
 import UpdateSectionModal from '@/components/section/update-section-modal';
 import { cleanTinyMce } from '@/utils/util';
-import CreateOptionModal from '@/components/option/create-option-modal';
+import ManageSectionOptionsModal from '@/components/option/manage-section-options-modal';
 import QuestionOpton from '@/components/option/question-option';
 
 interface SectionUpdateProps {
@@ -112,17 +112,32 @@ export default function PartSection({ section, partIndex, globalIndex, sectionIn
 
                     {/* Options (drag_and_drop) */}
                     {section.question_type?.type === 'drag_and_drop' && (
-                        <>
-                            <div className="text-center text-sm font-bold text-gray-600 dark:text-gray-400">
-                                {t('incorrect_options')}
+                        <div className="p-3 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-2xs space-y-2.5">
+                            <div className="flex items-center justify-between flex-wrap gap-2">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">
+                                        {t('incorrect_options')}
+                                    </span>
+                                    <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+                                        {section.options?.length ?? 0} {t('option')}
+                                    </span>
+                                </div>
+
+                                <ManageSectionOptionsModal section={section} />
                             </div>
-                            <div className="space-y-1.5">
-                                {section.options?.map((option, oIndex) => (
-                                    <QuestionOpton key={oIndex} option={option} index={oIndex} />
-                                ))}
-                            </div>
-                            <CreateOptionModal section={section} />
-                        </>
+
+                            {(section.options?.length ?? 0) > 0 ? (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                                    {section.options?.map((option, oIndex) => (
+                                        <QuestionOpton key={oIndex} option={option} index={oIndex} />
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="p-3 text-center rounded-lg border border-dashed border-gray-200 dark:border-gray-800 text-xs text-gray-500 dark:text-gray-400">
+                                    {t('no_incorrect_options') || "Hozircha noto'g'ri variantlar qo'shilmagan"}
+                                </div>
+                            )}
+                        </div>
                     )}
 
                     {/* Questions */}

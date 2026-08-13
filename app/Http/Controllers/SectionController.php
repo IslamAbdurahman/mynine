@@ -159,4 +159,38 @@ class SectionController extends Controller
         // Eski, ishlatilmay qolgan `questions`ni o‘chirish
         $section->questions()->whereNotIn('order', $currentOrders)->delete();
     }
+
+    public function syncOptions(\Illuminate\Http\Request $request, Section $section)
+    {
+        $request->validate([
+            'options' => 'present|array',
+            'options.*' => 'nullable|string',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $section->options()->delete();
+
+            foreach ($request->input('options', []) as $text) {
+                $trimmed = trim((string) $text);
+                if ($trimmed !== '') {
+                    $section->options()->create([
+                        'textarea' => $trimmed,
+                        'is_correct' => 0,
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return back()->with('success', __('updated_successfully'));
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            throw ValidationException::withMessages([
+                'error' => [$e->getMessage()],
+            ]);
+        }
+    }
 }

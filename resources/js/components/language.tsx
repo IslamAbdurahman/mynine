@@ -3,11 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { Check, Globe } from 'lucide-react';
 
 interface LanguageBarProps {
-    variant?: 'light' | 'dark';
+    variant?: 'light' | 'dark' | 'header';
     placement?: 'bottom' | 'top' | 'left' | 'right';
+    className?: string;
 }
 
-const LanguageBar = ({ variant, placement }: LanguageBarProps) => {
+const LanguageBar = ({ variant, placement, className }: LanguageBarProps) => {
     const { i18n, t } = useTranslation();
     const [open, setOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -39,16 +40,18 @@ const LanguageBar = ({ variant, placement }: LanguageBarProps) => {
 
     const currentLangObj = languages.find(l => l.code === currentLang) || languages[0];
 
-    const buttonClass = variant === 'dark'
+    const defaultButtonClass = variant === 'dark'
         ? "inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-sm hover:bg-white/20 transition-all cursor-pointer shadow-xs"
+        : variant === 'header'
+        ? "inline-flex items-center gap-1.5 rounded-[2px] border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-2.5 py-1 text-xs font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer shrink-0"
         : "inline-flex items-center gap-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all cursor-pointer shadow-xs";
 
     return (
-        <div className="relative inline-block text-left" ref={dropdownRef}>
+        <div className={`relative inline-block text-left ${className || ''}`} ref={dropdownRef}>
             <button
                 type="button"
                 onClick={() => setOpen(!open)}
-                className={buttonClass}
+                className={defaultButtonClass}
             >
                 <Globe className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
                 <span>{currentLangObj.flag} {currentLangObj.code.toUpperCase()}</span>

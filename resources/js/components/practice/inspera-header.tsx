@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { CountdownTimer } from './countdown-timer';
 import { Eye, EyeOff, Wifi, Bell, Menu, Edit3, X, CheckCircle, Info, Settings, HelpCircle, FileText } from 'lucide-react';
 import AudioEqualizer from './audio-equalizer';
+import LanguageBar from '@/components/language';
 
 interface InsperaHeaderProps {
     testTypeName?: string;
@@ -63,7 +64,7 @@ export default function InsperaHeader({
     };
 
     return (
-        <header className="flex-none h-14 bg-white text-gray-900 border-b border-gray-300 flex justify-between items-center px-4 shadow-2xs z-50 select-none whitespace-nowrap overflow-x-auto hide-scrollbar relative">
+        <header className="flex-none h-14 bg-white text-gray-900 border-b border-gray-300 flex justify-between items-center px-4 shadow-2xs z-50 select-none whitespace-nowrap overflow-x-auto md:overflow-visible hide-scrollbar relative">
             {/* Left side: IELTS logo, candidate, part name, instructions */}
             <div className="flex items-center gap-3 shrink-0">
                 <div className="bg-[#e11d48] text-white font-extrabold text-sm px-2.5 py-1 rounded-[2px] tracking-tight leading-none shrink-0">
@@ -109,6 +110,9 @@ export default function InsperaHeader({
                 >
                     {colorScheme === 'standard' ? 'Standard' : colorScheme === 'yellow-black' ? 'Yellow/Black' : 'Blue/White'}
                 </button>
+
+                {/* Language Switcher */}
+                <LanguageBar variant="header" placement="bottom" />
 
                 {/* Timer Display */}
                 <div className="flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-[2px] border border-gray-300 font-mono text-sm shrink-0">

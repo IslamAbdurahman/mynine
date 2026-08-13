@@ -73,11 +73,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('all-test', \App\Http\Controllers\AllTestController::class);
     Route::resource('attempt', \App\Http\Controllers\AttemptController::class);
 
-    Route::resource('attempt-part', \App\Http\Controllers\AttemptPartController::class);
-    Route::resource('attempt-type', \App\Http\Controllers\AttemptTypeController::class);
-    Route::resource('attempt-answer', \App\Http\Controllers\AttemptAnswerController::class);
-    Route::resource('attempt-answer-option', \App\Http\Controllers\AttemptAnswerOptionController::class);
+    Route::resource('mock', \App\Http\Controllers\MockController::class);
+    Route::post('/mock-student', [\App\Http\Controllers\MockStudentController::class, 'store'])->name('mock-student.store');
+    Route::delete('/mock-student/{mockStudent}', [\App\Http\Controllers\MockStudentController::class, 'destroy'])->name('mock-student.destroy');
+});
 
+// Routes accessible to logged-in users OR candidate code session holders
+Route::middleware([\App\Http\Middleware\EnsureCandidateOrAuthenticated::class])->group(function () {
     Route::resource('practice', \App\Http\Controllers\PracticeController::class);
     Route::get('practice-attempt-submit/{attempt_id}', [\App\Http\Controllers\PracticeController::class, 'submit'])->name('practice-attempt-submit');
     Route::get('practice-attempt/{attempt_id}', [\App\Http\Controllers\PracticeController::class, 'practice_attempt'])->name('practice-attempt');
@@ -85,9 +87,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('practice-test-type-submit/{attempt_id}/{type_id}', [\App\Http\Controllers\PracticeController::class, 'submit_test_type'])->name('practice-test-type-submit');
     Route::get('practice-part/{part_id}', [\App\Http\Controllers\PracticeController::class, 'practice_part'])->name('practice-part');
 
-    Route::resource('mock', \App\Http\Controllers\MockController::class);
-    Route::post('/mock-student', [\App\Http\Controllers\MockStudentController::class, 'store'])->name('mock-student.store');
-    Route::delete('/mock-student/{mockStudent}', [\App\Http\Controllers\MockStudentController::class, 'destroy'])->name('mock-student.destroy');
+    Route::resource('attempt-part', \App\Http\Controllers\AttemptPartController::class);
+    Route::resource('attempt-type', \App\Http\Controllers\AttemptTypeController::class);
+    Route::resource('attempt-answer', \App\Http\Controllers\AttemptAnswerController::class);
+    Route::resource('attempt-answer-option', \App\Http\Controllers\AttemptAnswerOptionController::class);
 });
 
 Route::get('attempt-pdf/{attempt}', [\App\Http\Controllers\AttemptController::class, 'pdf'])->name('attempt.pdf');

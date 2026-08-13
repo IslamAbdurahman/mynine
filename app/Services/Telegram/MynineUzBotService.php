@@ -169,7 +169,7 @@ class MynineUzBotService
                 Keyboard::inlineButton([
                     'text' => "🧪 {$mock->name}",
                     'web_app' => [
-                        'url' => "https://mynine.uz?slug={$mock->slug}",
+                        'url' => "https://mynine.uz",
                     ],
                 ]),
             ]);

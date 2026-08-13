@@ -118,19 +118,6 @@ class HomeController extends Controller
 
     public function home(Request $request)
     {
-
-        $mock = Mock::query()
-            ->with(['test.folder'])
-            ->where('slug', $request->slug)
-            ->where('started_at', '<=', now())
-            ->where('finished_at', '>=', now())
-            ->where('active', true)
-            ->first();
-
-
-        return Inertia::render('welcome', [
-            'mock' => $mock
-        ]);
-
+        return Inertia::render('welcome');
     }
 }

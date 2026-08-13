@@ -604,25 +604,26 @@ export default function Practice() {
                     });
                 })()}
 
-                {/* Submit button — always at far right */}
-                {testType && (
-                    <button
-                        onClick={() => handleOpenFinishModal(false)}
-                        className="h-full px-3.5 bg-[#e11d48] hover:bg-[#be123c] text-white flex items-center justify-center gap-1.5 shadow-xs transition-colors shrink-0 text-xs font-bold uppercase tracking-wider cursor-pointer"
-                        title={t('finish') || 'Yakunlash'}
-                    >
-                        <CheckIcon className="w-4 h-4" />
-                        <span className="hidden sm:inline">{t('finish') || 'Yakunlash'}</span>
-                    </button>
-                )}
+                {/* Submit button — spacing for fixed right navigation */}
+                <div className="w-[180px] shrink-0" />
 
             </div>
 
-            {/* ◄ ► Navigation arrows — fixed at bottom-right, exactly like Inspera */}
+            {/* ◄ ► Navigation arrows & Finish button — fixed at bottom-right */}
             {selectedPart && (
-                <div className="fixed bottom-0 right-0 flex z-50">
+                <div className="fixed bottom-0 right-0 flex items-center h-[52px] z-50">
+                    {testType && (
+                        <button
+                            onClick={() => handleOpenFinishModal(false)}
+                            className="h-full px-4 bg-[#e11d48] hover:bg-[#be123c] text-white flex items-center justify-center gap-1.5 shadow-sm transition-colors text-xs font-bold uppercase tracking-wider cursor-pointer border-r border-rose-700"
+                            title={t('finish') || 'Yakunlash'}
+                        >
+                            <CheckIcon className="w-4 h-4" />
+                            <span>{t('finish') || 'Yakunlash'}</span>
+                        </button>
+                    )}
                     <button
-                        className="w-11 h-11 bg-gray-600 hover:bg-gray-500 disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center font-bold text-base transition-colors"
+                        className="w-11 h-full bg-gray-600 hover:bg-gray-500 disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center font-bold text-base transition-colors border-r border-gray-700 cursor-pointer"
                         disabled={!testType || !selectedPart || (testType.parts?.findIndex(p => p.id === selectedPart.id) ?? -1) <= 0}
                         onClick={() => {
                             if (!testType || !selectedPart) return;
@@ -634,7 +635,7 @@ export default function Practice() {
                         ◄
                     </button>
                     <button
-                        className="w-11 h-11 bg-black hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center font-bold text-base transition-colors"
+                        className="w-11 h-full bg-black hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center font-bold text-base transition-colors cursor-pointer"
                         disabled={!testType || !selectedPart || (testType.parts?.findIndex(p => p.id === selectedPart.id) ?? -1) >= (testType.parts?.length ?? 0) - 1}
                         onClick={() => {
                             if (!testType || !selectedPart) return;

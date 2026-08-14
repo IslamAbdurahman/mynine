@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, usePage, useForm } from '@inertiajs/react';
-import { type BreadcrumbItem, type UserPaginate, SearchData, Role } from '@/types';
+import { type BreadcrumbItem, type UserPaginate, SearchData, Role, User as UserType } from '@/types';
 import { useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import UserTable from '@/components/user/user-table';
@@ -9,9 +9,10 @@ import { useTranslation } from 'react-i18next';
 import MobileSearchModal from '@/components/MobileSearchModal';
 
 export default function User() {
-    const { user, roles, filters, isAdmin } = usePage<{
+    const { user, roles, teachers, filters, isAdmin } = usePage<{
         user: UserPaginate,
         roles: Role[],
+        teachers?: UserType[],
         filters: any,
         isAdmin: boolean
     }>().props;
@@ -28,6 +29,7 @@ export default function User() {
     const { data, setData } = useForm<SearchData>({
         search: filters?.search || '',
         role: filters?.role || '',
+        teacher_id: filters?.teacher_id || '',
         from: filters?.from || '',
         to: filters?.to || '',
         per_page: filters?.per_page || user.per_page,
@@ -40,9 +42,6 @@ export default function User() {
         router.get(route('user.index'), data);
     };
 
-
-
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="User" />
@@ -54,6 +53,7 @@ export default function User() {
                         setData={setData}
                         handleSubmit={handleSubmit}
                         roles={roles}
+                        teachers={teachers}
                         isAdmin={isAdmin}
                     />
                     <div className="hidden lg:block w-full">
@@ -62,6 +62,7 @@ export default function User() {
                             setData={setData} 
                             data={data} 
                             roles={roles}
+                            teachers={teachers}
                             isAdmin={isAdmin}
                         />
                     </div>

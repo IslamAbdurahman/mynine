@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, X, ChevronDown, ChevronUp, Calendar, ListOrdered, ShieldCheck, User as UserIcon, BookOpen, Layers, Folder as FolderIcon } from 'lucide-react';
+import { Search, Filter, X, ChevronDown, ChevronUp, Calendar, ListOrdered, ShieldCheck, User as UserIcon, BookOpen, Layers, Folder as FolderIcon, GraduationCap } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import DatePicker from 'react-datepicker';
@@ -22,6 +22,7 @@ interface PremiumFiltersProps {
     data: SearchData;
     roles?: Role[];
     users?: User[];
+    teachers?: User[];
     mocks?: Mock[];
     tests?: Test[];
     folders?: Folder[];
@@ -29,7 +30,7 @@ interface PremiumFiltersProps {
     isAdmin?: boolean;
 }
 
-const PremiumFilters = ({ handleSubmit, setData, data, roles, users, mocks, tests, folders, forceExpand = false, isAdmin = false }: PremiumFiltersProps) => {
+const PremiumFilters = ({ handleSubmit, setData, data, roles, users, teachers, mocks, tests, folders, forceExpand = false, isAdmin = false }: PremiumFiltersProps) => {
     const { t } = useTranslation();
     const [isExpanded, setIsExpanded] = useState(forceExpand);
 
@@ -37,6 +38,7 @@ const PremiumFilters = ({ handleSubmit, setData, data, roles, users, mocks, test
         data.from || 
         data.to || 
         data.role || 
+        data.teacher_id || 
         data.user_id || 
         data.mock_id || 
         data.test_id || 
@@ -49,6 +51,7 @@ const PremiumFilters = ({ handleSubmit, setData, data, roles, users, mocks, test
         setData('from', '');
         setData('to', '');
         setData('role', '');
+        setData('teacher_id', '');
         setData('user_id', '');
         setData('mock_id', '');
         setData('test_id', '');
@@ -90,6 +93,21 @@ const PremiumFilters = ({ handleSubmit, setData, data, roles, users, mocks, test
                         
                         {/* Desktop Selects - Compact with Icons */}
                         <div className="hidden lg:flex items-center gap-2 flex-grow justify-end">
+                            {teachers && isAdmin && (
+                                <Select value={String(data.teacher_id || '0')} onValueChange={(val) => setData('teacher_id', val === '0' ? '' : val)}>
+                                    <SelectTrigger className="h-8 w-auto min-w-[100px] max-w-[140px] rounded-lg border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 text-[10px] font-bold px-2">
+                                        <div className="flex items-center gap-1 truncate">
+                                            <GraduationCap className="h-3 w-3 text-indigo-500 shrink-0" />
+                                            <SelectValue placeholder={t('teacher') || "O'qituvchi"} />
+                                        </div>
+                                    </SelectTrigger>
+                                    <SelectContent className="rounded-xl">
+                                        <SelectItem value="0">{t('all')}</SelectItem>
+                                        {teachers.map((tch) => <SelectItem key={tch.id} value={String(tch.id)}>{tch.name}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            )}
+
                             {users && (
                                 <Select value={String(data.user_id || '0')} onValueChange={(val) => setData('user_id', val === '0' ? '' : val)}>
                                     <SelectTrigger className="h-8 w-auto min-w-[100px] max-w-[140px] rounded-lg border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 text-[10px] font-bold px-2">
@@ -242,12 +260,29 @@ const PremiumFilters = ({ handleSubmit, setData, data, roles, users, mocks, test
                     </div>
                 </div>
 
-                {/* Advanced Filters Area - Only for Mobile (Inside Modal or collapsed) */}
+                {/* Advanced Filters Area - Only for Mobile */}
                 <div className={cn(
                     "overflow-hidden transition-all duration-300 ease-in-out lg:hidden",
                     isExpanded ? "max-h-[800px] opacity-100 visible" : "max-h-0 opacity-0 invisible"
                 )}>
                     <div className="p-4 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {teachers && isAdmin && (
+                            <div className="space-y-1.5">
+                                <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 flex items-center gap-1.5 ml-1">
+                                    <GraduationCap className="h-3 w-3" /> {t('teacher') || "O'qituvchi"}
+                                </label>
+                                <Select value={String(data.teacher_id || '0')} onValueChange={(val) => setData('teacher_id', val === '0' ? '' : val)}>
+                                    <SelectTrigger className="h-10 rounded-xl bg-white dark:bg-gray-950 font-bold text-xs">
+                                        <SelectValue placeholder={t('select_teacher') || "O'qituvchini tanlang"} />
+                                    </SelectTrigger>
+                                    <SelectContent className="rounded-xl">
+                                        <SelectItem value="0">{t('all')}</SelectItem>
+                                        {teachers.map((tch) => <SelectItem key={tch.id} value={String(tch.id)}>{tch.name}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
+
                         {users && (
                             <div className="space-y-1.5">
                                 <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 flex items-center gap-1.5 ml-1">

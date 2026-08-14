@@ -51,6 +51,9 @@ class FolderController extends Controller
             });
         }
 
+        if ($request->teacher_id) {
+            $folder->where('user_id', $request->teacher_id);
+        }
 
         if (Auth::user()->hasRole('Admin')) {
             // Admin can see all folders
@@ -74,11 +77,18 @@ class FolderController extends Controller
             $users_query->where('id', Auth::id());
         }
 
+        $teachers = Auth::user()->hasRole('Admin')
+            ? \App\Models\User\User::whereHas('roles', function ($q) {
+                $q->where('name', 'Teacher');
+            })->select('id', 'name')->get()
+            : [];
+
         return Inertia::render('folder/index', [
             'folder' => $folder,
             'users' => $users_query->get(),
+            'teachers' => $teachers,
             'isAdmin' => Auth::user()->hasRole('Admin'),
-            'filters' => $request->only(['search', 'user_id', 'from', 'to', 'per_page']),
+            'filters' => $request->only(['search', 'teacher_id', 'user_id', 'from', 'to', 'per_page']),
         ]);
     }
 

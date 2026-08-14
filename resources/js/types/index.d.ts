@@ -56,11 +56,13 @@ export interface SearchData {
     firm_id?: number;
     from?: string;
     to?: string;
+    teacher_id?: number | string;
     user_id?: number | string;
     mock_id?: number | string;
     test_id?: number | string;
     folder_id?: number | string;
     role?: string;
+    status?: string;
 
     [key: string]: any; // Allow dynamic keys
 }

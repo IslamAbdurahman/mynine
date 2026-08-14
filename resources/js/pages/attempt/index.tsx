@@ -1,18 +1,22 @@
 
 import AppLayout from '@/layouts/app-layout';
 import { Head, usePage, useForm } from '@inertiajs/react';
-import { type BreadcrumbItem, type AttemptPaginate, SearchData, User, Mock, Test, Attempt as AttemptType } from '@/types';
+import { type BreadcrumbItem, type AttemptPaginate, SearchData, User, Mock, Test, Folder, Attempt as AttemptType } from '@/types';
 import { useEffect, useState, useRef } from 'react';
 import { router } from '@inertiajs/react';
 import AttemptTable from '@/components/attempt/attempt-table';
 import PremiumFilters from '@/components/premium-filters';
 import { useTranslation } from 'react-i18next';
-import MobileSearchModal from '@/components/MobileSearchModal';export default function Attempt() {
-    const { attempt, users, mocks, tests, filters, isAdmin } = usePage<{ 
+import MobileSearchModal from '@/components/MobileSearchModal';
+
+export default function Attempt() {
+    const { attempt, users, teachers, mocks, tests, folders, filters, isAdmin } = usePage<{ 
         attempt: AttemptPaginate,
         users: User[],
+        teachers?: User[],
         mocks: Mock[],
         tests: Test[],
+        folders?: Folder[],
         filters: any,
         isAdmin: boolean
     }>().props;
@@ -28,9 +32,11 @@ import MobileSearchModal from '@/components/MobileSearchModal';export default fu
     // Form handling for search and per_page
     const { data, setData } = useForm<SearchData>({
         search: filters?.search || '',
+        teacher_id: filters?.teacher_id || '',
         user_id: filters?.user_id || '',
         mock_id: filters?.mock_id || '',
         test_id: filters?.test_id || '',
+        folder_id: filters?.folder_id || '',
         from: filters?.from || '',
         to: filters?.to || '',
         per_page: filters?.per_page || attempt.per_page,
@@ -105,8 +111,10 @@ import MobileSearchModal from '@/components/MobileSearchModal';export default fu
                         setData={setData}
                         handleSubmit={handleSubmit}
                         users={users}
+                        teachers={teachers}
                         mocks={mocks}
                         tests={tests}
+                        folders={folders}
                         isAdmin={isAdmin}
                     />
                     <div className="hidden lg:block w-full">
@@ -115,8 +123,10 @@ import MobileSearchModal from '@/components/MobileSearchModal';export default fu
                             setData={setData} 
                             data={data} 
                             users={users}
+                            teachers={teachers}
                             mocks={mocks}
                             tests={tests}
+                            folders={folders}
                             isAdmin={isAdmin}
                         />
                     </div>

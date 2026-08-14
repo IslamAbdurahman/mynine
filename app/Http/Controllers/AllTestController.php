@@ -56,6 +56,10 @@ class AllTestController extends Controller
             });
         }
 
+        if ($request->teacher_id) {
+            $folder->where('user_id', $request->teacher_id);
+        }
+
         if (Auth::user()->hasRole('Admin')) {
             // Admin sees all
         } elseif (Auth::user()->hasRole('Teacher')) {
@@ -77,11 +81,18 @@ class AllTestController extends Controller
             $folders_query = Folder::select('id', 'name'); // Admin sees all in dropdown
         }
 
+        $teachers = Auth::user()->hasRole('Admin')
+            ? \App\Models\User\User::whereHas('roles', function ($q) {
+                $q->where('name', 'Teacher');
+            })->select('id', 'name')->get()
+            : [];
+
         return Inertia::render('all-test/index', [
             'folder' => $folder,
             'folders' => $folders_query->get(),
+            'teachers' => $teachers,
             'isAdmin' => Auth::user()->hasRole('Admin'),
-            'filters' => $request->only(['search', 'folder_id', 'from', 'to', 'per_page']),
+            'filters' => $request->only(['search', 'teacher_id', 'folder_id', 'from', 'to', 'per_page']),
         ]);
     }
 

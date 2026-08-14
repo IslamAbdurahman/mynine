@@ -9,9 +9,10 @@ import { useTranslation } from 'react-i18next';
 import MobileSearchModal from '@/components/MobileSearchModal';
 
 export default function Folder() {
-    const { folder, users, filters, isAdmin } = usePage<{ 
+    const { folder, users, teachers, filters, isAdmin } = usePage<{ 
         folder: FolderPaginate,
         users: User[],
+        teachers?: User[],
         filters: any,
         isAdmin: boolean
     }>().props;
@@ -31,6 +32,7 @@ export default function Folder() {
     // Form handling for search and per_page
     const { data, setData } = useForm<SearchData>({
         search: filters?.search || '',
+        teacher_id: filters?.teacher_id || '',
         user_id: filters?.user_id || '',
         from: filters?.from || '',
         to: filters?.to || '',
@@ -44,8 +46,6 @@ export default function Folder() {
         router.get(route('folder.index'), data);
     };
 
-
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Folder" />
@@ -57,6 +57,7 @@ export default function Folder() {
                         setData={setData}
                         handleSubmit={handleSubmit}
                         users={users}
+                        teachers={teachers}
                         isAdmin={isAdmin}
                     />
                     <div className="hidden lg:block w-full">
@@ -65,6 +66,8 @@ export default function Folder() {
                             setData={setData}
                             data={data}
                             users={users}
+                            teachers={teachers}
+                            isAdmin={isAdmin}
                         />
                     </div>
                 </div>

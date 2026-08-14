@@ -1,16 +1,18 @@
-
 import AppLayout from '@/layouts/app-layout';
 import { Head, usePage, useForm } from '@inertiajs/react';
-import { type BreadcrumbItem, type FolderPaginate, SearchData, Folder } from '@/types';
+import { type BreadcrumbItem, type FolderPaginate, SearchData, Folder, User } from '@/types';
 import { useEffect, useState, useRef } from 'react';
 import { router } from '@inertiajs/react';
 import AllTestCard from '@/components/all-test/all-test-card';
 import PremiumFilters from '@/components/premium-filters';
 import { useTranslation } from 'react-i18next';
-import MobileSearchModal from '@/components/MobileSearchModal';export default function AllTest() {
-    const { folder, folders, filters, isAdmin } = usePage<{ 
+import MobileSearchModal from '@/components/MobileSearchModal';
+
+export default function AllTest() {
+    const { folder, folders, teachers, filters, isAdmin } = usePage<{ 
         folder: FolderPaginate,
         folders: Folder[],
+        teachers?: User[],
         filters: any,
         isAdmin: boolean
     }>().props;
@@ -26,6 +28,7 @@ import MobileSearchModal from '@/components/MobileSearchModal';export default fu
     // Form handling for search and per_page
     const { data, setData } = useForm<SearchData>({
         search: filters?.search || '',
+        teacher_id: filters?.teacher_id || '',
         folder_id: filters?.folder_id || '',
         from: filters?.from || '',
         to: filters?.to || '',
@@ -101,6 +104,7 @@ import MobileSearchModal from '@/components/MobileSearchModal';export default fu
                         setData={setData}
                         handleSubmit={handleSubmit}
                         folders={folders}
+                        teachers={teachers}
                         isAdmin={isAdmin}
                     />
                     <div className="hidden lg:block w-full">
@@ -109,6 +113,8 @@ import MobileSearchModal from '@/components/MobileSearchModal';export default fu
                             setData={setData} 
                             data={data} 
                             folders={folders}
+                            teachers={teachers}
+                            isAdmin={isAdmin}
                         />
                     </div>
                 </div>

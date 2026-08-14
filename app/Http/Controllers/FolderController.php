@@ -61,7 +61,7 @@ class FolderController extends Controller
             $folder->where('active', 1);
         }
 
-        $folder = $folder->orderBy('id', 'desc')->paginate($per_page);
+        $folder = $folder->orderBy('id', 'asc')->paginate($per_page);
 
         $teachers = Auth::user()->hasRole('Admin')
             ? \App\Models\User\User::whereHas('roles', function ($q) {
@@ -120,7 +120,9 @@ class FolderController extends Controller
                             'type'
                         ]);
                     }
-                ])->withCount('attempts');
+                ])
+                    ->withCount('attempts')
+                    ->orderBy('id', 'asc');
             },
         ]);
         // Non-admin users must be part of the folder

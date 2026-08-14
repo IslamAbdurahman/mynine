@@ -101,8 +101,80 @@ const AttemptTypeComponent = ({ attempt_type }: { attempt_type: AttemptType }) =
         return total;
     }, [attemptParts]);
 
+    // ✅ Question Types Performance Analytics
+    const questionTypeStats = useMemo(() => {
+        const stats: Record<string, { total: number; correct: number; name: string }> = {};
+
+        attemptParts.forEach((attemptPart) => {
+            attemptPart.part?.sections?.forEach((section) => {
+                const typeKey = section.question_type?.name || section.question_type?.type || 'Standard Questions';
+                if (!stats[typeKey]) {
+                    stats[typeKey] = { total: 0, correct: 0, name: typeKey };
+                }
+
+                section.questions?.forEach((question) => {
+                    const count = Number(question.is_correct_count) || 1;
+                    stats[typeKey].total += count;
+
+                    if (question.options.length === 0) {
+                        if (checkAnswerCorrect(question.answer_text, question.attempt_answer?.answer_text)) {
+                            stats[typeKey].correct += count;
+                        }
+                    } else {
+                        const correctOpts = question.attempt_answer?.attempt_answer_options?.filter(
+                            (opt) => opt.option?.is_correct === 1
+                        ).length || 0;
+                        stats[typeKey].correct += correctOpts;
+                    }
+                });
+            });
+        });
+
+        return Object.values(stats).filter((s) => s.total > 0);
+    }, [attemptParts]);
+
     return (
-        <div>
+        <div className="space-y-6">
+            {/* Question Types Accuracy Analytics (For Reading / Listening) */}
+            {attempt_type.type?.name !== 'Writing' && attempt_type.type?.name !== 'Speaking' && questionTypeStats.length > 0 && (
+                <div className="p-4 bg-gray-50 dark:bg-gray-800/60 rounded-xl border border-gray-200 dark:border-gray-700">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">
+                        {t('question_types_analytics') || 'Savol turlari boʻyicha aniqlik darajasi'}
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {questionTypeStats.map((stat, i) => {
+                            const pct = Math.round((stat.correct / stat.total) * 100);
+                            const isHigh = pct >= 75;
+                            const isMed = pct >= 50 && pct < 75;
+
+                            return (
+                                <div
+                                    key={i}
+                                    className="p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg space-y-1.5 shadow-2xs"
+                                >
+                                    <div className="flex items-center justify-between text-xs font-medium">
+                                        <span className="font-bold text-gray-800 dark:text-gray-200 truncate pr-2" title={stat.name}>
+                                            {stat.name}
+                                        </span>
+                                        <span className="font-mono font-bold text-gray-900 dark:text-white shrink-0">
+                                            {stat.correct} / {stat.total} ({pct}%)
+                                        </span>
+                                    </div>
+                                    <div className="w-full bg-gray-100 dark:bg-gray-700 h-1.5 rounded-full overflow-hidden">
+                                        <div
+                                            className={`h-full rounded-full transition-all duration-300 ${
+                                                isHigh ? 'bg-emerald-500' : isMed ? 'bg-amber-500' : 'bg-rose-500'
+                                            }`}
+                                            style={{ width: `${pct}%` }}
+                                        />
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+
             <div className="overflow-x-auto">
                 <table className="border-collapse w-full text-sm text-left text-gray-800 dark:text-gray-100">
                     <thead className="bg-gray-100 dark:bg-gray-700">

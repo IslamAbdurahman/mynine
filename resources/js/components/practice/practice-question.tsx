@@ -7,6 +7,8 @@ import { debounce } from 'lodash';
 import { buildRange } from '@/utils/rangeHelpers';
 import { toast } from 'sonner';
 
+import { syncQueue } from '@/services/sync-queue';
+
 interface SectionUpdateProps {
     order: number;
     attempt: Attempt;
@@ -57,34 +59,22 @@ export default function PracticeQuestion({
         ));
     };
 
-    // 🚀 Debounced save (fetch bilan)
+    // 🚀 Debounced save using syncQueue
     const debouncedSave = useCallback(
         debounce(async (qId: number, value: string) => {
             try {
-                const response = await fetch(route('attempt-answer.store', {
-                    part_id: section.part_id,
-                    attempt_id: attempt.id
-                }), {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content
-                    },
-                    body: JSON.stringify({
-                        question_id: qId,
-                        answer_text: value
-                    })
+                const res = await syncQueue.saveAnswer({
+                    attemptId: attempt.id,
+                    partId: section.part_id,
+                    questionId: qId,
+                    answerText: value,
                 });
 
-                const data = await response.json();
+                if (res.error && !res.offline) {
+                    throw new Error(res.error);
+                }
 
-                if (!response.ok) throw new Error(data.error);
-
-                // Remove from LocalStorage upon successful sync
-                localStorage.removeItem(`unsaved-q-${attempt.id}-${qId}`);
-
-                // 🟢 Lokal holatni yangilash
+                // 🟢 Update local UI state
                 setSelectedPart((prev: Part | null) => {
                     if (!prev) return null;
 
@@ -114,17 +104,18 @@ export default function PracticeQuestion({
 
                     return { ...prev, sections: updatedSections };
                 });
-            } catch (error) { const message =
-                error instanceof Error
-                    ? error.message
-                    : typeof error === 'string'
-                        ? error
-                        : t('error_occurred');
+            } catch (error) {
+                const message =
+                    error instanceof Error
+                        ? error.message
+                        : typeof error === 'string'
+                            ? error
+                            : t('error_occurred');
 
                 toast.error(message);
             }
-        }, 700), // ⏱ biroz kechikish — uzun o‘chirish uchun
-        []
+        }, 600),
+        [attempt.id, section.part_id, question.section_id, setSelectedPart, t]
     );
 
     const handleChange = (qId: number, value: string) => {
@@ -298,26 +289,75 @@ export default function PracticeQuestion({
 
 
 
-            {section.question_type.type === 'essay' && (
-                <div className="relative">
-                    <textarea
-                        id="answer_text"
-                        value={matchingAnswer}
-                        onChange={(e) => {
-                            setMatchingAnswer(e.target.value);
-                            localStorage.setItem(`unsaved-q-${attempt.id}-${question.id}`, e.target.value);
-                            debouncedSave(question.id, e.target.value);
-                        }}
-                        className="w-full min-h-[400px] mt-4 rounded-sm border-2 border-black dark:border-gray-500 bg-white dark:bg-gray-800 p-4 text-[16px] leading-[1.6] font-sans shadow-inner focus:outline-none resize-y text-black dark:text-gray-100"
-                        placeholder={t('type_your_answer_here')}
-                    />
-                    <div className="text-left text-sm font-semibold text-black dark:text-gray-300 mt-2">
-                        {t('word_count')}: {matchingAnswer.trim() === ''
-                            ? 0
-                            : matchingAnswer.trim().split(/\s+/).length}
+            {section.question_type.type === 'essay' && (() => {
+                const wordsCount = matchingAnswer.trim() === '' ? 0 : matchingAnswer.trim().split(/\s+/).length;
+                const targetWords = Number(order) === 1 || question.textarea?.toLowerCase().includes('task 1') ? 150 : 250;
+                const progressPercent = Math.min(100, Math.round((wordsCount / targetWords) * 100));
+                const charCount = matchingAnswer.length;
+                const paragraphCount = matchingAnswer.trim() ? matchingAnswer.trim().split(/\n+/).filter(Boolean).length : 0;
+                const isTargetMet = wordsCount >= targetWords;
+
+                return (
+                    <div className="relative mt-4 space-y-3">
+                        {/* Word Target Progress Bar */}
+                        <div className="p-3 bg-gray-50 dark:bg-gray-800/80 rounded-lg border border-gray-200 dark:border-gray-700 space-y-2">
+                            <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                                <div className="flex items-center gap-2">
+                                    <span className="font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                                        {t('writing_progress') || 'Insho koʻrsatkichi'}:
+                                    </span>
+                                    <span className="font-mono font-extrabold text-sm text-gray-900 dark:text-white">
+                                        {wordsCount} / {targetWords} {t('words') || 'soʻz'}
+                                    </span>
+                                </div>
+
+                                <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                                    isTargetMet
+                                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
+                                        : 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-800'
+                                }`}>
+                                    <span>
+                                        {isTargetMet
+                                            ? (t('target_reached') || 'Minimal talab bajarildi ✅')
+                                            : `${t('words_needed') || 'Yana'} ${targetWords - wordsCount} ${t('words') || 'soʻz kerak'}`}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Progress bar track */}
+                            <div className="w-full bg-gray-200 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
+                                <div
+                                    className={`h-full transition-all duration-300 rounded-full ${
+                                        isTargetMet ? 'bg-emerald-500' : progressPercent > 60 ? 'bg-blue-500' : 'bg-amber-500'
+                                    }`}
+                                    style={{ width: `${progressPercent}%` }}
+                                />
+                            </div>
+
+                            {/* Secondary Metrics */}
+                            <div className="flex items-center gap-4 text-[11px] text-gray-500 dark:text-gray-400 pt-1">
+                                <span>{t('characters') || 'Belgilar'}: <strong>{charCount}</strong></span>
+                                <span>•</span>
+                                <span>{t('paragraphs') || 'Xatboshilar'}: <strong>{paragraphCount}</strong></span>
+                                <span>•</span>
+                                <span>{t('est_reading_time') || 'Oʻqish vaqti'}: <strong>{Math.max(1, Math.ceil(wordsCount / 130))} {t('min') || 'daq'}</strong></span>
+                            </div>
+                        </div>
+
+                        <textarea
+                            id="answer_text"
+                            value={matchingAnswer}
+                            onChange={(e) => {
+                                setMatchingAnswer(e.target.value);
+                                localStorage.setItem(`unsaved-q-${attempt.id}-${question.id}`, e.target.value);
+                                debouncedSave(question.id, e.target.value);
+                            }}
+                            className="w-full min-h-[420px] rounded-lg border-2 border-gray-300 focus:border-indigo-600 dark:border-gray-600 dark:focus:border-indigo-400 bg-white dark:bg-gray-800 p-4 text-[16px] leading-[1.65] font-sans shadow-xs focus:outline-none resize-y text-gray-900 dark:text-gray-100 transition-colors"
+                            placeholder={t('type_your_essay_here') || 'Inshongizni shu yerga yozing...'}
+                        />
                     </div>
-                </div>
-            )}
+                );
+            })()}
 
             {section.question_type.type !== 'fill_blank' &&
                 section.question_type.type !== 'matching' &&

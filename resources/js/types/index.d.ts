@@ -302,6 +302,7 @@ export interface Attempt {
     started_at: string;
     finished_at: string;
     status: number;
+    tab_switch_count?: number;
     user: User;
     mock: Mock;
     test: Test;

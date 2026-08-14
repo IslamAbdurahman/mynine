@@ -1,20 +1,24 @@
 import { Head, usePage } from '@inertiajs/react';
 import { Attempt, Part, Question, Section, TestType } from '@/types';
 import { useTranslation } from 'react-i18next';
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, useEffect, useState, useMemo, useCallback } from 'react';
 import PracticePart from '@/components/practice/practice-part';
 import PracticeSection from '@/components/practice/practice-section';
 import PracticeEssay from '@/components/practice/practice-essay';
 import PracticeNumberBar from '@/components/practice/practice-number-bar';
 import InsperaHeader from '@/components/practice/inspera-header';
 import TextHighlighter from '@/components/practice/text-highlighter';
-import { CheckIcon } from 'lucide-react';
+import { CheckIcon, BookOpen, HelpCircle } from 'lucide-react';
 import { CountdownTimer } from '@/components/practice/countdown-timer';
 import AppearanceTabs from '@/components/appearance-tabs';
 import { FaCirclePlay } from 'react-icons/fa6';
 import AudioEqualizer from '@/components/practice/audio-equalizer';
 import LanguageBar from '@/components/language';
 import FinishConfirmationModal from '@/components/practice/finish-confirmation-modal';
+import SoundCheckModal from '@/components/practice/sound-check-modal';
+import { useExamIntegrity } from '@/hooks/use-exam-integrity';
+import { useExamHotkeys } from '@/hooks/use-exam-hotkeys';
+import { syncQueue } from '@/services/sync-queue';
 
 export default function Practice() {
     const { attempt } = usePage<{ attempt: Attempt }>().props;
@@ -29,11 +33,53 @@ export default function Practice() {
     const [serverTimeOffset, setServerTimeOffset] = useState<number>(0);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [leftWidth, setLeftWidth] = useState<number>(50); // percentage
+    const [mobileTab, setMobileTab] = useState<'passage' | 'questions'>('questions');
+    const [activeQuestionId, setActiveQuestionId] = useState<number | null>(null);
+
+    // Sound Check Modal State
+    const [isSoundCheckOpen, setIsSoundCheckOpen] = useState<boolean>(false);
+    const [pendingTypeId, setPendingTypeId] = useState<number | null>(null);
 
     // Finish Confirmation Modal State
     const [isFinishModalOpen, setIsFinishModalOpen] = useState<boolean>(false);
     const [isFullExamSubmit, setIsFullExamSubmit] = useState<boolean>(false);
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+    // Anti-Cheat & Exam Integrity Hook
+    const {
+        violationsCount,
+        isFullscreen,
+        showWarningModal,
+        closeWarningModal,
+        toggleFullscreen,
+    } = useExamIntegrity({
+        attemptId: attempt.id,
+        initialViolations: attempt.tab_switch_count || 0,
+        enabled: !!selectedPart,
+    });
+
+    // Disable global dark mode on practice page so site theme doesn't ruin practice contrast
+    useEffect(() => {
+        const root = document.documentElement;
+        const hadDarkClass = root.classList.contains('dark');
+
+        root.classList.remove('dark');
+
+        const observer = new MutationObserver(() => {
+            if (root.classList.contains('dark')) {
+                root.classList.remove('dark');
+            }
+        });
+
+        observer.observe(root, { attributes: true, attributeFilter: ['class'] });
+
+        return () => {
+            observer.disconnect();
+            if (hadDarkClass) {
+                root.classList.add('dark');
+            }
+        };
+    }, []);
 
     // Accessibility States (localStorage backed)
     const [textSize, setTextSizeState] = useState<'normal' | 'large' | 'xlarge'>(() => {
@@ -77,13 +123,89 @@ export default function Practice() {
         document.addEventListener('mouseup', stopDrag);
     };
 
-    const toggleFlag = (id: number) => {
+    const toggleFlag = useCallback((id: number) => {
         setFlaggedIds((prev) => {
             const next = new Set(prev);
             if (next.has(id)) next.delete(id);
             else next.add(id);
             return next;
         });
+    }, []);
+
+    // Flatten all questions in the current part for keyboard navigation
+    const allQuestions = useMemo(() => {
+        const list: Question[] = [];
+        selectedPart?.sections?.forEach((sec) => {
+            sec.questions?.forEach((q) => list.push(q));
+        });
+        return list;
+    }, [selectedPart]);
+
+    const navigateToQuestion = useCallback((qId: number) => {
+        setActiveQuestionId(qId);
+        const el = document.getElementById(`question-${qId}`);
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, []);
+
+    const handleNextQuestion = useCallback(() => {
+        if (allQuestions.length === 0) return;
+        if (!activeQuestionId) {
+            navigateToQuestion(allQuestions[0].id);
+            return;
+        }
+        const currentIndex = allQuestions.findIndex((q) => q.id === activeQuestionId);
+        if (currentIndex !== -1 && currentIndex < allQuestions.length - 1) {
+            navigateToQuestion(allQuestions[currentIndex + 1].id);
+        } else if (currentIndex === allQuestions.length - 1 && testType?.parts) {
+            const ci = testType.parts.findIndex((p) => p.id === selectedPart?.id);
+            if (ci !== -1 && ci < testType.parts.length - 1) {
+                handlePart(testType.parts[ci + 1].id);
+            }
+        }
+    }, [allQuestions, activeQuestionId, navigateToQuestion, testType, selectedPart]);
+
+    const handlePrevQuestion = useCallback(() => {
+        if (allQuestions.length === 0) return;
+        if (!activeQuestionId) {
+            navigateToQuestion(allQuestions[0].id);
+            return;
+        }
+        const currentIndex = allQuestions.findIndex((q) => q.id === activeQuestionId);
+        if (currentIndex > 0) {
+            navigateToQuestion(allQuestions[currentIndex - 1].id);
+        } else if (currentIndex === 0 && testType?.parts) {
+            const ci = testType.parts.findIndex((p) => p.id === selectedPart?.id);
+            if (ci > 0) {
+                handlePart(testType.parts[ci - 1].id);
+            }
+        }
+    }, [allQuestions, activeQuestionId, navigateToQuestion, testType, selectedPart]);
+
+    const handleToggleCurrentFlag = useCallback(() => {
+        if (activeQuestionId) {
+            toggleFlag(activeQuestionId);
+        } else if (allQuestions.length > 0) {
+            toggleFlag(allQuestions[0].id);
+        }
+    }, [activeQuestionId, allQuestions, toggleFlag]);
+
+    // Keyboard Shortcuts Hook
+    useExamHotkeys({
+        onNextQuestion: handleNextQuestion,
+        onPrevQuestion: handlePrevQuestion,
+        onToggleFlag: handleToggleCurrentFlag,
+        enabled: !!selectedPart,
+    });
+
+    const startTestType = (typeId: number, isListening: boolean) => {
+        if (isListening) {
+            setPendingTypeId(typeId);
+            setIsSoundCheckOpen(true);
+        } else {
+            handleTestType(typeId, true);
+        }
     };
 
     const getStatus = () => {
@@ -180,15 +302,17 @@ export default function Practice() {
         setIsFinishModalOpen(true);
     };
 
-    const handleConfirmFinish = () => {
+    const handleConfirmFinish = async () => {
         if (isFullExamSubmit) {
             setIsSubmitting(true);
+            await syncQueue.flushAttempt(attempt.id);
             window.location.href = route('practice-attempt-submit', attempt.id);
             return;
         }
 
         if (!testType) return;
         setIsSubmitting(true);
+        await syncQueue.flushAttempt(attempt.id);
         fetch(route('practice-test-type-submit', {
             attempt_id: attempt.id,
             type_id: testType.type_id
@@ -268,6 +392,9 @@ export default function Practice() {
                 colorScheme={colorScheme}
                 setColorScheme={setColorScheme}
                 onFinish={testType ? () => handleOpenFinishModal(false) : undefined}
+                isFullscreen={isFullscreen}
+                toggleFullscreen={toggleFullscreen}
+                violationsCount={violationsCount}
             />
 
             {/* Main Content Area */}
@@ -309,13 +436,14 @@ export default function Practice() {
                                     const finishedAt = at?.finished_at;
                                     const isExpired = finishedAt ? new Date(finishedAt).getTime() <= (Date.now() + serverTimeOffset) : false;
                                     const isLocked = !!(activeTypeId && activeTypeId !== item.type_id && !isExpired);
+                                    const isListening = item.type?.name?.toLowerCase() === 'listening';
 
                                     return (
                                         <button
                                             key={item.id}
                                             disabled={isExpired || isLocked}
-                                            onClick={() => handleTestType(item.id, true)}
-                                            className={`flex justify-between items-center w-full p-4 border transition-colors text-left group ${isExpired || isLocked
+                                            onClick={() => startTestType(item.id, isListening && !at)}
+                                            className={`flex justify-between items-center w-full p-4 border transition-colors text-left group cursor-pointer ${isExpired || isLocked
                                                 ? 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800 opacity-60 cursor-not-allowed'
                                                 : 'border-gray-400 dark:border-gray-600 hover:border-black dark:hover:border-white bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
                                                 }`}
@@ -378,7 +506,7 @@ export default function Practice() {
                         : 'text-size-normal';
 
                 return (
-                    <div className={`flex-1 overflow-hidden ${themeClass} ${sizeClass}`}>
+                    <div className={`flex-1 overflow-hidden flex flex-col ${themeClass} ${sizeClass}`}>
                         <style>{`
                             .text-size-large,
                             .text-size-large p,
@@ -421,8 +549,37 @@ export default function Practice() {
                                 color: #000000 !important;
                             }
                         `}</style>
+
+                        {/* Mobile Tab Switcher (Visible only on small screens for split tests) */}
+                        {isSplit && (
+                            <div className="sm:hidden flex border-b border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs font-bold shrink-0">
+                                <button
+                                    type="button"
+                                    onClick={() => setMobileTab('passage')}
+                                    className={`flex-1 py-2.5 text-center border-b-2 transition-colors ${
+                                        mobileTab === 'passage'
+                                            ? 'border-blue-600 text-blue-600 bg-blue-50/50 dark:bg-blue-950/30'
+                                            : 'border-transparent text-gray-500 hover:text-gray-900'
+                                    }`}
+                                >
+                                    📖 {t('reading_passage') || 'Matn (Passage)'}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setMobileTab('questions')}
+                                    className={`flex-1 py-2.5 text-center border-b-2 transition-colors ${
+                                        mobileTab === 'questions'
+                                            ? 'border-blue-600 text-blue-600 bg-blue-50/50 dark:bg-blue-950/30'
+                                            : 'border-transparent text-gray-500 hover:text-gray-900'
+                                    }`}
+                                >
+                                    📝 {t('questions') || 'Savollar (Questions)'}
+                                </button>
+                            </div>
+                        )}
+
                         <div
-                            className={`h-full flex flex-col sm:flex-row ${selectedPart.test_type.type.name === 'Listening'
+                            className={`h-full flex flex-col sm:flex-row flex-1 overflow-hidden ${selectedPart.test_type.type.name === 'Listening'
                                 ? 'justify-center items-start'
                                 : ''
                                 }`}
@@ -430,10 +587,12 @@ export default function Practice() {
                             {/* Left side scroll */}
                             {selectedPart.test_type.type.name !== 'Listening' && (
                                 <div 
-                                    className={`h-full overflow-y-auto p-6 border-r-2 border-gray-300 dark:border-gray-700 ${
-                                        isSplit ? 'flex-none' : 'flex-1 w-full sm:w-1/2'
+                                    className={`h-full overflow-y-auto p-4 sm:p-6 border-r-2 border-gray-300 dark:border-gray-700 ${
+                                        isSplit 
+                                            ? `${mobileTab === 'passage' ? 'block' : 'hidden sm:block'} flex-none w-full sm:w-auto` 
+                                            : 'flex-1 w-full sm:w-1/2'
                                     }`}
-                                    style={{ width: isSplit ? `${leftWidth}%` : undefined }}
+                                    style={{ width: isSplit && typeof window !== 'undefined' && window.innerWidth >= 640 ? `${leftWidth}%` : undefined }}
                                 >
                                     <PracticePart
                                         attempt={attempt}
@@ -442,10 +601,10 @@ export default function Practice() {
                                 </div>
                             )}
 
-                            {/* Resizable Divider */}
+                            {/* Resizable Divider (Desktop only) */}
                             {isSplit && (
                                 <div
-                                    className="w-2.5 bg-gray-300 dark:bg-gray-700 hover:bg-blue-600 dark:hover:bg-blue-500 cursor-col-resize h-full transition-colors flex items-center justify-center select-none z-30 relative"
+                                    className="hidden sm:flex w-2.5 bg-gray-300 dark:bg-gray-700 hover:bg-blue-600 dark:hover:bg-blue-500 cursor-col-resize h-full transition-colors items-center justify-center select-none z-30 relative shrink-0"
                                     onMouseDown={startResize}
                                 >
                                     <div className="w-5 h-8 bg-white dark:bg-gray-800 border border-gray-400 dark:border-gray-600 rounded-[3px] shadow-sm flex items-center justify-center text-[10px] font-mono text-gray-600 dark:text-gray-300">
@@ -457,10 +616,12 @@ export default function Practice() {
                             {/* Right side scroll */}
                             {selectedPart.test_type.type.name !== 'Writing' && (
                                 <div 
-                                    className={`h-full overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900 ${
-                                        isSplit ? 'flex-none' : 'flex-1 w-full sm:w-1/2'
+                                    className={`h-full overflow-y-auto p-4 sm:p-6 bg-gray-50 dark:bg-gray-900 ${
+                                        isSplit 
+                                            ? `${mobileTab === 'questions' ? 'block' : 'hidden sm:block'} flex-none w-full sm:w-auto` 
+                                            : 'flex-1 w-full sm:w-1/2'
                                     }`}
-                                    style={{ width: isSplit ? `${100 - leftWidth}%` : undefined }}
+                                    style={{ width: isSplit && typeof window !== 'undefined' && window.innerWidth >= 640 ? `${100 - leftWidth}%` : undefined }}
                                 >
                                     <div className="max-w-3xl mx-auto">
                                         {selectedPart?.sections?.reduce((acc: ReactElement[], section: Section, sectionIndex: number) => {
@@ -495,10 +656,12 @@ export default function Practice() {
 
                             {selectedPart.test_type.type.name === 'Writing' && (
                                 <div 
-                                    className={`h-full overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900 ${
-                                        isSplit ? 'flex-none' : 'flex-1 w-full sm:w-1/2'
+                                    className={`h-full overflow-y-auto p-4 sm:p-6 bg-gray-50 dark:bg-gray-900 ${
+                                        isSplit 
+                                            ? `${mobileTab === 'questions' ? 'block' : 'hidden sm:block'} flex-none w-full sm:w-auto` 
+                                            : 'flex-1 w-full sm:w-1/2'
                                     }`}
-                                    style={{ width: isSplit ? `${100 - leftWidth}%` : undefined }}
+                                    style={{ width: isSplit && typeof window !== 'undefined' && window.innerWidth >= 640 ? `${100 - leftWidth}%` : undefined }}
                                 >
                                     <PracticeEssay
                                         order={order}
@@ -531,7 +694,7 @@ export default function Practice() {
                                 <button
                                     key={item.id}
                                     onClick={() => handlePart(item.id)}
-                                    className="flex justify-between items-center w-full p-4 border border-gray-400 dark:border-gray-600 hover:border-black dark:hover:border-white bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left group"
+                                    className="flex justify-between items-center w-full p-4 border border-gray-400 dark:border-gray-600 hover:border-black dark:hover:border-white bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left group cursor-pointer"
                                 >
                                     <span className="text-lg font-bold">{item.name}</span>
                                     <span className="px-6 py-2 bg-black dark:bg-gray-700 group-hover:bg-gray-800 dark:group-hover:bg-gray-600 text-white font-semibold rounded-[2px] transition-colors uppercase tracking-wide text-sm flex items-center gap-2">
@@ -582,6 +745,8 @@ export default function Practice() {
                                         <PracticeNumberBar
                                             part={selectedPart as Part}
                                             flaggedIds={flaggedIds}
+                                            activeQuestionId={activeQuestionId}
+                                            setActiveQuestionId={setActiveQuestionId}
                                         />
                                     </div>
                                 );
@@ -634,6 +799,43 @@ export default function Practice() {
                     >
                         ►
                     </button>
+                </div>
+            )}
+
+            {/* Sound Check Modal for Listening */}
+            <SoundCheckModal
+                isOpen={isSoundCheckOpen}
+                onStart={() => {
+                    setIsSoundCheckOpen(false);
+                    if (pendingTypeId) {
+                        handleTestType(pendingTypeId, true);
+                        setPendingTypeId(null);
+                    }
+                }}
+                testName={resAttempt.test?.types?.find(t => t.id === pendingTypeId)?.type?.name || 'Listening'}
+            />
+
+            {/* Anti-Cheat Integrity Warning Dialog */}
+            {showWarningModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs select-none">
+                    <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-6 max-w-md w-full border border-amber-300 dark:border-amber-700 text-center animate-in zoom-in-95">
+                        <div className="size-14 rounded-2xl bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-300 mx-auto flex items-center justify-center mb-3">
+                            <span className="text-2xl font-bold">⚠️</span>
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                            {t('exam_integrity_warning') || 'Qoidabuzarlik Qayd Etildi!'}
+                        </h3>
+                        <p className="text-xs text-gray-600 dark:text-gray-300 mt-2 leading-relaxed">
+                            Siz imtihon oynasidan chiqib ketdingiz yoki boshqa dasturga oʻtdingiz. Bu holat qoidabuzarlik sifatida ({violationsCount}-marta) hisobotda qayd etiladi.
+                        </p>
+                        <button
+                            type="button"
+                            onClick={closeWarningModal}
+                            className="mt-5 w-full py-2.5 bg-black dark:bg-gray-100 text-white dark:text-gray-900 font-bold text-xs rounded-xl hover:bg-gray-800 transition-colors cursor-pointer"
+                        >
+                            {t('understand_continue') || 'Tushundim, davom etish'}
+                        </button>
+                    </div>
                 </div>
             )}
 

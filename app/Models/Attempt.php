@@ -23,6 +23,7 @@ class Attempt extends Model
         'started_at',
         'finished_at',
         'status',
+        'tab_switch_count',
     ];
 
     public function mockStudent()

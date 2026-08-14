@@ -89,12 +89,53 @@ export default function AttemptShow() {
         return 0.0;
     };
 
+    const calculateModuleBand = (type: any): number => {
+        const name = type.type?.name;
+        if (name === 'Listening') {
+            return getListeningBand(Number(type.is_correct_count ?? 0));
+        }
+        if (name === 'Reading') {
+            return getReadingBand(Number(type.is_correct_count ?? 0));
+        }
+        if (name === 'Writing') {
+            return Number(type.is_correct_count ?? 0) > 0 ? Number(type.is_correct_count) / 2 : (Number(type.score) || 0);
+        }
+        if (name === 'Speaking') {
+            return Number(type.score ?? 0) || Number(type.is_correct_count ?? 0) || 0;
+        }
+        return Number(type.score ?? 0) || 0;
+    };
+
+    // Overall Band Calculation (Official IELTS rounding rule)
+    const overallBand = (() => {
+        const bands = attempt.attempt_types
+            .map(t => calculateModuleBand(t))
+            .filter(b => b > 0);
+
+        if (bands.length === 0) return 0.0;
+        const avg = bands.reduce((acc, b) => acc + b, 0) / bands.length;
+        const whole = Math.floor(avg);
+        const fraction = avg - whole;
+
+        if (fraction < 0.25) return whole;
+        if (fraction < 0.75) return whole + 0.5;
+        return whole + 1.0;
+    })();
+
+    const cefr = (() => {
+        if (overallBand >= 8.5) return { level: 'C2', title: 'Proficient / Mastery', color: 'bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300 border-purple-300 dark:border-purple-800' };
+        if (overallBand >= 7.0) return { level: 'C1', title: 'Advanced / Fluent', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800' };
+        if (overallBand >= 5.5) return { level: 'B2', title: 'Upper-Intermediate', color: 'bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 border-blue-300 dark:border-blue-800' };
+        if (overallBand >= 4.0) return { level: 'B1', title: 'Intermediate', color: 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border-amber-300 dark:border-amber-800' };
+        return { level: 'A2 / B0', title: 'Basic User', color: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300 border-gray-300 dark:border-gray-700' };
+    })();
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Attempt" />
-            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+            <Head title={`Attempt #${attempt.id} Results`} />
+            <div className="flex h-full flex-1 flex-col gap-6 rounded-xl p-4 md:p-6 max-w-7xl mx-auto w-full">
                 {/* Search and Per-Page Selection */}
-                <div className="flex justify-end items-center mb-2">
+                <div className="flex justify-end items-center">
                     <MobileSearchModal
                         data={data}
                         setData={setData}
@@ -105,83 +146,139 @@ export default function AttemptShow() {
                     </div>
                 </div>
 
-                {/* Table */}
-                <div className="overflow-x-auto">
-
-                    <div className="border border-gray-300 dark:border-gray-600 p-4 rounded-lg shadow-md space-y-6">
-
-                        {/* attempt details */}
-                        <div className="p-4 border rounded-xl shadow-sm bg-white dark:bg-gray-800 relative">
-                            <h2 className="text-lg font-semibold mb-4">{t('attempt_details')}</h2>
-                            <div className="space-y-2">
-                                <p><strong>{t('id')}:</strong> {attempt.id}</p>
-                                <p>
-                                    <strong>{t('user')}:</strong> {attempt.user?.name} ({attempt.user?.phone ?? attempt.user?.email})
-                                </p>
-                                <p><strong>{t('mock')}:</strong> {attempt?.mock?.name}</p>
-                                <p><strong>{t('test')}:</strong> {attempt?.test?.folder?.name} {attempt?.test?.name}</p>
-                                <p><strong>{t('started_at')}:</strong> {attempt.started_at}</p>
-                                <p><strong>{t('finished_at')}:</strong> {attempt.finished_at}</p>
+                {/* Executive Result Hero Card */}
+                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm space-y-6">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-gray-100 dark:border-gray-800">
+                        <div>
+                            <div className="flex items-center gap-2 mb-1">
+                                <span className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                    IELTS Practice Test Result
+                                </span>
+                                {attempt.tab_switch_count !== undefined && (
+                                    <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full border ${
+                                        attempt.tab_switch_count > 0
+                                            ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800'
+                                            : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800'
+                                    }`}>
+                                        {attempt.tab_switch_count > 0
+                                            ? `⚠️ ${attempt.tab_switch_count} ta tab almashtirish`
+                                            : '🛡️ Qoidabuzarliksiz (Clean)'}
+                                    </span>
+                                )}
                             </div>
-
-                            {(isTeacher || isAdmin) && (
-                                <div className="absolute top-0 right-0">
-                                    <EvaluateSpeaking attempt={attempt} />
-                                </div>
-                            )}
-
+                            <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white">
+                                {attempt.user?.name}
+                            </h1>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                {attempt?.mock?.name} • {attempt?.test?.folder?.name} {attempt?.test?.name}
+                            </p>
                         </div>
 
-                        {/* attempt types cards */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                            {attempt.attempt_types.map((type) => (
+                        {/* Overall Band & CEFR Badge */}
+                        <div className="flex items-center gap-4 bg-gray-50 dark:bg-gray-800/80 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 shrink-0">
+                            <div className="text-center pr-4 border-r border-gray-200 dark:border-gray-700">
+                                <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest block">
+                                    Overall Band
+                                </span>
+                                <span className="text-4xl font-black text-blue-600 dark:text-blue-400 font-mono">
+                                    {overallBand > 0 ? overallBand.toFixed(1) : '—'}
+                                </span>
+                            </div>
+                            <div className="flex flex-col items-start">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                    CEFR Level
+                                </span>
+                                <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-sm font-extrabold border mt-0.5 ${cefr.color}`}>
+                                    {cefr.level}
+                                </span>
+                                <span className="text-[11px] text-gray-500 dark:text-gray-400 font-medium mt-0.5">
+                                    {cefr.title}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Module Score Cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {attempt.attempt_types.map((type) => {
+                            const band = calculateModuleBand(type);
+                            const isListening = type.type?.name === 'Listening';
+                            const isReading = type.type?.name === 'Reading';
+                            const isWriting = type.type?.name === 'Writing';
+                            const isSpeaking = type.type?.name === 'Speaking';
+
+                            return (
                                 <div
                                     key={type.id}
-                                    className="p-4 border rounded-xl shadow-sm bg-white dark:bg-gray-800 flex flex-col items-start"
+                                    className="p-5 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50/50 dark:bg-gray-800/50 hover:bg-white dark:hover:bg-gray-800 transition-all flex flex-col justify-between"
                                 >
-                                    <div className="font-semibold text-gray-800 dark:text-gray-200 mb-2">
-                                        {type.type?.name} : {type.type?.name === 'Writing'
-                                        ? `${Number(type.is_correct_count ?? 0) / 2} (Band ${Number(type.is_correct_count ?? 0) / 2})`
-                                        : type.type?.name === 'Speaking'
-                                            ? `${type.score ?? 0} (Band ${type.score ?? 0})`
-                                            : type.type?.name === 'Listening'
-                                                ? `${type.is_correct_count ?? 0} / 40 (Band ${getListeningBand(Number(type.is_correct_count ?? 0))})`
-                                                : type.type?.name === 'Reading'
-                                                    ? `${type.is_correct_count ?? 0} / 40 (Band ${getReadingBand(Number(type.is_correct_count ?? 0))})`
-                                                    : type.is_correct_count}
-                                    </div>
-                                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                                    <div>
+                                        <div className="flex items-center justify-between">
+                                            <span className="font-bold text-gray-900 dark:text-white text-base">
+                                                {type.type?.name}
+                                            </span>
+                                            <span className="text-xs font-mono font-bold px-2 py-0.5 bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 rounded-md">
+                                                Band {band > 0 ? band.toFixed(1) : '—'}
+                                            </span>
+                                        </div>
 
-                                        {type.comment}
+                                        <div className="mt-3 text-sm text-gray-600 dark:text-gray-300">
+                                            {isListening || isReading ? (
+                                                <div className="flex items-center justify-between text-xs">
+                                                    <span>{t('correct_answers') || 'Toʻgʻri javoblar'}:</span>
+                                                    <strong className="font-mono text-sm text-gray-900 dark:text-white">
+                                                        {type.is_correct_count ?? 0} / 40
+                                                    </strong>
+                                                </div>
+                                            ) : isWriting ? (
+                                                <div className="text-xs text-gray-500 dark:text-gray-400">
+                                                    AI & Examiner Evaluation
+                                                </div>
+                                            ) : isSpeaking ? (
+                                                <div className="text-xs text-gray-500 dark:text-gray-400">
+                                                    Teacher / AI Assessment
+                                                </div>
+                                            ) : null}
+                                        </div>
                                     </div>
 
+                                    {type.comment && (
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 italic mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 line-clamp-2">
+                                            "{type.comment}"
+                                        </p>
+                                    )}
                                 </div>
-                            ))}
+                            );
+                        })}
+                    </div>
+
+                    {(isTeacher || isAdmin) && (
+                        <div className="pt-2 flex justify-end">
+                            <EvaluateSpeaking attempt={attempt} />
                         </div>
-                    </div>
+                    )}
+                </div>
 
-
-                    <div className="grid grid-cols-2 gap-4">
-
-                        {
-                            attempt.attempt_types.map((attemptType) =>
-                                (
-                                    <div
-                                        key={attemptType.id}
-                                        className={`mt-6 ${['Writing', 'Speaking'].includes(attemptType.type?.name ?? '') ? 'col-span-2' : ''}`}
-                                    >
-                                        <h3 className="text-md font-semibold mb-2">{attemptType.type?.name}</h3>
-                                        <AttemptTypeComponent
-                                            attempt_type={attemptType}
-                                        />
-                                    </div>
-
-                                )
-                            )
-                        }
-
-                    </div>
-
+                {/* Detailed Module Breakdown */}
+                <div className="space-y-6">
+                    {attempt.attempt_types.map((attemptType) => (
+                        <div
+                            key={attemptType.id}
+                            className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm"
+                        >
+                            <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100 dark:border-gray-800">
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                    <span>{attemptType.type?.name}</span>
+                                    <span className="text-xs font-normal text-gray-500 dark:text-gray-400">
+                                        ({t('detailed_breakdown') || 'Batafsil tahlil'})
+                                    </span>
+                                </h3>
+                            </div>
+                            <AttemptTypeComponent
+                                attempt_type={attemptType}
+                            />
+                        </div>
+                    ))}
                 </div>
             </div>
         </AppLayout>

@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { cleanTinyMce } from '@/utils/util';
 import PracticeQuestion from '@/components/practice/practice-question';
 import MatchingHeadings from '@/components/practice/matching-headings';
+import { syncQueue } from '@/services/sync-queue';
 
 interface SectionUpdateProps {
     order: number;
@@ -100,28 +101,16 @@ export default function PracticeSection({
         () =>
             debounce(async (qId: number, value: string) => {
                 try {
-                    const response = await fetch(
-                        route('attempt-answer.store', {
-                            part_id: section.part_id,
-                            attempt_id: attempt.id
-                        }),
-                        {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content
-                            },
-                            body: JSON.stringify({
-                                question_id: qId,
-                                answer_text: value.trim() === '' ? null : value.trim()
-                            })
-                        }
-                    );
+                    const res = await syncQueue.saveAnswer({
+                        attemptId: attempt.id,
+                        partId: section.part_id,
+                        questionId: qId,
+                        answerText: value.trim() === '' ? null : value.trim(),
+                    });
 
-                    const data = await response.json();
-
-                    if (!data.success) throw new Error(data?.error || t('error.submission_failed'));
+                    if (res.error && !res.offline) {
+                        throw new Error(res.error);
+                    }
 
                     setSelectedPart((prev) => {
                         if (!prev) return null;
@@ -138,7 +127,7 @@ export default function PracticeSection({
                                                     value.trim() === ''
                                                         ? undefined
                                                         : {
-                                                            id: data?.data?.attempt_answer_id ?? Date.now(),
+                                                            id: Date.now(),
                                                             question_id: qId,
                                                             answer_text: value.trim()
                                                         } as any
@@ -159,8 +148,8 @@ export default function PracticeSection({
 
                     toast.error(message);
                 }
-            }, 600), // ⏱️ biroz kattaroq delay — delete uchun
-        []
+            }, 600),
+        [attempt.id, section.part_id, sectionIndex, setSelectedPart, t]
     );
 
     const handleInputChange = (slotId: number, text: string) => {

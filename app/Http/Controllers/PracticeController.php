@@ -124,6 +124,25 @@ class PracticeController extends Controller
 
     }
 
+    public function recordViolation(Request $request, $attempt_id)
+    {
+        try {
+            $attempt = Attempt::findOrFail($attempt_id);
+            $count = (int) $request->input('count', 1);
+            $attempt->increment('tab_switch_count', $count);
+
+            return response()->json([
+                'success' => true,
+                'tab_switch_count' => $attempt->fresh()->tab_switch_count,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function submit_test_type($attempt_id, $type_id)
     {
         try {

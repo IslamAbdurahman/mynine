@@ -87,6 +87,7 @@ Route::middleware([\App\Http\Middleware\EnsureCandidateOrAuthenticated::class])-
     Route::get('practice-test-type/{test_type_id}', [\App\Http\Controllers\PracticeController::class, 'practice_test_type'])->name('practice-test-type');
     Route::get('practice-test-type-submit/{attempt_id}/{type_id}', [\App\Http\Controllers\PracticeController::class, 'submit_test_type'])->name('practice-test-type-submit');
     Route::get('practice-part/{part_id}', [\App\Http\Controllers\PracticeController::class, 'practice_part'])->name('practice-part');
+    Route::post('practice-attempt-violation/{attempt_id}', [\App\Http\Controllers\PracticeController::class, 'recordViolation'])->name('practice-attempt-violation');
 
     Route::resource('attempt-part', \App\Http\Controllers\AttemptPartController::class);
     Route::resource('attempt-type', \App\Http\Controllers\AttemptTypeController::class);

@@ -29,6 +29,25 @@ class Mock extends Model
     ];
 
 
+    protected $appends = [
+        'status',
+    ];
+
+    public function getStatusAttribute(): string
+    {
+        if (!$this->active) {
+            return 'inactive';
+        }
+        $now = now();
+        if ($this->started_at && $now->lt(\Carbon\Carbon::parse($this->started_at))) {
+            return 'scheduled';
+        }
+        if ($this->finished_at && $now->gt(\Carbon\Carbon::parse($this->finished_at))) {
+            return 'expired';
+        }
+        return 'active';
+    }
+
     public function test()
     {
         return $this->belongsTo(Test::class, 'test_id');
@@ -48,5 +67,4 @@ class Mock extends Model
     {
         return $this->hasMany(MockStudent::class, 'mock_id');
     }
-
 }

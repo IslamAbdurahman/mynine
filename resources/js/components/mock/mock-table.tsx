@@ -6,7 +6,7 @@ import { baseButton } from '@/components/ui/baseButton';
 import { Auth, Mock, type MockPaginate, SearchData, Test } from '@/types';
 import { Link, useForm, usePage } from '@inertiajs/react';
 import { format } from 'date-fns';
-import { CheckCircle, Copy, MinusCircle, PencilIcon, TrashIcon } from 'lucide-react';
+import { CheckCircle, Clock, Copy, MinusCircle, PencilIcon, TrashIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -25,6 +25,36 @@ const MockTable = ({ tests, searchData, ...mock }: MockTableProps) => {
     const { auth } = usePage().props as unknown as { auth?: Auth };
 
     const isAdmin = auth?.user?.roles?.some((role) => role.name === 'Admin');
+
+    const renderStatusBadge = (item: Mock) => {
+        const status = (item as any).status || (item.active ? 'active' : 'inactive');
+        if (!item.active || status === 'inactive') {
+            return (
+                <span className="inline-flex items-center rounded-full bg-gray-50 px-2 py-0.5 text-[10px] font-bold text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                    <MinusCircle className="mr-1 h-3 w-3" /> {t('inactive') || 'Nofaol'}
+                </span>
+            );
+        }
+        if (status === 'scheduled') {
+            return (
+                <span className="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700 dark:bg-amber-900/20 dark:text-amber-400">
+                    <Clock className="mr-1 h-3 w-3" /> {t('scheduled') || 'Boshlanmagan'}
+                </span>
+            );
+        }
+        if (status === 'expired') {
+            return (
+                <span className="inline-flex items-center rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-bold text-rose-700 dark:bg-rose-900/20 dark:text-rose-400">
+                    <MinusCircle className="mr-1 h-3 w-3" /> {t('expired') || 'Vaqti tugagan'}
+                </span>
+            );
+        }
+        return (
+            <span className="inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-bold text-green-700 dark:bg-green-900/20 dark:text-green-400">
+                <CheckCircle className="mr-1 h-3 w-3" /> {t('active') || 'Faol'}
+            </span>
+        );
+    };
 
     const handleUpdateClick = (mockData: Mock) => {
         setSelectedMock(mockData); // Set the selected mock data
@@ -79,15 +109,7 @@ const MockTable = ({ tests, searchData, ...mock }: MockTableProps) => {
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-blue-500 opacity-70">
                                         #{globalIndex}
                                     </span>
-                                    {isActive ? (
-                                        <span className="inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-bold text-green-700 dark:bg-green-900/20 dark:text-green-400">
-                                            <CheckCircle className="mr-1 h-3 w-3" /> {t('active')}
-                                        </span>
-                                    ) : (
-                                        <span className="inline-flex items-center rounded-full bg-gray-50 px-2 py-0.5 text-[10px] font-bold text-gray-500 dark:bg-gray-800 dark:text-gray-400">
-                                            <MinusCircle className="mr-1 h-3 w-3" /> {t('inactive')}
-                                        </span>
-                                    )}
+                                    {renderStatusBadge(item)}
                                 </div>
                                 <h3 className="line-clamp-1 text-xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">
                                     <Link href={`/mock/${item.id}`}>{item.name}</Link>

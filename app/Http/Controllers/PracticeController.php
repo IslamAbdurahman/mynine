@@ -30,10 +30,26 @@ class PracticeController extends Controller
 
         try {
             $this->checkAndAutoFinishExpired($request->attempt_id);
-            $attempt = Attempt::with(['user', 'test.types', 'attempt_types'])->find($request->attempt_id);
+            $attempt = Attempt::with(['user', 'test.types', 'attempt_types', 'mock'])->find($request->attempt_id);
 
             if (!$attempt) {
                 return back()->with('error', __('error.attempt_not_found'));
+            }
+
+            if ($attempt->mock) {
+                $mock = $attempt->mock;
+                if ($mock->active != 1) {
+                    return back()->with('error', 'Ushbu Mock test hozirda faol emas!');
+                }
+                $now = now();
+                if ($mock->started_at && $now->lt(\Carbon\Carbon::parse($mock->started_at))) {
+                    $formattedStart = \Carbon\Carbon::parse($mock->started_at)->format('d.m.Y H:i');
+                    return back()->with('error', "Ushbu Mock test hali boshlanmagan! Boshlanish vaqti: {$formattedStart}");
+                }
+                if ($mock->finished_at && $now->gt(\Carbon\Carbon::parse($mock->finished_at))) {
+                    $formattedFinish = \Carbon\Carbon::parse($mock->finished_at)->format('d.m.Y H:i');
+                    return back()->with('error', "Ushbu Mock test vaqti tugagan! Yakunlangan vaqti: {$formattedFinish}");
+                }
             }
 
             if ($attempt->user_id !== Auth::id()) {

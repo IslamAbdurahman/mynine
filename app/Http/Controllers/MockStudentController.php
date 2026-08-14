@@ -86,9 +86,27 @@ class MockStudentController extends Controller
             ]);
         }
 
-        if (!$student->mock || $student->mock->active != 1) {
+        $mock = $student->mock;
+
+        if (!$mock || $mock->active != 1) {
             throw ValidationException::withMessages([
                 'code' => ["Ushbu Mock test hozirda faol emas!"],
+            ]);
+        }
+
+        $now = now();
+
+        if ($mock->started_at && $now->lt(\Carbon\Carbon::parse($mock->started_at))) {
+            $formattedStart = \Carbon\Carbon::parse($mock->started_at)->format('d.m.Y H:i');
+            throw ValidationException::withMessages([
+                'code' => ["Ushbu Mock test hali boshlanmagan! Boshlanish vaqti: {$formattedStart}"],
+            ]);
+        }
+
+        if ($mock->finished_at && $now->gt(\Carbon\Carbon::parse($mock->finished_at))) {
+            $formattedFinish = \Carbon\Carbon::parse($mock->finished_at)->format('d.m.Y H:i');
+            throw ValidationException::withMessages([
+                'code' => ["Ushbu Mock test vaqti tugagan! Yakunlangan vaqti: {$formattedFinish}"],
             ]);
         }
 

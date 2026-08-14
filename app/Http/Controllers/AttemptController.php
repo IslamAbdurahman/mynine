@@ -121,6 +121,22 @@ class AttemptController extends Controller
                 if ($active) {
                     $active->finish();
                 }
+            } else {
+                $mock = \App\Models\Mock::find($request->mock_id);
+                if ($mock) {
+                    if ($mock->active != 1) {
+                        throw new \Exception("Ushbu Mock test hozirda faol emas!");
+                    }
+                    $now = now();
+                    if ($mock->started_at && $now->lt(\Carbon\Carbon::parse($mock->started_at))) {
+                        $formattedStart = \Carbon\Carbon::parse($mock->started_at)->format('d.m.Y H:i');
+                        throw new \Exception("Ushbu Mock test hali boshlanmagan! Boshlanish vaqti: {$formattedStart}");
+                    }
+                    if ($mock->finished_at && $now->gt(\Carbon\Carbon::parse($mock->finished_at))) {
+                        $formattedFinish = \Carbon\Carbon::parse($mock->finished_at)->format('d.m.Y H:i');
+                        throw new \Exception("Ushbu Mock test vaqti tugagan! Yakunlangan vaqti: {$formattedFinish}");
+                    }
+                }
             }
 
             $data = $request->validated();

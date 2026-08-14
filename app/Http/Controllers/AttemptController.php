@@ -214,9 +214,10 @@ class AttemptController extends Controller
 //        ]);
 
         $attempt = $attempt->load([
-            'test',
+            'test.folder',
             'user',
             'mock',
+            'mockStudent',
             'attempt_types.type'
         ]);
 
@@ -224,11 +225,6 @@ class AttemptController extends Controller
         $attempt->attempt_types->each(function ($attemptType) {
             $attemptType->append('attempt_parts');
         });
-
-//        dd($attempt->attempt_types[0]->attempt_parts);
-
-
-//        return view('pdf.attempt', compact('attempt'));
 
         $options = [
             'isPhpEnabled' => false,
@@ -239,20 +235,20 @@ class AttemptController extends Controller
             'defaultFont' => 'DejaVu Sans',
         ];
 
-
         $dompdf = new Dompdf($options);
         $dompdf->loadHtml(view('pdf.attempt', compact('attempt'))->render());
-        $dompdf->setPaper('A4');
+        $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
-
 
         // Add page numbers to the footer
         $canvas = $dompdf->getCanvas();
-        $canvas->page_text(520, 800, "{PAGE_NUM} / {PAGE_COUNT}", null, 12, array(0, 0, 0));
+        $canvas->page_text(520, 815, "{PAGE_NUM} / {PAGE_COUNT}", null, 9, array(0.4, 0.4, 0.4));
 
-        $filename = "Attempt_{$attempt->id}_" . $attempt->created_at->format('Y-m-d_H-i');
+        $filename = "IELTS_TRF_Attempt_{$attempt->id}_" . $attempt->created_at->format('Y-m-d');
 
-        $dompdf->stream($filename . '.pdf');
+        return response($dompdf->output(), 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="' . $filename . '.pdf"');
 
     }
 

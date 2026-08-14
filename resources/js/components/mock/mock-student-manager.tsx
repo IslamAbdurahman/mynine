@@ -97,7 +97,17 @@ export default function MockStudentManager({ mockId, mockName, students = [] }: 
                         </div>
                     `).join('')}
                 </div>
-                <script>window.print();</script>
+                <script>
+                    window.onload = function() {
+                        window.print();
+                        setTimeout(function() {
+                            window.close();
+                        }, 300);
+                    };
+                    window.onafterprint = function() {
+                        window.close();
+                    };
+                </script>
             </body>
             </html>
         `;

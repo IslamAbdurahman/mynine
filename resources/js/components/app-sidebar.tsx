@@ -15,7 +15,6 @@ import { Link } from '@inertiajs/react';
 import {
     LayoutDashboard,
     Users,
-    Users2,
     GraduationCap,
     ClipboardList,
     BarChart3,
@@ -66,11 +65,6 @@ export function AppSidebar() {
                 icon: Users
             },
             {
-                title: t('sidebar.groups'),
-                href: '/group',
-                icon: Users2
-            },
-            {
                 title: t('sidebar.folder'),
                 href: '/folder',
                 icon: Folder
@@ -94,7 +88,6 @@ export function AppSidebar() {
 
         return items.filter(item => {
             if (item.href === '/user' && !isAdmin) return false;
-            if (item.href === '/group' && isStudent) return false;
             if (item.href === '/folder' && isStudent) return false;
             if (item.href === '/mock' && isStudent) return false;
 

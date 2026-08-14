@@ -75,11 +75,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('attempt', \App\Http\Controllers\AttemptController::class);
     Route::post('/attempt-answer/{attemptAnswer}/re-evaluate-ai', [\App\Http\Controllers\AttemptAnswerController::class, 'reEvaluateAi'])->name('attempt-answer.re-evaluate-ai');
 
-    Route::resource('group', \App\Http\Controllers\GroupController::class);
-    Route::get('/group-search-students', [\App\Http\Controllers\GroupController::class, 'searchStudents'])->name('group.search-students');
-    Route::post('/group/{group}/students', [\App\Http\Controllers\GroupController::class, 'addStudent'])->name('group.students.add');
-    Route::delete('/group/{group}/students/{user}', [\App\Http\Controllers\GroupController::class, 'removeStudent'])->name('group.students.remove');
-
     Route::resource('mock', \App\Http\Controllers\MockController::class);
     Route::post('/mock-student', [\App\Http\Controllers\MockStudentController::class, 'store'])->name('mock-student.store');
     Route::delete('/mock-student/{mockStudent}', [\App\Http\Controllers\MockStudentController::class, 'destroy'])->name('mock-student.destroy');

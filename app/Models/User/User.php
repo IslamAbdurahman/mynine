@@ -72,16 +72,6 @@ class User extends Authenticatable
         return $this->hasOne(Attempt::class, 'user_id')->latestOfMany('created_at');
     }
 
-    public function taught_groups()
-    {
-        return $this->hasMany(\App\Models\Group::class, 'user_id');
-    }
-
-    public function enrolled_groups()
-    {
-        return $this->belongsToMany(\App\Models\Group::class, 'group_students', 'user_id', 'group_id')->withTimestamps();
-    }
-
     protected static function newFactory()
     {
         return \Database\Factories\UserFactory::new();

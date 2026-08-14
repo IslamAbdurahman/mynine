@@ -13,14 +13,13 @@ use Illuminate\Validation\ValidationException;
 class MockStudentController extends Controller
 {
     /**
-     * Store new student candidates for a mock (Single, Bulk names, or from Group)
+     * Store new student candidates for a mock (Single or Bulk names)
      */
     public function store(Request $request)
     {
         $request->validate([
             'mock_id' => 'required|exists:mocks,id',
-            'names' => 'nullable|string', // Single name or newline/comma separated names
-            'group_id' => 'nullable|exists:groups,id',
+            'names' => 'required|string', // Single name or newline/comma separated names
             'phone' => 'nullable|string',
         ]);
 
@@ -33,38 +32,20 @@ class MockStudentController extends Controller
         $createdCount = 0;
 
         DB::transaction(function () use ($mock, $request, &$createdCount) {
-            // Option 1: From Group
-            if ($request->group_id) {
-                $group = \App\Models\Group::with('students')->findOrFail($request->group_id);
-                foreach ($group->students as $student) {
-                    MockStudent::create([
-                        'mock_id' => $mock->id,
-                        'name' => $student->name,
-                        'code' => MockStudent::generateUniqueCode(),
-                        'phone' => $student->phone ?? null,
-                        'attended' => false,
-                    ]);
-                    $createdCount++;
-                }
-            }
+            $nameList = preg_split('/[\r\n,]+/', $request->names);
+            foreach ($nameList as $rawName) {
+                $name = trim($rawName);
+                if (empty($name)) continue;
 
-            // Option 2: From Raw Names
-            if (!empty($request->names)) {
-                $nameList = preg_split('/[\r\n,]+/', $request->names);
-                foreach ($nameList as $rawName) {
-                    $name = trim($rawName);
-                    if (empty($name)) continue;
+                MockStudent::create([
+                    'mock_id' => $mock->id,
+                    'name' => $name,
+                    'code' => MockStudent::generateUniqueCode(),
+                    'phone' => $request->phone ?? null,
+                    'attended' => false,
+                ]);
 
-                    MockStudent::create([
-                        'mock_id' => $mock->id,
-                        'name' => $name,
-                        'code' => MockStudent::generateUniqueCode(),
-                        'phone' => $request->phone ?? null,
-                        'attended' => false,
-                    ]);
-
-                    $createdCount++;
-                }
+                $createdCount++;
             }
         });
 

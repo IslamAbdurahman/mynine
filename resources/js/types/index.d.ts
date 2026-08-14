@@ -137,6 +137,31 @@ export interface Role {
     updated_at: string;
 }
 
+export interface Group {
+    id: number;
+    user_id: number;
+    name: string;
+    description: string | null;
+    color: string;
+    students_count?: number;
+    teacher?: User;
+    students?: User[];
+    created_at: string;
+    updated_at: string;
+}
+
+export interface GroupPaginate {
+    data: Group[];
+    search: string;
+    per_page: number;
+    from: number;
+    to: number;
+    total: number;
+    current_page: number;
+    last_page: number;
+    links: Link[];
+}
+
 export interface Folder {
     id: number;
     name: string;

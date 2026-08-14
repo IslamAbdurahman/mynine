@@ -74,6 +74,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('all-test', \App\Http\Controllers\AllTestController::class);
     Route::resource('attempt', \App\Http\Controllers\AttemptController::class);
 
+    Route::resource('group', \App\Http\Controllers\GroupController::class);
+    Route::post('/group/{group}/students', [\App\Http\Controllers\GroupController::class, 'addStudent'])->name('group.students.add');
+    Route::delete('/group/{group}/students/{user}', [\App\Http\Controllers\GroupController::class, 'removeStudent'])->name('group.students.remove');
+
     Route::resource('mock', \App\Http\Controllers\MockController::class);
     Route::post('/mock-student', [\App\Http\Controllers\MockStudentController::class, 'store'])->name('mock-student.store');
     Route::delete('/mock-student/{mockStudent}', [\App\Http\Controllers\MockStudentController::class, 'destroy'])->name('mock-student.destroy');

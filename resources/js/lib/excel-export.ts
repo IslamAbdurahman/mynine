@@ -8,9 +8,9 @@ export const exportAttemptsToExcel = (attempts: Attempt[], fileName: string = 'A
     const worksheetData = attempts.map((item, index) => {
         const row: any = {
             '#': index + 1,
-            'User Name': item?.user?.name || '---',
+            'User Name': item?.user?.name || item?.mock_student?.name || (item as any)?.mockStudent?.name || '---',
             'User Email': item?.user?.email || '---',
-            'Attempt Name': item.name || '---',
+            'Attempt Name': item.name || item?.mock_student?.name || (item as any)?.mockStudent?.name || item?.user?.name || '---',
             'Test/Mock': item?.mock?.name || item?.test?.folder?.name || '---',
             'Specific Test': item?.test?.name || '---',
             'Status': item.finished_at ? 'Finished' : 'In Progress',

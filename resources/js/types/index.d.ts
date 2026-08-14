@@ -308,6 +308,8 @@ export interface Attempt {
     user: User;
     mock: Mock;
     test: Test;
+    mock_student?: { id: number; name: string };
+    mockStudent?: { id: number; name: string };
     attempt_parts: AttemptPart[];
     attempt_types: AttemptType[];
 }

@@ -21,10 +21,11 @@ class AttemptController extends Controller
         $per_page = $request->per_page === 'all' ? 100 : min((int)($request->per_page ?? 10), 100);
 
         $data = Attempt::with([
-            'test',
+            'test.folder',
             'user',
             'mock',
-            'attempt_types',
+            'mockStudent',
+            'attempt_types.type',
         ])->orderBy('id', 'desc');
 
         if (!Auth::user()->hasRole('Admin')) {
@@ -164,6 +165,9 @@ class AttemptController extends Controller
 
             $data = $request->validated();
             $data['user_id'] = Auth::id();
+            if (empty($data['name']) && Auth::check()) {
+                $data['name'] = Auth::user()->name;
+            }
             $data['started_at'] = date("Y-m-d H:i:s");
             $data['status'] = 1;
 
@@ -184,7 +188,7 @@ class AttemptController extends Controller
      */
     public function show(Attempt $attempt)
     {
-        $attempt->load(['test.folder', 'user', 'mock', 'attempt_types']);
+        $attempt->load(['test.folder', 'user', 'mock', 'mockStudent', 'attempt_types']);
         // Append attempt_parts only for detail view
         $attempt->attempt_types->each(function ($attemptType) {
             $attemptType->append('attempt_parts');

@@ -100,8 +100,8 @@ const AttemptTable = ({ searchData, hidePagination, ...attempt }: AttemptTablePr
                                         </td>
                                     )}
 
-                                    <td className="px-6 py-4 font-medium text-gray-900 dark:text-gray-100 italic">
-                                        {item.name || "---"}
+                                    <td className="px-6 py-4 font-medium text-gray-900 dark:text-gray-100">
+                                        {item.name || item.mock_student?.name || (item as any).mockStudent?.name || item.user?.name || "---"}
                                     </td>
 
                                     <td className="px-6 py-4">

@@ -19,7 +19,7 @@ export default function AttemptShow() {
             href: route('attempt.index')
         },
         {
-            title: `#${attempt.id} - ${attempt.user?.name || t('attempt')}`,
+            title: `#${attempt.id} - ${attempt.name || (attempt as any).mock_student?.name || (attempt as any).mockStudent?.name || attempt.user?.name || t('attempt')}`,
             href: route('attempt.show', attempt.id)
         }
     ];

@@ -66,7 +66,10 @@ const SocialSignIn = () => {
             </div>
 
             {/* Telegram widget container */}
-            <div id="telegram-container" className="flex justify-center transition-all duration-300 hover:scale-[1.02]"></div>
+            <div
+                id="telegram-container"
+                className="flex justify-center transition-all duration-300 hover:scale-[1.02] [&_iframe]:rounded-[12px] [&_iframe]:overflow-hidden [&_iframe]:bg-transparent"
+            ></div>
         </div>
     );
 };

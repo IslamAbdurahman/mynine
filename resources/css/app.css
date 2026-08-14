@@ -439,3 +439,11 @@ mark.ielts-highlight-span:hover * {
 .hide-scrollbar::-webkit-scrollbar {
     display: none;
 }
+
+/* Telegram login widget iframe container fix */
+#telegram-container iframe {
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    background: transparent !important;
+    background-color: transparent !important;
+}

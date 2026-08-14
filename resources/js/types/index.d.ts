@@ -75,16 +75,15 @@ export interface Link {
 }
 
 export interface UserPaginate {
-    data: [
-        User
-    ];
+    data: User[];
     search: string;
     per_page: number;
     from: number;
     to: number;
     total: number;
     current_page: number;
-    links: [Link];
+    last_page: number;
+    links: Link[];
 }
 
 export interface User {
@@ -156,6 +155,7 @@ export interface FolderPaginate {
     to: number;
     total: number;
     current_page: number;
+    last_page: number;
     links: Link[];         // Array of Link
 }
 
@@ -175,16 +175,15 @@ export interface Test {
 }
 
 export interface TestPaginate {
-    data: [
-        Test
-    ];
+    data: Test[];
     search: string;
     per_page: number;
     from: number;
     to: number;
     total: number;
     current_page: number;
-    links: [Link];
+    last_page: number;
+    links: Link[];
 }
 
 export interface TestType {
@@ -291,6 +290,7 @@ export interface MockPaginate {
     to: number;
     total: number;
     current_page: number;
+    last_page: number;
     links: Link[];         // Array of Link
 }
 

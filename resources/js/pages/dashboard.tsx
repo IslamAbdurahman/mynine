@@ -213,7 +213,7 @@ export default function Dashboard() {
                                             <div className="flex items-center gap-3">
                                                 <div className="flex flex-col items-end">
                                                     <span className="text-xs font-medium text-gray-400 capitalize">
-                                                        {t(attempt.status || 'finished')}
+                                                        {t(String(attempt.status ?? 'finished'))}
                                                     </span>
                                                     <div className="flex items-center gap-1 text-green-600 dark:text-green-400 font-bold">
                                                         <CheckCircle2 className="size-3" />

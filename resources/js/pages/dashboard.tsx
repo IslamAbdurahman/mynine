@@ -1,13 +1,20 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, User, Attempt, StatItem, HourlyStatItem, WeeklyStatItem } from '@/types';
 import { Head, usePage, Link } from '@inertiajs/react';
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTranslation } from 'react-i18next';
-import AttemptsChart from '@/components/dashboard/AttemptsChart';
-import DailyStatsChart from '@/components/dashboard/DailyStatsChart';
-import HourlyAttemptsChart from '@/components/dashboard/HourlyAttemptsChart';
-import WeeklyAttemptsChart from '@/components/dashboard/WeeklyAttemptsChart';
+
+const AttemptsChart = lazy(() => import('@/components/dashboard/AttemptsChart'));
+const DailyStatsChart = lazy(() => import('@/components/dashboard/DailyStatsChart'));
+const HourlyAttemptsChart = lazy(() => import('@/components/dashboard/HourlyAttemptsChart'));
+const WeeklyAttemptsChart = lazy(() => import('@/components/dashboard/WeeklyAttemptsChart'));
+
+const ChartSkeleton = () => (
+    <div className="h-64 w-full animate-pulse bg-muted/40 rounded-2xl flex items-center justify-center">
+        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Loading chart...</span>
+    </div>
+);
 import { 
     Trophy, 
     Target, 
@@ -241,52 +248,54 @@ export default function Dashboard() {
 
                 {/* Charts Section (Admins Only) */}
                 {isAdmin && (
-                    <div className="grid gap-6 grid-cols-1 mt-6">
-                        {/* Analytics Chart */}
-                        {(user.attempts?.length ?? 0) > 0 && (
-                        <div className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
-                            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                                <TrendingUp className="size-5 text-primary" />
-                                {t('performance_overview')} <span className="text-sm font-normal text-gray-400 ml-1">{t('last_30_days') || "(last 30 days)"}</span>
-                            </h3>
-                            <div className="w-full">
-                                <AttemptsChart attempts={user.attempts || []} />
-                            </div>
-                        </div>
-                        )}
-
-                        {/* Daily Stats */}
-                        {(daily_users.length > 0 || daily_attempts.length > 0) && (
+                    <Suspense fallback={<ChartSkeleton />}>
+                        <div className="grid gap-6 grid-cols-1 mt-6">
+                            {/* Analytics Chart */}
+                            {(user.attempts?.length ?? 0) > 0 && (
                             <div className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
                                 <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                                    <TrendingUp className="size-5 text-primary" /> {t('daily_activity') || 'Daily Activity'}
+                                    <TrendingUp className="size-5 text-primary" />
+                                    {t('performance_overview')} <span className="text-sm font-normal text-gray-400 ml-1">{t('last_30_days') || "(last 30 days)"}</span>
                                 </h3>
-                                <DailyStatsChart dailyUsers={daily_users} dailyAttempts={daily_attempts} />
+                                <div className="w-full">
+                                    <AttemptsChart attempts={user.attempts || []} />
+                                </div>
                             </div>
-                        )}
+                            )}
 
-                        {/* Hourly Stats Row (Today vs All-time) */}
-                        <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
-                            {/* Today Hourly Stats */}
-                            <div className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
-                                <HourlyAttemptsChart title={t('todays_hourly_stats') || "Today's hourly stats"} data={today_hourly_attempts} />
-                            </div>
-
-                            {/* All-time Hourly Stats */}
-                            {hourly_attempts.length > 0 && (
+                            {/* Daily Stats */}
+                            {(daily_users.length > 0 || daily_attempts.length > 0) && (
                                 <div className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
-                                    <HourlyAttemptsChart title={t('all_time_hourly_distribution') || 'All-time hourly distribution'} data={hourly_attempts} />
+                                    <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                                        <TrendingUp className="size-5 text-primary" /> {t('daily_activity') || 'Daily Activity'}
+                                    </h3>
+                                    <DailyStatsChart dailyUsers={daily_users} dailyAttempts={daily_attempts} />
+                                </div>
+                            )}
+
+                            {/* Hourly Stats Row (Today vs All-time) */}
+                            <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+                                {/* Today Hourly Stats */}
+                                <div className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
+                                    <HourlyAttemptsChart title={t('todays_hourly_stats') || "Today's hourly stats"} data={today_hourly_attempts} />
+                                </div>
+
+                                {/* All-time Hourly Stats */}
+                                {hourly_attempts.length > 0 && (
+                                    <div className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
+                                        <HourlyAttemptsChart title={t('all_time_hourly_distribution') || 'All-time hourly distribution'} data={hourly_attempts} />
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Weekly Stats */}
+                            {weekly_attempts.length > 0 && (
+                                <div className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
+                                    <WeeklyAttemptsChart title={t('all_time_weekly_attempts_distribution') || 'All-time Weekly Attempts Distribution'} data={weekly_attempts} />
                                 </div>
                             )}
                         </div>
-
-                        {/* Weekly Stats */}
-                        {weekly_attempts.length > 0 && (
-                            <div className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
-                                <WeeklyAttemptsChart title={t('all_time_weekly_attempts_distribution') || 'All-time Weekly Attempts Distribution'} data={weekly_attempts} />
-                            </div>
-                        )}
-                    </div>
+                    </Suspense>
                 )}
             </div>
         </AppLayout>

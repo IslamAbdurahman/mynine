@@ -35,13 +35,13 @@ class TestObserver
 
         $authUser = Auth::user();
 
-        // Agar admin bo'lsa -> ruxsat
-        if ($authUser->hasRole('Admin')) {
+        // Agar tizim/seeder yoki admin bo'lsa -> ruxsat
+        if (!$authUser || $authUser->hasRole('Admin')) {
             return;
         }
 
         // Admin bo'lmasa faqat o'z yozuvini o'chirishga ruxsat
-        if ($test->user_id !== $mock->user_id) {
+        if ($authUser->id !== $test->folder?->user_id) {
             throw new \Exception('You are not allowed to access this page');
         }
 

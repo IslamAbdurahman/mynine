@@ -1,5 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, usePage, Link } from '@inertiajs/react';
+import React, { lazy, Suspense } from 'react';
 import {
     type BreadcrumbItem,
     type User,
@@ -7,7 +8,14 @@ import {
 } from '@/types';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import AttemptsChart from '@/components/dashboard/AttemptsChart';
+
+const AttemptsChart = lazy(() => import('@/components/dashboard/AttemptsChart'));
+
+const ChartSkeleton = () => (
+    <div className="h-64 w-full animate-pulse bg-muted/40 rounded-2xl flex items-center justify-center">
+        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Loading chart...</span>
+    </div>
+);
 import {
     Trophy,
     Target,
@@ -228,7 +236,9 @@ export default function UserShow() {
                                 {t('performance_overview')} <span className="text-sm font-normal text-gray-400 ml-1">{t('last_30_days') || "(last 30 days)"}</span>
                             </h3>
                             <div className="w-full">
-                                <AttemptsChart attempts={user.attempts || []} />
+                                <Suspense fallback={<ChartSkeleton />}>
+                                    <AttemptsChart attempts={user.attempts || []} />
+                                </Suspense>
                             </div>
                         </div>
                     )}

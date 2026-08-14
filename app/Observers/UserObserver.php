@@ -36,13 +36,13 @@ class UserObserver
     {
         $authUser = Auth::user();
 
-        // Agar admin bo'lsa -> ruxsat
-        if ($authUser->hasRole('Admin')) {
+        // Agar tizim/seeder yoki admin bo'lsa -> ruxsat
+        if (!$authUser || $authUser->hasRole('Admin')) {
             return;
         }
 
-        // Admin bo'lmasa faqat o'z yozuvini o'chirishga ruxsat
-        if ($authUser->id !== $user->user_id) {
+        // Admin bo'lmasa faqat o'z yozuvini yoki o'ziga biriktirilgan talabani o'chirishga ruxsat
+        if ($authUser->id !== $user->user_id && $authUser->id !== $user->id) {
             throw new \Exception('You are not allowed to access this page');
         }
     }

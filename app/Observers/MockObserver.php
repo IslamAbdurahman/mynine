@@ -35,8 +35,8 @@ class MockObserver
 
         $authUser = Auth::user();
 
-        // Agar admin bo'lsa -> ruxsat
-        if ($authUser->hasRole('Admin')) {
+        // Agar tizim/seeder yoki admin bo'lsa -> ruxsat
+        if (!$authUser || $authUser->hasRole('Admin')) {
             return;
         }
 

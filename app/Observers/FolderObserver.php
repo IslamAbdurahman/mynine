@@ -35,9 +35,13 @@ class FolderObserver
 
         $authUser = Auth::user();
 
-        // Agar admin bo'lsa -> ruxsat
-        if ($authUser->hasRole('Admin')) {
+        // Agar tizim/seeder yoki admin bo'lsa -> ruxsat
+        if (!$authUser || $authUser->hasRole('Admin')) {
             return;
+        }
+
+        if ($authUser->id !== $folder->user_id) {
+            throw new \Exception('You are not allowed to access this page');
         }
     }
 

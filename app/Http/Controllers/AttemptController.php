@@ -87,22 +87,17 @@ class AttemptController extends Controller
         $data = $data->paginate($per_page);
 
         // Filter dropdown options for search
-        $users_query = \App\Models\User\User::select('id', 'name');
         $mocks_query = \App\Models\Mock::select('id', 'name');
         $tests_query = \App\Models\Test::select('id', 'name');
         $folders_query = \App\Models\Folder::select('id', 'name');
 
         if (Auth::user()->hasRole('Teacher')) {
-            $users_query->where('user_id', Auth::id())
-                ->orWhere('ref_telegram_id', Auth::user()->telegram_id)
-                ->orWhere('id', Auth::id());
             $mocks_query->where('user_id', Auth::id());
             $tests_query->whereHas('folder', function ($q) {
                 $q->where('user_id', Auth::id());
             });
             $folders_query->where('user_id', Auth::id());
         } elseif (!Auth::user()->hasRole('Admin')) {
-            $users_query->where('id', Auth::id());
             $mocks_query->where('active', 1);
             $tests_query->where('active', 1)->where('open', 1);
             $folders_query->where('active', 1);
@@ -116,11 +111,11 @@ class AttemptController extends Controller
 
         return Inertia::render('attempt/index', [
             'attempt' => $data,
-            'users' => $users_query->get(),
+            'users' => [],
             'teachers' => $teachers,
-            'mocks' => $mocks_query->get(),
-            'tests' => $tests_query->get(),
-            'folders' => $folders_query->get(),
+            'mocks' => $mocks_query->limit(50)->get(),
+            'tests' => $tests_query->limit(50)->get(),
+            'folders' => $folders_query->limit(50)->get(),
             'isAdmin' => Auth::user()->hasRole('Admin'),
             'filters' => $request->only(['search', 'teacher_id', 'user_id', 'mock_id', 'test_id', 'folder_id', 'from', 'to', 'per_page']),
         ]);

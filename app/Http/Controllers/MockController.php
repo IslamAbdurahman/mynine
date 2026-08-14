@@ -88,24 +88,21 @@ class MockController extends Controller
             });
         }
 
-        $mock = $mock->paginate($per_page);
+        $mock = $mock->select('id', 'test_id', 'user_id', 'name', 'comment', 'active', 'started_at', 'finished_at', 'created_at')
+            ->orderBy('id', 'desc')
+            ->paginate($per_page);
 
-        // Filter tests and users based on role for search dropdowns
-        $tests_query = Test::query()->select('id', 'name', 'folder_id')->with('folder:id,name');
-        $users_query = \App\Models\User\User::select('id', 'name');
+        // Filter tests and folders based on role for search dropdowns
+        $tests_query = Test::query()->select('id', 'name', 'folder_id');
         $folders_query = \App\Models\Folder::select('id', 'name');
 
         if (Auth::user()->hasRole('Teacher')) {
             $tests_query->whereHas('folder', function ($q) {
                 $q->where('user_id', Auth::id());
             });
-            $users_query->where(fn($q) => $q->where('user_id', Auth::id())
-                ->orWhere('ref_telegram_id', Auth::user()->telegram_id)
-                ->orWhere('id', Auth::id()));
             $folders_query->where('user_id', Auth::id());
         } elseif (!Auth::user()->hasRole('Admin')) {
             $tests_query->where('active', 1)->where('open', 1);
-            $users_query->where('id', Auth::id());
             $folders_query->where('active', 1);
         }
 
@@ -117,10 +114,10 @@ class MockController extends Controller
 
         return Inertia::render('mock/index', [
             'mock' => $mock,
-            'tests' => $tests_query->get(),
-            'users' => $users_query->get(),
+            'tests' => $tests_query->limit(50)->get(),
+            'users' => [],
             'teachers' => $teachers,
-            'folders' => $folders_query->get(),
+            'folders' => $folders_query->limit(50)->get(),
             'isAdmin' => Auth::user()->hasRole('Admin'),
             'filters' => $request->only(['search', 'teacher_id', 'user_id', 'test_id', 'folder_id', 'from', 'to', 'per_page']),
         ]);

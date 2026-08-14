@@ -68,7 +68,9 @@ class AllTestController extends Controller
             // Default: active folders and open tests (already filtered in initial query above)
         }
 
-        $folder = $folder->paginate($per_page);
+        $folder = $folder->select('id', 'name', 'comment', 'active', 'user_id', 'created_at', 'updated_at')
+            ->orderBy('id', 'desc')
+            ->paginate($per_page);
 
         // Filter folder dropdown for search
         $folders_query = Folder::select('id', 'name')->where('active', 1);
@@ -89,7 +91,7 @@ class AllTestController extends Controller
 
         return Inertia::render('all-test/index', [
             'folder' => $folder,
-            'folders' => $folders_query->get(),
+            'folders' => $folders_query->limit(50)->get(),
             'teachers' => $teachers,
             'isAdmin' => Auth::user()->hasRole('Admin'),
             'filters' => $request->only(['search', 'teacher_id', 'folder_id', 'from', 'to', 'per_page']),

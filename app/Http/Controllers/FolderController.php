@@ -23,13 +23,11 @@ class FolderController extends Controller
     {
 
 
-        $this->authorize('viewAny', Folder::class); // ✅ add this
+        $this->authorize('viewAny', Folder::class);
 
         $per_page = $request->per_page === 'all' ? 100 : min((int)($request->per_page ?? 10), 100);
 
-        $folder = Folder::with([
-
-        ]);
+        $folder = Folder::query()->select('id', 'name', 'comment', 'active', 'user_id', 'created_at', 'updated_at');
 
         if ($request->search) {
             $folder->where(function ($query) use ($request) {
@@ -46,9 +44,7 @@ class FolderController extends Controller
         }
 
         if ($request->user_id) {
-            $folder->where(function ($query) use ($request) {
-                $query->where('user_id', $request->user_id);
-            });
+            $folder->where('user_id', $request->user_id);
         }
 
         if ($request->teacher_id) {
@@ -59,23 +55,13 @@ class FolderController extends Controller
             // Admin can see all folders
         } elseif (Auth::user()->hasRole('Teacher')) {
             // Teacher can see only their own folders
-            $folder->where(fn($q) => $q->where('user_id', Auth::id()));
+            $folder->where('user_id', Auth::id());
         } else {
             // Student and others can see only active folders
-            $folder->where(fn($q) => $q->where('active', 1));
+            $folder->where('active', 1);
         }
 
-        $folder = $folder->paginate($per_page);
-
-        // Filter users based on role for the search filter
-        $users_query = \App\Models\User\User::select('id', 'name');
-        if (Auth::user()->hasRole('Teacher')) {
-            $users_query->where(fn($q) => $q->where('user_id', Auth::id())
-                ->orWhere('ref_telegram_id', Auth::user()->telegram_id)
-                ->orWhere('id', Auth::id()));
-        } elseif (!Auth::user()->hasRole('Admin')) {
-            $users_query->where('id', Auth::id());
-        }
+        $folder = $folder->orderBy('id', 'desc')->paginate($per_page);
 
         $teachers = Auth::user()->hasRole('Admin')
             ? \App\Models\User\User::whereHas('roles', function ($q) {
@@ -85,7 +71,7 @@ class FolderController extends Controller
 
         return Inertia::render('folder/index', [
             'folder' => $folder,
-            'users' => $users_query->get(),
+            'users' => [],
             'teachers' => $teachers,
             'isAdmin' => Auth::user()->hasRole('Admin'),
             'filters' => $request->only(['search', 'teacher_id', 'user_id', 'from', 'to', 'per_page']),

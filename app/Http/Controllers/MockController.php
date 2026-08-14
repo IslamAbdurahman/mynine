@@ -215,12 +215,19 @@ class MockController extends Controller
     public function destroy(Mock $mock)
     {
         try {
-            $mock->delete();
-            return back()->with('success', __('success.mock_deleted'));
+            \Illuminate\Support\Facades\DB::transaction(function () use ($mock) {
+                // Detach/nullify attempts so history is preserved without FK error
+                \App\Models\Attempt::where('mock_id', $mock->id)->update(['mock_id' => null]);
+                // Delete associated mock students
+                $mock->students()->delete();
+                // Delete the mock
+                $mock->delete();
+            });
+
+            return redirect()->route('mock.index')->with('success', __('success.mock_deleted') ?? "Mock o'chirildi");
         } catch (\Exception $e) {
-            // Proper Inertia error response
-            throw ValidationException::withMessages([
-                'error' => [$e->getMessage()],
+            return redirect()->route('mock.index')->withErrors([
+                'error' => $e->getMessage(),
             ]);
         }
     }

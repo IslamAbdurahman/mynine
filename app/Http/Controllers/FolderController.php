@@ -166,12 +166,21 @@ class FolderController extends Controller
     public function destroy(Folder $folder)
     {
         try {
-            $folder->delete();
-            return back()->with('success', __('deleted_successfully'));
+            \Illuminate\Support\Facades\DB::transaction(function () use ($folder) {
+                // Delete tests that have no attempts
+                foreach ($folder->tests as $test) {
+                    if ($test->attempts()->exists()) {
+                        throw new \Exception("Ushbu jilddagi ba'zi testlarda urinishlar (attempts) mavjud bo'lgani sababli uni o'chirib bo'lmaydi.");
+                    }
+                    $test->delete();
+                }
+                $folder->delete();
+            });
+
+            return redirect()->route('folder.index')->with('success', __('deleted_successfully') ?? "Jild o'chirildi");
         } catch (\Exception $e) {
-            // Proper Inertia error response
-            throw ValidationException::withMessages([
-                'error' => [$e->getMessage()],
+            return redirect()->route('folder.index')->withErrors([
+                'error' => $e->getMessage(),
             ]);
         }
     }

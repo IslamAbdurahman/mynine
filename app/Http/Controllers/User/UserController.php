@@ -230,14 +230,23 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        try {
+        if ($user->id === Auth::id()) {
+            return redirect()->route('user.index')->withErrors([
+                'error' => "O'z hisobingizni o'chira olmaysiz.",
+            ]);
+        }
 
-            $user->delete();
-            return back()->with('success', __('deleted_successfully'));
+        try {
+            \Illuminate\Support\Facades\DB::transaction(function () use ($user) {
+                // Delete user roles/permissions
+                $user->roles()->detach();
+                $user->delete();
+            });
+
+            return redirect()->route('user.index')->with('success', __('deleted_successfully') ?? "Foydalanuvchi o'chirildi");
         } catch (\Exception $e) {
-            // Proper Inertia error response
-            throw ValidationException::withMessages([
-                'error' => [$e->getMessage()],
+            return redirect()->route('user.index')->withErrors([
+                'error' => $e->getMessage(),
             ]);
         }
     }

@@ -168,23 +168,29 @@ class TestController extends Controller
     public function destroy(Test $test)
     {
         if ($test->attempts()->exists() || $test->mocks()->whereHas('attempts')->exists()) {
-            throw ValidationException::withMessages([
-                'error' => [__('test_has_attempts')],
+            return back()->withErrors([
+                'error' => __('test_has_attempts') ?? "Ushbu testda topshirilgan urinishlar (attempts) mavjud bo'lgani sababli uni o'chirib bo'lmaydi.",
             ]);
         }
 
         try {
+            $folderId = $test->folder_id;
             DB::beginTransaction();
 
+            $test->mocks()->delete();
             $test->delete();
 
             DB::commit();
 
-            return back()->with('success', __('deleted_successfully'));
+            if ($folderId) {
+                return redirect()->route('folder.show', $folderId)->with('success', __('deleted_successfully') ?? "Test o'chirildi");
+            }
+
+            return redirect()->route('all-test.index')->with('success', __('deleted_successfully') ?? "Test o'chirildi");
         } catch (\Exception $e) {
-            // Proper Inertia error response
-            throw ValidationException::withMessages([
-                'error' => [$e->getMessage()],
+            DB::rollBack();
+            return back()->withErrors([
+                'error' => $e->getMessage(),
             ]);
         }
     }

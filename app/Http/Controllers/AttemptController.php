@@ -274,12 +274,18 @@ class AttemptController extends Controller
     public function destroy(Attempt $attempt)
     {
         try {
-            $attempt->delete();
-            return back()->with('success', __('deleted_successfully'));
+            \Illuminate\Support\Facades\DB::transaction(function () use ($attempt) {
+                // Delete related attempts answers, parts, types
+                $attempt->attempt_answers()->delete();
+                $attempt->attempt_parts()->delete();
+                $attempt->attempt_types()->delete();
+                $attempt->delete();
+            });
+
+            return redirect()->route('attempt.index')->with('success', __('deleted_successfully') ?? "Natija o'chirildi");
         } catch (\Exception $e) {
-            // Proper Inertia error response
-            throw ValidationException::withMessages([
-                'error' => [$e->getMessage()],
+            return redirect()->route('attempt.index')->withErrors([
+                'error' => $e->getMessage(),
             ]);
         }
     }

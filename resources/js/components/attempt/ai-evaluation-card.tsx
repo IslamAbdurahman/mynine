@@ -1,17 +1,38 @@
-import React from 'react';
-import { Sparkles, CheckCircle2, Award, FileText, AlertCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { Sparkles, CheckCircle2, Award, FileText, AlertCircle, RefreshCw } from 'lucide-react';
+import { router } from '@inertiajs/react';
+import { toast } from 'sonner';
 
 interface AIEvaluationCardProps {
     rawNote?: string | null;
     score?: number | null;
     essayText?: string | null;
+    answerId?: number;
 }
 
-export default function AIEvaluationCard({ rawNote, score, essayText }: AIEvaluationCardProps) {
-    if (!rawNote) return null;
+export default function AIEvaluationCard({ rawNote, score, essayText, answerId }: AIEvaluationCardProps) {
+    const [isReEvaluating, setIsReEvaluating] = useState(false);
+    if (!rawNote && !answerId) return null;
+
+    const handleReEvaluate = () => {
+        if (!answerId) return;
+        setIsReEvaluating(true);
+        router.post(route('attempt-answer.re-evaluate-ai', answerId), {}, {
+            preserveScroll: true,
+            onSuccess: () => {
+                toast.success("AI qayta baholash jarayoni boshlandi!");
+                setIsReEvaluating(false);
+            },
+            onError: () => {
+                toast.error("Xatolik yuz berdi.");
+                setIsReEvaluating(false);
+            }
+        });
+    };
 
     // Parse scores and criteria from markdown text
     const extractCriteriaScore = (criterion: string): string => {
+        if (!rawNote) return '-';
         const regex = new RegExp(`- \\*\\*${criterion}:\\*\\*\\s*([0-9.]+)`, 'i');
         const match = rawNote.match(regex);
         return match ? match[1] : '-';
@@ -23,8 +44,8 @@ export default function AIEvaluationCard({ rawNote, score, essayText }: AIEvalua
     const grammar = extractCriteriaScore('Grammatical Range & Accuracy');
 
     // Extract feedback body
-    const feedbackMatch = rawNote.match(/#### Detailed Feedback:\s*([\s\S]*)/i);
-    const feedbackText = feedbackMatch ? feedbackMatch[1].trim() : rawNote;
+    const feedbackMatch = rawNote ? rawNote.match(/#### Detailed Feedback:\s*([\s\S]*)/i) : null;
+    const feedbackText = feedbackMatch ? feedbackMatch[1].trim() : (rawNote || "AI baholash kutilmoqda...");
 
     const wordCount = essayText ? essayText.trim().split(/\s+/).filter(Boolean).length : 0;
 
@@ -49,12 +70,27 @@ export default function AIEvaluationCard({ rawNote, score, essayText }: AIEvalua
                     </div>
                 </div>
 
-                {score !== null && score !== undefined && (
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600 text-white font-extrabold text-sm shadow-xs">
-                        <Award className="w-4 h-4" />
-                        <span>Band {score}</span>
-                    </div>
-                )}
+                <div className="flex items-center gap-2">
+                    {answerId && (
+                        <button
+                            type="button"
+                            onClick={handleReEvaluate}
+                            disabled={isReEvaluating}
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950 text-xs font-semibold transition-all cursor-pointer"
+                            title="Qayta baholash"
+                        >
+                            <RefreshCw className={`w-3.5 h-3.5 ${isReEvaluating ? 'animate-spin' : ''}`} />
+                            <span className="hidden sm:inline">Qayta AI tekshiruv</span>
+                        </button>
+                    )}
+
+                    {score !== null && score !== undefined && (
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600 text-white font-extrabold text-sm shadow-xs">
+                            <Award className="w-4 h-4" />
+                            <span>Band {score}</span>
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* Individual Criteria Grid */}

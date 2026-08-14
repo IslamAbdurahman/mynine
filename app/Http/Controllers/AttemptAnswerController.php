@@ -159,6 +159,20 @@ class AttemptAnswerController extends Controller
     }
 
     /**
+     * Re-trigger AI Essay Evaluation
+     */
+    public function reEvaluateAi(AttemptAnswer $attemptAnswer)
+    {
+        if (empty($attemptAnswer->answer_text) || mb_strlen($attemptAnswer->answer_text) < 10) {
+            return back()->with('error', "Insho matni yetarli emas.");
+        }
+
+        \App\Jobs\EvaluateEssayJob::dispatch($attemptAnswer->id);
+
+        return back()->with('success', "AI baholash jarayoni boshlandi! Tez orada natija yangilanadi.");
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy(AttemptAnswer $attemptAnswer)

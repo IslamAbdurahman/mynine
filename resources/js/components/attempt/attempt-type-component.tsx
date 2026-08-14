@@ -328,6 +328,7 @@ const AttemptTypeComponent = ({ attempt_type }: { attempt_type: AttemptType }) =
                                                                     rawNote={question?.attempt_answer?.review_note_ai}
                                                                     score={question?.attempt_answer?.score}
                                                                     essayText={question?.attempt_answer?.answer_text}
+                                                                    answerId={question?.attempt_answer?.id}
                                                                 />
                                                             </td>
                                                             <td className="border border-gray-300 dark:border-gray-600 px-4 py-2 font-bold text-center">

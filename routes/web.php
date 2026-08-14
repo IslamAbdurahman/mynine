@@ -73,6 +73,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('all-test', \App\Http\Controllers\AllTestController::class);
     Route::resource('attempt', \App\Http\Controllers\AttemptController::class);
+    Route::post('/attempt-answer/{attemptAnswer}/re-evaluate-ai', [\App\Http\Controllers\AttemptAnswerController::class, 'reEvaluateAi'])->name('attempt-answer.re-evaluate-ai');
 
     Route::resource('group', \App\Http\Controllers\GroupController::class);
     Route::post('/group/{group}/students', [\App\Http\Controllers\GroupController::class, 'addStudent'])->name('group.students.add');

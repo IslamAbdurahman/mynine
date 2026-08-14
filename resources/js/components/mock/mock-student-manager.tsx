@@ -29,18 +29,36 @@ export default function MockStudentManager({ mockId, mockName, students = [] }: 
     const [open, setOpen] = useState(false);
     const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
+    const [addMode, setAddMode] = useState<'names' | 'group'>('names');
+    const [groupsList, setGroupsList] = useState<{ id: number; name: string; students_count?: number }[]>([]);
+    const [loadingGroups, setLoadingGroups] = useState(false);
+
     const { data, setData, post, processing, reset, errors } = useForm({
         mock_id: mockId,
         names: '',
+        group_id: '',
         phone: '',
     });
+
+    const loadTeacherGroups = () => {
+        if (groupsList.length > 0) return;
+        setLoadingGroups(true);
+        fetch('/group?per_page=all', { headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(res => res.json())
+            .then(res => {
+                const list = res?.groups?.data || res?.data || [];
+                setGroupsList(list);
+            })
+            .catch(() => {})
+            .finally(() => setLoadingGroups(false));
+    };
 
     const handleAddStudents = (e: React.FormEvent) => {
         e.preventDefault();
         post(route('mock-student.store'), {
             preserveScroll: true,
             onSuccess: () => {
-                reset('names', 'phone');
+                reset('names', 'group_id', 'phone');
                 toast.success("O'quvchilar ro'yxatga qo'shildi!");
             },
             onError: (err) => {
@@ -146,25 +164,70 @@ export default function MockStudentManager({ mockId, mockName, students = [] }: 
                 <div className="flex-1 overflow-y-auto p-5 space-y-5">
                     {/* Add Students Form */}
                     <form onSubmit={handleAddStudents} className="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/40 space-y-3">
-                        <Label htmlFor="names-input" className="text-xs font-bold text-gray-800 dark:text-gray-200">
-                            Yangi O'quvchilar Ismlarini Qo'shish (Har bir ismni yangi qatorga yozing)
-                        </Label>
-                        <textarea
-                            id="names-input"
-                            rows={3}
-                            placeholder="Masalan:&#10;Anvar Karimov&#10;Malika Aliyeva&#10;Sardor Qodirov"
-                            className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3 text-xs font-medium focus:ring-2 focus:ring-indigo-500/20 text-gray-900 dark:text-white"
-                            value={data.names}
-                            onChange={(e) => setData('names', e.target.value)}
-                            required
-                        />
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 p-1 rounded-xl bg-gray-100 dark:bg-gray-800/60 w-fit">
+                            <button
+                                type="button"
+                                onClick={() => setAddMode('names')}
+                                className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${addMode === 'names' ? 'bg-white dark:bg-gray-900 shadow-xs text-indigo-600 dark:text-indigo-400' : 'text-gray-500'}`}
+                            >
+                                Yozma Ro'yxat
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setAddMode('group');
+                                    loadTeacherGroups();
+                                }}
+                                className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${addMode === 'group' ? 'bg-white dark:bg-gray-900 shadow-xs text-indigo-600 dark:text-indigo-400' : 'text-gray-500'}`}
+                            >
+                                Guruhdan Tanlash
+                            </button>
+                        </div>
+
+                        {addMode === 'names' ? (
+                            <>
+                                <Label htmlFor="names-input" className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                                    Yangi O'quvchilar Ismlarini Qo'shish (Har bir ismni yangi qatorga yozing)
+                                </Label>
+                                <textarea
+                                    id="names-input"
+                                    rows={3}
+                                    placeholder="Masalan:&#10;Anvar Karimov&#10;Malika Aliyeva&#10;Sardor Qodirov"
+                                    className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3 text-xs font-medium focus:ring-2 focus:ring-indigo-500/20 text-gray-900 dark:text-white"
+                                    value={data.names}
+                                    onChange={(e) => setData('names', e.target.value)}
+                                    required={addMode === 'names'}
+                                />
+                            </>
+                        ) : (
+                            <div className="space-y-2">
+                                <Label htmlFor="group-select" className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                                    Guruhni tanlang (Guruhdagi barcha o'quvchilarga kod generatsiya qilinadi)
+                                </Label>
+                                <select
+                                    id="group-select"
+                                    value={data.group_id}
+                                    onChange={(e) => setData('group_id', e.target.value)}
+                                    className="w-full h-10 px-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs font-semibold text-gray-900 dark:text-white"
+                                    required={addMode === 'group'}
+                                >
+                                    <option value="">-- Guruhni tanlang --</option>
+                                    {groupsList.map(g => (
+                                        <option key={g.id} value={g.id}>
+                                            {g.name} ({g.students_count || 0} ta o'quvchi)
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+
+                        <div className="flex items-center justify-between pt-1">
                             <span className="text-[11px] text-gray-500 dark:text-gray-400">
                                 * Tizim har biriga avtomatik MSXXXXXX formatida kod generatsiya qiladi.
                             </span>
                             <Button
                                 type="submit"
-                                disabled={processing}
+                                disabled={processing || (addMode === 'group' && !data.group_id) || (addMode === 'names' && !data.names)}
                                 className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs active:scale-95"
                             >
                                 <Plus className="w-3.5 h-3.5 mr-1" />

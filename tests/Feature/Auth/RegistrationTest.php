@@ -9,8 +9,11 @@ test('registration screen can be rendered', function () {
 });
 
 test('new users can register', function () {
+    \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Student']);
+
     $response = $this->post('/register', [
         'name' => 'Test User',
+        'phone' => '998901234567',
         'email' => 'test@example.com',
         'password' => 'password',
         'password_confirmation' => 'password',

@@ -162,7 +162,11 @@ export default function CreateMockModal({ tests }: { tests: Test[] }) {
                             <SelectTrigger className="w-full">
                                    <span>
                                         {data.test_id
-                                            ? `${tests.find((t) => t.id === data.test_id)?.folder?.name} / ${tests.find((t) => t.id === data.test_id)?.name}`
+                                            ? (() => {
+                                                const selTest = tests.find((t) => t.id === data.test_id);
+                                                if (!selTest) return t('select_test');
+                                                return selTest.folder?.name ? `${selTest.folder.name} / ${selTest.name}` : selTest.name;
+                                              })()
                                             : t('select_test')}
                                     </span>
                             </SelectTrigger>
@@ -170,7 +174,7 @@ export default function CreateMockModal({ tests }: { tests: Test[] }) {
                             <SelectContent>
                                 {tests.map((test) => (
                                     <SelectItem key={test.id} value={String(test.id)}>
-                                        {test.folder?.name} / {test.name}
+                                        {test.folder?.name ? `${test.folder.name} / ${test.name}` : test.name}
                                     </SelectItem>
                                 ))}
                             </SelectContent>

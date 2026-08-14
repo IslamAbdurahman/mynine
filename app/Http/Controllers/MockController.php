@@ -93,7 +93,7 @@ class MockController extends Controller
             ->paginate($per_page);
 
         // Filter tests and folders based on role for search dropdowns
-        $tests_query = Test::query()->select('id', 'name', 'folder_id');
+        $tests_query = Test::query()->select('id', 'name', 'folder_id')->with('folder:id,name');
         $folders_query = \App\Models\Folder::select('id', 'name');
 
         if (Auth::user()->hasRole('Teacher')) {

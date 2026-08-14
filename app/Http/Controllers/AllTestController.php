@@ -26,7 +26,8 @@ class AllTestController extends Controller
                 ])
                     ->withCount('attempts')
                     ->where('active', 1)
-                    ->where('open', 1);
+                    ->where('open', 1)
+                    ->orderBy('id', 'asc');
             }
         ])
             ->whereHas('tests', function ($query) {
@@ -69,7 +70,7 @@ class AllTestController extends Controller
         }
 
         $folder = $folder->select('id', 'name', 'comment', 'active', 'user_id', 'created_at', 'updated_at')
-            ->orderBy('id', 'desc')
+            ->orderBy('id', 'asc')
             ->paginate($per_page);
 
         // Filter folder dropdown for search

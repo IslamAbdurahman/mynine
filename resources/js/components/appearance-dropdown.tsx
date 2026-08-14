@@ -12,11 +12,11 @@ export default function AppearanceToggleDropdown({ className = '', ...props }: H
     const getCurrentIcon = () => {
         switch (appearance) {
             case 'dark':
-                return <Moon className="h-3.5 w-3.5 text-purple-400" />;
+                return <Moon className="h-4 w-4 text-purple-400" />;
             case 'light':
-                return <Sun className="h-3.5 w-3.5 text-amber-500" />;
+                return <Sun className="h-4 w-4 text-amber-500" />;
             default:
-                return <Monitor className="h-3.5 w-3.5 text-blue-500" />;
+                return <Monitor className="h-4 w-4 text-blue-500" />;
         }
     };
 
@@ -37,10 +37,11 @@ export default function AppearanceToggleDropdown({ className = '', ...props }: H
                 <DropdownMenuTrigger asChild>
                     <button
                         type="button"
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all cursor-pointer shadow-xs"
+                        title={getLabel()}
+                        aria-label={getLabel()}
+                        className="inline-flex items-center justify-center h-9 w-9 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all cursor-pointer shadow-xs active:scale-95"
                     >
                         {getCurrentIcon()}
-                        <span>{getLabel()}</span>
                     </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-36 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-1 shadow-lg z-[70]">

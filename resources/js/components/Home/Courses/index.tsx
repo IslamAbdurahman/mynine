@@ -75,7 +75,7 @@ const Courses: React.FC = () => {
                             </div>
                             <div className="px-3 pt-6">
                                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white max-w-[75%] inline-block">
-                                    {items.folder.name} : {items.name}
+                                    {items.folder?.name ? `${items.folder.name} : ` : ''}{items.name}
                                 </h3>
 
 
@@ -128,7 +128,7 @@ const Courses: React.FC = () => {
                         {/* Content Section */}
                         <div className="px-2 pt-6 flex-1 flex flex-col">
                             <h3 className="text-xl font-bold text-gray-900 dark:text-white line-clamp-2 leading-snug group-hover:text-primary transition-colors duration-300">
-                                {items.folder.name} : {items.name}
+                                {items.folder?.name ? `${items.folder.name} : ` : ''}{items.name}
                             </h3>
 
                             <div className="flex justify-between items-center py-5 mt-auto border-b border-gray-100 dark:border-white/5">

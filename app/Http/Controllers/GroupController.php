@@ -42,27 +42,50 @@ class GroupController extends Controller
 
         $groups = $query->paginate($per_page);
 
-        // Fetch students available to be added by this teacher
-        $studentsQuery = User::select('id', 'name', 'email', 'phone');
-        if (Auth::user()->hasRole('Teacher')) {
-            $studentsQuery->where(function ($q) {
-                $q->where('user_id', Auth::id())
-                    ->orWhere('ref_telegram_id', Auth::user()->telegram_id);
-            });
-        }
-        $availableStudents = $studentsQuery->get();
-
         $teachers = Auth::user()->hasRole('Admin')
             ? User::whereHas('roles', fn($q) => $q->where('name', 'Teacher'))->select('id', 'name')->get()
             : [];
 
         return Inertia::render('group/index', [
             'groups' => $groups,
-            'availableStudents' => $availableStudents,
             'teachers' => $teachers,
             'isAdmin' => Auth::user()->hasRole('Admin'),
             'filters' => $request->only(['search', 'teacher_id', 'per_page']),
         ]);
+    }
+
+    /**
+     * Search students via debounced AJAX API (supports 10,000+ users efficiently)
+     */
+    public function searchStudents(Request $request)
+    {
+        $search = trim($request->input('q', ''));
+        $query = User::select('id', 'name', 'email', 'phone');
+
+        if (Auth::user()->hasRole('Teacher')) {
+            $query->where(function ($q) {
+                $q->where('user_id', Auth::id())
+                    ->orWhere('ref_telegram_id', Auth::user()->telegram_id);
+            });
+        }
+
+        if ($request->group_id) {
+            $query->whereDoesntHave('enrolled_groups', function ($q) use ($request) {
+                $q->where('groups.id', $request->group_id);
+            });
+        }
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        $students = $query->limit(25)->get();
+
+        return response()->json($students);
     }
 
     /**
@@ -108,20 +131,8 @@ class GroupController extends Controller
             $q->withCount('attempts')->with('last_attempt');
         }]);
 
-        // Available students to add
-        $studentsQuery = User::select('id', 'name', 'email', 'phone');
-        if (Auth::user()->hasRole('Teacher')) {
-            $studentsQuery->where(function ($q) {
-                $q->where('user_id', Auth::id())
-                    ->orWhere('ref_telegram_id', Auth::user()->telegram_id);
-            });
-        }
-        $existingStudentIds = $group->students->pluck('id')->toArray();
-        $availableStudents = $studentsQuery->whereNotIn('id', $existingStudentIds)->get();
-
         return Inertia::render('group/show', [
             'group' => $group,
-            'availableStudents' => $availableStudents,
             'isAdmin' => Auth::user()->hasRole('Admin'),
         ]);
     }

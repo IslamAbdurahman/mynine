@@ -27,10 +27,11 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+import StudentSelectSearch from '@/components/group/student-select-search';
+
 export default function GroupIndex() {
-    const { groups, availableStudents, teachers, isAdmin, filters } = usePage<{
+    const { groups, teachers, isAdmin, filters } = usePage<{
         groups: GroupPaginate;
-        availableStudents: User[];
         teachers: User[];
         isAdmin: boolean;
         filters: any;
@@ -84,14 +85,6 @@ export default function GroupIndex() {
                 onSuccess: () => toast.success('Guruh o\'chirildi'),
             });
         }
-    };
-
-    const toggleStudentSelection = (studentId: number) => {
-        setData('student_ids', 
-            data.student_ids.includes(studentId)
-                ? data.student_ids.filter(id => id !== studentId)
-                : [...data.student_ids, studentId]
-        );
     };
 
     const colorPresets = ['#4f46e5', '#2563eb', '#0891b2', '#059669', '#d97706', '#dc2626', '#9333ea', '#db2777'];
@@ -292,29 +285,17 @@ export default function GroupIndex() {
                             </div>
                         </div>
 
-                        {/* Student selection */}
-                        {availableStudents.length > 0 && (
-                            <div className="space-y-1.5">
-                                <Label className="text-xs font-bold">Talabalarni biriktirish (Ixtiyoriy)</Label>
-                                <div className="max-h-40 overflow-y-auto space-y-1 p-2 rounded-xl bg-gray-50 dark:bg-gray-800/40 border border-gray-200 dark:border-gray-800">
-                                    {availableStudents.map((s) => (
-                                        <label
-                                            key={s.id}
-                                            className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white dark:hover:bg-gray-800 cursor-pointer text-xs"
-                                        >
-                                            <input
-                                                type="checkbox"
-                                                checked={data.student_ids.includes(s.id)}
-                                                onChange={() => toggleStudentSelection(s.id)}
-                                                className="rounded text-indigo-600 focus:ring-indigo-500"
-                                            />
-                                            <span className="font-medium text-gray-800 dark:text-gray-200">{s.name}</span>
-                                            <span className="text-[10px] text-gray-400 ml-auto">{s.phone || s.email}</span>
-                                        </label>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+                        {/* Async Searchable Student Selection */}
+                        <div className="space-y-1.5">
+                            <Label className="text-xs font-bold">Talabalarni biriktirish (Ixtiyoriy)</Label>
+                            <StudentSelectSearch
+                                mode="multiple"
+                                placeholder="Talabani qidirib tanlang..."
+                                onSelectMultiple={(students) => {
+                                    setData('student_ids', students.map(s => s.id));
+                                }}
+                            />
+                        </div>
 
                         <DialogFooter className="pt-3">
                             <Button

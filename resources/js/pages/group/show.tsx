@@ -27,10 +27,11 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+import StudentSelectSearch from '@/components/group/student-select-search';
+
 export default function GroupShow() {
-    const { group, availableStudents = [], isAdmin } = usePage<{
+    const { group, isAdmin } = usePage<{
         group: Group & { students: (User & { attempts_count: number; last_attempt?: any })[] };
-        availableStudents: User[];
         isAdmin: boolean;
     }>().props;
 
@@ -44,21 +45,21 @@ export default function GroupShow() {
 
     const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedStudentId, setSelectedStudentId] = useState<string>('');
+    const [selectedStudent, setSelectedStudent] = useState<User | null>(null);
 
     const handleAddStudent = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!selectedStudentId) {
+        if (!selectedStudent) {
             toast.error('Talabani tanlang');
             return;
         }
 
         router.post(route('group.students.add', group.id), {
-            user_id: selectedStudentId,
+            user_id: selectedStudent.id,
         }, {
             onSuccess: () => {
                 setIsAddStudentOpen(false);
-                setSelectedStudentId('');
+                setSelectedStudent(null);
                 toast.success("Talaba guruhga qo'shildi!");
             }
         });
@@ -224,7 +225,7 @@ export default function GroupShow() {
                 )}
             </div>
 
-            {/* Add Student Modal */}
+            {/* Add Student Modal with Fast Debounced Async Search */}
             <Dialog open={isAddStudentOpen} onOpenChange={setIsAddStudentOpen}>
                 <DialogContent className="max-w-md rounded-3xl p-6">
                     <DialogHeader>
@@ -235,43 +236,33 @@ export default function GroupShow() {
                     </DialogHeader>
 
                     <form onSubmit={handleAddStudent} className="space-y-4 py-2">
-                        {availableStudents.length > 0 ? (
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold text-gray-700 dark:text-gray-300">
-                                    Mavjud Talabalar Ro'yxatidan Tanlang:
-                                </label>
-                                <select
-                                    value={selectedStudentId}
-                                    onChange={(e) => setSelectedStudentId(e.target.value)}
-                                    className="w-full h-11 px-3 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 text-xs font-semibold text-gray-800 dark:text-gray-200"
-                                    required
-                                >
-                                    <option value="">-- Talabani tanlang --</option>
-                                    {availableStudents.map((s) => (
-                                        <option key={s.id} value={s.id}>
-                                            {s.name} ({s.phone || s.email})
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        ) : (
-                            <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-xs">
-                                Guruhga qo'shish uchun boshqa bo'sh talabalar topilmadi. Avval Foydalanuvchilar bo'limida yangi talaba yarating.
-                            </div>
-                        )}
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                                Talabani qidirib tanlang:
+                            </label>
+                            <StudentSelectSearch
+                                mode="single"
+                                groupId={group.id}
+                                placeholder="Ism, telefon yoki email orqali qidiring..."
+                                onSelectSingle={(student) => setSelectedStudent(student)}
+                            />
+                        </div>
 
                         <DialogFooter className="pt-3">
                             <Button
                                 type="button"
                                 variant="outline"
-                                onClick={() => setIsAddStudentOpen(false)}
+                                onClick={() => {
+                                    setIsAddStudentOpen(false);
+                                    setSelectedStudent(null);
+                                }}
                                 className="h-10 rounded-xl"
                             >
                                 Bekor qilish
                             </Button>
                             <Button
                                 type="submit"
-                                disabled={availableStudents.length === 0 || !selectedStudentId}
+                                disabled={!selectedStudent}
                                 className="h-10 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold"
                             >
                                 Qo'shish

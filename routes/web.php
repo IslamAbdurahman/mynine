@@ -11,7 +11,7 @@ use App\Http\Controllers\Auth\TelegramLoginController;
 
 
 Route::post('/webapp-login', [TelegramAuthController::class, 'login']);
-Route::post('/mock-student/enter', [\App\Http\Controllers\MockStudentController::class, 'enter'])->name('mock-student.enter');
+Route::match(['get', 'post'], '/mock-student/enter', [\App\Http\Controllers\MockStudentController::class, 'enter'])->name('mock-student.enter');
 
 Route::any('/bot/webhook', [TelegramController::class, 'handle']);
 Route::any('/bot/MynineUzBot/webhook', [MynineUzBotController::class, 'handle']);

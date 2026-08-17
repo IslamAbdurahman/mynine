@@ -70,14 +70,6 @@ export default function MockShow() {
                             </p>
                         </div>
                     </div>
-
-                    <div className="flex items-center gap-2">
-                        <MockStudentManager
-                            mockId={mock.id}
-                            mockName={mock.name}
-                            students={students}
-                        />
-                    </div>
                 </div>
 
                 {/* Quick Stats Grid */}

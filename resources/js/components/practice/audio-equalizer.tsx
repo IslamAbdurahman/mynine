@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import { getOfflineAudioUrl } from "@/lib/audio-cache";
 
 interface EqualizerProps {
     src: string;
@@ -13,9 +14,25 @@ export default function AudioEqualizer({
                                            endTime,
                                        }: EqualizerProps) {
     const audioRef = useRef<HTMLAudioElement | null>(null);
+    const [audioSource, setAudioSource] = useState<string>(src);
     const [bars, setBars] = useState<number[]>(new Array(20).fill(0));
     const [time, setTime] = useState(0);
     const [duration, setDuration] = useState(0);
+
+    // Resolve offline cached audio blob
+    useEffect(() => {
+        let isMounted = true;
+        if (src) {
+            getOfflineAudioUrl(src).then((resolvedUrl) => {
+                if (isMounted && resolvedUrl) {
+                    setAudioSource(resolvedUrl);
+                }
+            });
+        }
+        return () => {
+            isMounted = false;
+        };
+    }, [src]);
 
     // -----------------------------
     // Equalizer Setup
@@ -125,7 +142,7 @@ export default function AudioEqualizer({
             {/* Hidden audio */}
             <audio
                 ref={audioRef}
-                src={src}
+                src={audioSource}
                 autoPlay={false}
                 controls={false}
                 preload="auto"

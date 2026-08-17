@@ -1,22 +1,50 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Volume2, VolumeX, Headphones, CheckCircle2, Play, Square } from 'lucide-react';
+import { Volume2, VolumeX, Headphones, CheckCircle2, Play, Square, DownloadCloud, ShieldCheck } from 'lucide-react';
+import { preloadAudio } from '@/lib/audio-cache';
 
 interface SoundCheckModalProps {
     isOpen: boolean;
     onStart: () => void;
     testName?: string;
+    audioPath?: string;
 }
 
 export default function SoundCheckModal({
     isOpen,
     onStart,
     testName = 'Listening',
+    audioPath,
 }: SoundCheckModalProps) {
     const { t } = useTranslation();
     const [isPlayingSample, setIsPlayingSample] = useState(false);
+    const [cacheProgress, setCacheProgress] = useState<number | null>(null);
+    const [isCached, setIsCached] = useState(false);
     const audioContextRef = useRef<AudioContext | null>(null);
     const timerRef = useRef<number | null>(null);
+
+    // Preload audio in background when SoundCheckModal opens
+    useEffect(() => {
+        let isMounted = true;
+        if (isOpen && audioPath) {
+            preloadAudio(audioPath, (percent) => {
+                if (isMounted) {
+                    setCacheProgress(percent);
+                    if (percent >= 100) {
+                        setIsCached(true);
+                    }
+                }
+            }).then(() => {
+                if (isMounted) {
+                    setIsCached(true);
+                    setCacheProgress(100);
+                }
+            }).catch(() => {});
+        }
+        return () => {
+            isMounted = false;
+        };
+    }, [isOpen, audioPath]);
 
     const stopTestTone = useCallback(() => {
         if (timerRef.current) {
@@ -186,6 +214,33 @@ export default function SoundCheckModal({
                             {t('sound_check_warning', 'Test boshlangach, audio fayl bir marta toʻliq oʻynaladi. Brauzer ovozini 70-80% darajaga sozlab oling.')}
                         </span>
                     </div>
+
+                    {/* Audio Preload Status Indicator */}
+                    {audioPath && (
+                        <div className={`p-2.5 rounded-xl border text-xs flex items-center justify-between transition-all ${
+                            isCached
+                                ? 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/40'
+                                : 'bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800/40'
+                        }`}>
+                            <div className="flex items-center gap-2">
+                                {isCached ? (
+                                    <ShieldCheck className="size-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                                ) : (
+                                    <DownloadCloud className="size-4 text-blue-600 dark:text-blue-400 animate-pulse shrink-0" />
+                                )}
+                                <span className="font-semibold text-[11px]">
+                                    {isCached
+                                        ? 'Listening audiosi xotiraga yuklandi (100% oflayn tayyor)'
+                                        : `Audio yuklanmoqda (${cacheProgress ?? 0}%)...`}
+                                </span>
+                            </div>
+                            {isCached && (
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-200/60 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-200">
+                                    Oflayn Tayyor
+                                </span>
+                            )}
+                        </div>
+                    )}
 
                     {/* Start Button */}
                     <button

@@ -40,24 +40,17 @@ Question: {$questionText}
 Essay: {$essayText}
 EOT;
 
-        try {
-            $response = $this->client->chat()->create([
-                'model' => 'gpt-4o-mini',
-                'response_format' => ['type' => 'json_object'],
-                'messages' => [
-                    ['role' => 'system', 'content' => 'You are an IELTS writing examiner. You must return your evaluation in the requested JSON structure.'],
-                    ['role' => 'user', 'content' => $promptText],
-                ],
-                'max_tokens' => 1200,
-            ]);
+        $response = $this->client->chat()->create([
+            'model' => 'gpt-4o-mini',
+            'response_format' => ['type' => 'json_object'],
+            'messages' => [
+                ['role' => 'system', 'content' => 'You are an IELTS writing examiner. You must return your evaluation in the requested JSON structure.'],
+                ['role' => 'user', 'content' => $promptText],
+            ],
+            'max_tokens' => 1200,
+        ]);
 
-            return $response->choices[0]->message->content ?? '{"overall": 0, "feedback": "No response from AI"}';
-        } catch (\Exception $e) {
-            return json_encode([
-                'overall' => 0,
-                'feedback' => 'Error: ' . $e->getMessage()
-            ]);
-        }
+        return $response->choices[0]->message->content ?? '{"overall": 0, "feedback": "No response from AI"}';
     }
 
     public function parseTestDocument(string $rawText): array

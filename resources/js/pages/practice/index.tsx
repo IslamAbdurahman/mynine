@@ -802,9 +802,10 @@ export default function Practice() {
                 </div>
             )}
 
-            {/* Sound Check Modal for Listening */}
+            {/* Sound Check Modal for Listening with Offline Audio Preloader */}
             <SoundCheckModal
                 isOpen={isSoundCheckOpen}
+                audioPath={resAttempt.test?.audio_path ? `/${resAttempt.test.audio_path}` : undefined}
                 onStart={() => {
                     setIsSoundCheckOpen(false);
                     if (pendingTypeId) {

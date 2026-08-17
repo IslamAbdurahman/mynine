@@ -15,6 +15,10 @@ class EvaluateEssayJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public int $tries = 3;
+    public int $timeout = 120;
+    public array $backoff = [5, 20, 60];
+
     protected $answerId;
 
     public function __construct($answerId)
@@ -74,8 +78,23 @@ class EvaluateEssayJob implements ShouldQueue
             // Recalculate is_correct_count for the corresponding attempt_type
             $this->recalculateAttemptTypeScore($answer);
 
-        } catch (Exception $e) {
-            $answer->review_note_ai = $e->getMessage();
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("EvaluateEssayJob error for answer {$this->answerId}: " . $e->getMessage());
+            $answer->review_note_ai = "Baholash jarayonda... (Qayta urinilmoqda: " . $e->getMessage() . ")";
+            $answer->save();
+            throw $e;
+        }
+    }
+
+    /**
+     * Handle permanent job failure after maximum retries
+     */
+    public function failed(\Throwable $exception)
+    {
+        \Illuminate\Support\Facades\Log::error("EvaluateEssayJob permanently failed for answer {$this->answerId}: " . $exception->getMessage());
+        $answer = AttemptAnswer::find($this->answerId);
+        if ($answer) {
+            $answer->review_note_ai = "Baholashda xatolik yuz berdi (3 marta urinishdan so'ng). Iltimos, qayta baholashni so'rang.";
             $answer->save();
         }
     }

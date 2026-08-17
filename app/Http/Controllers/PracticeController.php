@@ -117,6 +117,7 @@ class PracticeController extends Controller
             // If the attempt is already finished, return it
             if ($attempt->finished_at) {
                 if (session()->has('mock_student_id') || !Auth::check()) {
+                    session()->forget(['mock_student_id', 'mock_attempt_id']);
                     return redirect('/')->with('success', __('success.test_submitted'));
                 }
                 return redirect(route('attempt.index'))->with('success', __('success.test_submitted'));
@@ -125,6 +126,7 @@ class PracticeController extends Controller
             $attempt->finish();
 
             if (session()->has('mock_student_id') || !Auth::check()) {
+                session()->forget(['mock_student_id', 'mock_attempt_id']);
                 return redirect('/')->with('success', __('success.test_submitted'));
             }
 

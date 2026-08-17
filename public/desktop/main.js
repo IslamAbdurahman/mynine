@@ -53,6 +53,24 @@ function createWindow() {
         }
     });
 
+    // Automatically return to Candidate Code Splash screen when exam is submitted or user lands on Home
+    mainWindow.webContents.on('did-navigate', (event, url) => {
+        try {
+            if (url.startsWith('file://')) return;
+            const parsedUrl = new URL(url);
+            if (
+                parsedUrl.origin === SERVER_URL && 
+                (parsedUrl.pathname === '/' || parsedUrl.pathname === '' || parsedUrl.pathname === '/login')
+            ) {
+                console.log('[Lockdown] Exam submitted/ended. Resetting to Candidate Code screen for next student.');
+                session.defaultSession.clearStorageData();
+                mainWindow.loadFile(path.join(__dirname, 'splash', 'index.html'));
+            }
+        } catch (e) {
+            console.error('Error handling navigation:', e);
+        }
+    });
+
     mainWindow.on('closed', () => {
         mainWindow = null;
     });

@@ -5,7 +5,7 @@ Ushbu paket **Mynine IELTS Examination Platform** uchun maxsus xavfsiz Desktop i
 ---
 
 ## 🔒 Imkoniyatlar:
-1. **Nomzod Kodi (`MSXXXXXX`) orqali kirish**: O'quvchi login/parol kiritmasdan, to'g'ridan-to'g'ri o'ziga berilgan 8 xonali kod bilan imtihonni boshlaydi.
+1. **Nomzod Kodi (masalan: `TEST1-849201`) orqali kirish**: O'quvchi login/parol kiritmasdan, to'g'ridan-to'g'ri o'ziga berilgan unikal kod bilan imtihonni boshlaydi.
 2. **Kiosk / Lockdown Rejimi**: Dastur butun ekranni egallaydi. `Alt + Tab`, `Alt + F4`, `Windows Key`, `Ctrl + Esc`, `Ctrl + Shift + Esc`, `F11`, `F12` tugmalari bloklangan.
 3. **Screen Capture Himoyasi**: Skrinshot olish va ekranni yozib olish (OBS, AnyDesk, Telegram) taqiqlanadi.
 4. **Teacher Exit Code**: O'qituvchi favqulodda chiqish uchun `Ctrl + Shift + Q` yoki `F8` tugmasini bosib, dasturni yopa oladi.

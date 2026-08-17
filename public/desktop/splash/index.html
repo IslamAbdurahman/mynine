@@ -269,8 +269,8 @@
                     <input 
                         type="text" 
                         id="candidateCode" 
-                        placeholder="Masalan: MS123456" 
-                        maxlength="10" 
+                        placeholder="Masalan: TEST1-849201" 
+                        maxlength="20" 
                         autocomplete="off" 
                         autofocus 
                         required
@@ -299,9 +299,9 @@
         const statusText = document.getElementById('statusText');
         const exitBtn = document.getElementById('exitBtn');
 
-        // Force Uppercase on Candidate Code input
+        // Force Uppercase and allow A-Z, 0-9 and hyphens (-)
         candidateInput.addEventListener('input', (e) => {
-            e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
         });
 
         // Handle online/offline events

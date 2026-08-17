@@ -29,30 +29,38 @@ class MockStudentController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $createdCount = 0;
-
-        DB::transaction(function () use ($mock, $request, &$createdCount) {
-            $nameList = preg_split('/[\r\n,]+/', $request->names);
-            foreach ($nameList as $rawName) {
-                $name = trim($rawName);
-                if (empty($name)) continue;
-
-                MockStudent::create([
-                    'mock_id' => $mock->id,
-                    'name' => $name,
-                    'code' => MockStudent::generateUniqueCode(),
-                    'phone' => $request->phone ?? null,
-                    'attended' => false,
-                ]);
-
-                $createdCount++;
+        $rawList = preg_split('/[\r\n,]+/', $request->names);
+        $names = [];
+        foreach ($rawList as $rawName) {
+            $name = trim($rawName);
+            if (!empty($name)) {
+                $names[] = $name;
             }
-        });
+        }
 
-        if ($createdCount === 0) {
+        if (empty($names)) {
             return back()->with('error', "Hech qanday o'quvchi qo'shilmadi.");
         }
 
+        $codes = MockStudent::generateBulkCodes(count($names), $mock->name);
+        $now = now();
+        $records = [];
+
+        for ($i = 0; $i < count($names); $i++) {
+            $records[] = [
+                'mock_id' => $mock->id,
+                'name' => $names[$i],
+                'code' => $codes[$i],
+                'phone' => $request->phone ?? null,
+                'attended' => false,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        }
+
+        MockStudent::insert($records);
+
+        $createdCount = count($records);
         return back()->with('success', "{$createdCount} ta o'quvchi muvaffaqiyatli qo'shildi!");
     }
 

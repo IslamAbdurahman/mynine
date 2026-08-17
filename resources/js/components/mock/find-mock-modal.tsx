@@ -75,7 +75,7 @@ export default function FindMockModal() {
                                 Imtihonga Kirish (Mock Exam)
                             </DialogTitle>
                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                Sizga berilgan MSXXXXXX kodini kiriting
+                                Sizga berilgan imtihon kodini kiriting
                             </p>
                         </div>
                     </div>
@@ -84,12 +84,12 @@ export default function FindMockModal() {
                 <form onSubmit={submit} className="p-6 space-y-4">
                     <div className="space-y-2">
                         <Label htmlFor="code-input" className="text-xs font-bold text-gray-700 dark:text-gray-200">
-                            Nomzod Kodingiz (MSXXXXXX) *
+                            Nomzod Kodingiz *
                         </Label>
                         <Input
                             id="code-input"
                             ref={codeInput}
-                            placeholder="Masalan: MS849201"
+                            placeholder="Masalan: TEST1-849201"
                             className="h-11 rounded-xl border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 font-mono font-bold text-sm tracking-wider uppercase"
                             value={data.code}
                             onChange={(e) => setData('code', e.target.value.toUpperCase())}

@@ -162,7 +162,7 @@ export default function MockStudentManager({ mockId, mockName, students = [] }: 
 
                         <div className="flex items-center justify-between pt-1">
                             <span className="text-[11px] text-gray-500 dark:text-gray-400">
-                                * Tizim har biriga avtomatik MSXXXXXX formatida kod generatsiya qiladi.
+                                * Tizim har biriga avtomatik unikal imtihon kodi generatsiya qiladi.
                             </span>
                             <Button
                                 type="submit"
@@ -204,7 +204,7 @@ export default function MockStudentManager({ mockId, mockName, students = [] }: 
                                 <thead className="bg-gray-100 dark:bg-gray-800/80 text-gray-500 dark:text-gray-400 font-bold uppercase text-[10px]">
                                     <tr>
                                         <th className="px-3.5 py-2.5">O'quvchi Ismi</th>
-                                        <th className="px-3.5 py-2.5">Nomzod Kodi (MSXXXXXX)</th>
+                                        <th className="px-3.5 py-2.5">Nomzod Kodi</th>
                                         <th className="px-3.5 py-2.5 text-center">Davomat</th>
                                         <th className="px-3.5 py-2.5 text-right">Amal</th>
                                     </tr>

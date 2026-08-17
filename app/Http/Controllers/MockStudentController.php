@@ -84,6 +84,9 @@ class MockStudentController extends Controller
         $student = MockStudent::with(['mock.test'])->where('code', $code)->first();
 
         if (!$student) {
+            if ($request->isMethod('get')) {
+                return redirect('/?error=' . urlencode("Kiritilgan kod ({$code}) topilmadi!"));
+            }
             throw ValidationException::withMessages([
                 'code' => ["Kiritilgan kod ({$code}) topilmadi!"],
             ]);
@@ -92,6 +95,9 @@ class MockStudentController extends Controller
         $mock = $student->mock;
 
         if (!$mock || $mock->active != 1) {
+            if ($request->isMethod('get')) {
+                return redirect('/?error=' . urlencode("Ushbu Mock test hozirda faol emas!"));
+            }
             throw ValidationException::withMessages([
                 'code' => ["Ushbu Mock test hozirda faol emas!"],
             ]);
@@ -101,6 +107,9 @@ class MockStudentController extends Controller
 
         if ($mock->started_at && $now->lt(\Carbon\Carbon::parse($mock->started_at))) {
             $formattedStart = \Carbon\Carbon::parse($mock->started_at)->format('d.m.Y H:i');
+            if ($request->isMethod('get')) {
+                return redirect('/?error=' . urlencode("Ushbu Mock test hali boshlanmagan! Boshlanish vaqti: {$formattedStart}"));
+            }
             throw ValidationException::withMessages([
                 'code' => ["Ushbu Mock test hali boshlanmagan! Boshlanish vaqti: {$formattedStart}"],
             ]);
@@ -108,6 +117,9 @@ class MockStudentController extends Controller
 
         if ($mock->finished_at && $now->gt(\Carbon\Carbon::parse($mock->finished_at))) {
             $formattedFinish = \Carbon\Carbon::parse($mock->finished_at)->format('d.m.Y H:i');
+            if ($request->isMethod('get')) {
+                return redirect('/?error=' . urlencode("Ushbu Mock test vaqti tugagan! Yakunlangan vaqti: {$formattedFinish}"));
+            }
             throw ValidationException::withMessages([
                 'code' => ["Ushbu Mock test vaqti tugagan! Yakunlangan vaqti: {$formattedFinish}"],
             ]);

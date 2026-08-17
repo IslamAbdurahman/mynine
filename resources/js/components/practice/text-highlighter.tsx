@@ -292,6 +292,10 @@ export default function TextHighlighter({ attemptId, partId, children }: TextHig
                             value={noteInput}
                             onChange={(e) => setNoteInput(e.target.value)}
                             placeholder="Type your study note..."
+                            spellCheck={false}
+                            autoCorrect="off"
+                            autoCapitalize="off"
+                            data-gramm="false"
                             className="w-full h-24 mt-3 p-2.5 text-sm border rounded dark:bg-gray-900 dark:text-white dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                         <div className="mt-4 flex justify-end gap-2">

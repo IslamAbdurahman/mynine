@@ -286,6 +286,11 @@ export default function PracticeSection({
                                                     onChange={(e) =>
                                                         handleInputChange(question.id, e.target.value)
                                                     }
+                                                    spellCheck={false}
+                                                    autoCorrect="off"
+                                                    autoCapitalize="off"
+                                                    autoComplete="off"
+                                                    data-gramm="false"
                                                 />
                                             </span>
                                         );

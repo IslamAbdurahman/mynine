@@ -23,6 +23,7 @@ function createWindow() {
             nodeIntegration: false,
             sandbox: false,
             webSecurity: true,
+            spellcheck: false, // Strict CD-IELTS rule: Disable native browser spellcheck & grammar red underlines
             autoplayPolicy: 'no-user-gesture-required' // Allow seamless audio playback in Listening
         }
     });

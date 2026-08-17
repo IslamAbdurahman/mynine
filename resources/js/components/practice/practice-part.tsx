@@ -377,6 +377,10 @@ export default function PracticePart({ attempt, part }: PartUpdateProps) {
                             placeholder="Type your notes here..."
                             rows={3}
                             autoFocus
+                            spellCheck={false}
+                            autoCorrect="off"
+                            autoCapitalize="off"
+                            data-gramm="false"
                             className="w-full text-xs p-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-600 focus:outline-none mb-3"
                         />
                         <div className="flex justify-end gap-2">

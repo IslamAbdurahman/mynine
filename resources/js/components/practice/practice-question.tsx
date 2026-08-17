@@ -53,6 +53,11 @@ export default function PracticeQuestion({
                         className="ielts-gap-input"
                         value={answer_text ?? (question.attempt_answer?.answer_text || '')}
                         onChange={(e) => handleChange(question.id, e.target.value)}
+                        spellCheck={false}
+                        autoCorrect="off"
+                        autoCapitalize="off"
+                        autoComplete="off"
+                        data-gramm="false"
                     />
                 )}
             </React.Fragment>
@@ -352,6 +357,13 @@ export default function PracticeQuestion({
                                 localStorage.setItem(`unsaved-q-${attempt.id}-${question.id}`, e.target.value);
                                 debouncedSave(question.id, e.target.value);
                             }}
+                            spellCheck={false}
+                            autoCorrect="off"
+                            autoCapitalize="off"
+                            autoComplete="off"
+                            data-gramm="false"
+                            data-gramm_editor="false"
+                            data-enable-grammarly="false"
                             className="w-full min-h-[420px] rounded-lg border-2 border-gray-300 focus:border-indigo-600 dark:border-gray-600 dark:focus:border-indigo-400 bg-white dark:bg-gray-800 p-4 text-[16px] leading-[1.65] font-sans shadow-xs focus:outline-none resize-y text-gray-900 dark:text-gray-100 transition-colors"
                             placeholder={t('type_your_essay_here') || 'Inshongizni shu yerga yozing...'}
                         />

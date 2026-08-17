@@ -171,10 +171,15 @@ class MockController extends Controller
         $mock->load([
             'test.folder',
             'user',
-            'students.attempt',
+            'students.attempt.attempt_types.type',
+            'students.attempt.user',
+            'students.attempt.mock',
+            'students.attempt.test.folder',
+            'attempts.test.folder',
             'attempts.user',
+            'attempts.mock',
             'attempts.mockStudent',
-            'attempts.attempt_types',
+            'attempts.attempt_types.type',
         ]);
 
         return Inertia::render('mock/show', [

@@ -3,11 +3,14 @@ import AppLayout from '@/layouts/app-layout';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { type BreadcrumbItem } from '@/types';
 import { useTranslation } from 'react-i18next';
-import { Users, Calendar, CheckCircle2, Clock, Activity, FileText, ArrowLeft } from 'lucide-react';
+import { Users, Calendar, CheckCircle2, Clock, Activity, FileText, ArrowLeft, FileSpreadsheet, Eye, Download, Award } from 'lucide-react';
 import { format } from 'date-fns';
 
 import MockStudentManager from '@/components/mock/mock-student-manager';
 import AttemptTable from '@/components/attempt/attempt-table';
+import { Button } from '@/components/ui/button';
+import { exportAttemptsToExcel } from '@/lib/excel-export';
+import { extractAttemptScores } from '@/lib/ielts-score-converter';
 
 export default function MockShow() {
     const { mock, isAdmin } = usePage<{
@@ -70,6 +73,19 @@ export default function MockShow() {
                             </p>
                         </div>
                     </div>
+
+                    {attempts.length > 0 && (
+                        <div className="flex items-center gap-2">
+                            <Button
+                                onClick={() => exportAttemptsToExcel(attempts, `Mock_${mock.name}_Results`)}
+                                variant="outline"
+                                className="h-10 px-4 rounded-xl border-green-200 bg-green-50/50 text-green-700 hover:bg-green-100 dark:border-green-900/30 dark:bg-green-900/20 dark:text-green-400 gap-2 font-bold text-xs shadow-xs"
+                            >
+                                <FileSpreadsheet className="w-4 h-4 text-green-600" />
+                                Natijalarni Excelga Yuklash
+                            </Button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Quick Stats Grid */}
@@ -128,7 +144,7 @@ export default function MockShow() {
                         }`}
                     >
                         <Users className="w-4 h-4" />
-                        <span>Mock O'quvchilari va Kodlar ({totalStudents})</span>
+                        <span>Mock O'quvchilari va Natijalar ({totalStudents})</span>
                     </button>
 
                     <button
@@ -140,7 +156,7 @@ export default function MockShow() {
                         }`}
                     >
                         <FileText className="w-4 h-4" />
-                        <span>Imtihon Urinishlari Natijalari ({attempts.length})</span>
+                        <span>Imtihon Urinishlari Batafsil ({attempts.length})</span>
                     </button>
                 </div>
 
@@ -173,43 +189,122 @@ export default function MockShow() {
                                             <th className="px-4 py-3">O'quvchi Ismi</th>
                                             <th className="px-4 py-3">Nomzod Kodi</th>
                                             <th className="px-4 py-3 text-center">Davomat</th>
-                                            <th className="px-4 py-3 text-right">Urinish</th>
+                                            <th className="px-4 py-3 text-center">Listening</th>
+                                            <th className="px-4 py-3 text-center">Reading</th>
+                                            <th className="px-4 py-3 text-center">Writing</th>
+                                            <th className="px-4 py-3 text-center">Speaking</th>
+                                            <th className="px-4 py-3 text-center">Overall Band</th>
+                                            <th className="px-4 py-3 text-right">Amallar</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-900">
-                                        {students.map((st: any, idx: number) => (
-                                            <tr key={st.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/40">
-                                                <td className="px-4 py-3 font-mono text-gray-400">{idx + 1}</td>
-                                                <td className="px-4 py-3 font-bold text-gray-900 dark:text-gray-100">{st.name}</td>
-                                                <td className="px-4 py-3 font-mono font-bold text-indigo-600 dark:text-indigo-400">
-                                                    <span className="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/40">
-                                                        {st.code}
-                                                    </span>
-                                                </td>
-                                                <td className="px-4 py-3 text-center">
-                                                    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                                                        st.attended
-                                                            ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400'
-                                                            : 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400'
-                                                    }`}>
-                                                        {st.attended ? <CheckCircle2 className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
-                                                        {st.attended ? 'Qatnashdi' : 'Kutilmoqda'}
-                                                    </span>
-                                                </td>
-                                                <td className="px-4 py-3 text-right font-medium">
-                                                    {st.attempt ? (
-                                                        <Link
-                                                            href={route('attempt.show', st.attempt.id)}
-                                                            className="text-indigo-600 dark:text-indigo-400 hover:underline font-bold"
-                                                        >
-                                                            Natijani Ko'rish →
-                                                        </Link>
-                                                    ) : (
-                                                        <span className="text-gray-400 italic">Boshlanmagan</span>
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        ))}
+                                        {students.map((st: any, idx: number) => {
+                                            const attempt = st.attempt;
+                                            const scores = extractAttemptScores(attempt);
+                                            const isFinished = !!attempt?.finished_at;
+
+                                            return (
+                                                <tr key={st.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/40">
+                                                    <td className="px-4 py-3 font-mono text-gray-400">{idx + 1}</td>
+                                                    <td className="px-4 py-3 font-bold text-gray-900 dark:text-gray-100">{st.name}</td>
+                                                    <td className="px-4 py-3 font-mono font-bold text-indigo-600 dark:text-indigo-400">
+                                                        <span className="px-2 py-0.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/40 text-[11px]">
+                                                            {st.code}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-4 py-3 text-center">
+                                                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                                                            st.attended
+                                                                ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400'
+                                                                : 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400'
+                                                        }`}>
+                                                            {st.attended ? <CheckCircle2 className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
+                                                            {st.attended ? 'Qatnashdi' : 'Kutilmoqda'}
+                                                        </span>
+                                                    </td>
+
+                                                    {/* Listening Score */}
+                                                    <td className="px-4 py-3 text-center">
+                                                        {scores.listening !== null ? (
+                                                            <div className="inline-flex flex-col items-center">
+                                                                <span className="font-bold text-gray-900 dark:text-gray-100">{scores.listeningBand?.toFixed(1)}</span>
+                                                                <span className="text-[9px] text-gray-400 font-mono">({scores.listening}/40)</span>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-gray-300 dark:text-gray-600 font-mono">-</span>
+                                                        )}
+                                                    </td>
+
+                                                    {/* Reading Score */}
+                                                    <td className="px-4 py-3 text-center">
+                                                        {scores.reading !== null ? (
+                                                            <div className="inline-flex flex-col items-center">
+                                                                <span className="font-bold text-gray-900 dark:text-gray-100">{scores.readingBand?.toFixed(1)}</span>
+                                                                <span className="text-[9px] text-gray-400 font-mono">({scores.reading}/40)</span>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-gray-300 dark:text-gray-600 font-mono">-</span>
+                                                        )}
+                                                    </td>
+
+                                                    {/* Writing Score */}
+                                                    <td className="px-4 py-3 text-center">
+                                                        {scores.writingBand !== null ? (
+                                                            <span className="font-bold text-gray-900 dark:text-gray-100">{scores.writingBand.toFixed(1)}</span>
+                                                        ) : (
+                                                            <span className="text-gray-300 dark:text-gray-600 font-mono">-</span>
+                                                        )}
+                                                    </td>
+
+                                                    {/* Speaking Score */}
+                                                    <td className="px-4 py-3 text-center">
+                                                        {scores.speakingBand !== null ? (
+                                                            <span className="font-bold text-gray-900 dark:text-gray-100">{scores.speakingBand.toFixed(1)}</span>
+                                                        ) : (
+                                                            <span className="text-gray-300 dark:text-gray-600 font-mono">-</span>
+                                                        )}
+                                                    </td>
+
+                                                    {/* Overall Band Score */}
+                                                    <td className="px-4 py-3 text-center">
+                                                        {scores.overallBand !== null ? (
+                                                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-black bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-700">
+                                                                <Award className="w-3.5 h-3.5 text-amber-500" />
+                                                                {scores.overallBand.toFixed(1)}
+                                                            </span>
+                                                        ) : isFinished ? (
+                                                            <span className="text-emerald-600 font-bold text-[10px]">Baholanmoqda</span>
+                                                        ) : (
+                                                            <span className="text-gray-300 dark:text-gray-600 font-mono">-</span>
+                                                        )}
+                                                    </td>
+
+                                                    {/* Actions */}
+                                                    <td className="px-4 py-3 text-right">
+                                                        {attempt ? (
+                                                            <div className="inline-flex items-center gap-1.5">
+                                                                <Link
+                                                                    href={route('attempt.show', attempt.id)}
+                                                                    className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 transition-colors"
+                                                                    title="Natijani Ko'rish"
+                                                                >
+                                                                    <Eye className="w-4 h-4" />
+                                                                </Link>
+                                                                <button
+                                                                    onClick={() => window.open(route('attempt.pdf', attempt.id), '_blank')}
+                                                                    className="p-1.5 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 transition-colors"
+                                                                    title="PDF Yuklab Olish"
+                                                                >
+                                                                    <Download className="w-4 h-4" />
+                                                                </button>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-gray-400 italic text-[11px]">Boshlanmagan</span>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
                                     </tbody>
                                 </table>
                             </div>

@@ -59,44 +59,64 @@ export default function SoundCheckModal({
             const ctx = new AudioCtx();
             audioContextRef.current = ctx;
 
-            // Master Gain Node for volume control
+            // Master Gain Node for loud, crisp volume control (0.75)
             const masterGain = ctx.createGain();
-            masterGain.gain.setValueAtTime(0.12, ctx.currentTime);
+            masterGain.gain.setValueAtTime(0.75, ctx.currentTime);
             masterGain.connect(ctx.destination);
 
             const now = ctx.currentTime;
 
-            // First harmonic chime (C5 = 523.25 Hz)
-            const osc1 = ctx.createOscillator();
-            const gain1 = ctx.createGain();
-            osc1.type = 'sine';
-            osc1.frequency.setValueAtTime(523.25, now);
-            gain1.gain.setValueAtTime(0.2, now);
-            gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
-            osc1.connect(gain1);
-            gain1.connect(masterGain);
-            osc1.start(now);
-            osc1.stop(now + 0.4);
+            // Pleasant, clear 4-note IELTS announcement chime (F Major: F4 -> A4 -> C5 -> F5)
+            const notes = [
+                { freq: 349.23, start: 0.0,  duration: 0.45 }, // F4
+                { freq: 440.00, start: 0.22, duration: 0.45 }, // A4
+                { freq: 523.25, start: 0.44, duration: 0.50 }, // C5
+                { freq: 698.46, start: 0.66, duration: 1.20 }, // F5 (sustained finish)
+            ];
 
-            // Second harmonic chime (G5 = 783.99 Hz)
-            const osc2 = ctx.createOscillator();
-            const gain2 = ctx.createGain();
-            osc2.type = 'sine';
-            osc2.frequency.setValueAtTime(783.99, now + 0.22);
-            gain2.gain.setValueAtTime(0.0001, now);
-            gain2.gain.setValueAtTime(0.22, now + 0.22);
-            gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.85);
-            osc2.connect(gain2);
-            gain2.connect(masterGain);
-            osc2.start(now + 0.22);
-            osc2.stop(now + 0.85);
+            notes.forEach(({ freq, start, duration }) => {
+                const noteTime = now + start;
+
+                // Primary Tone (Sine for pure warm sound)
+                const oscPrimary = ctx.createOscillator();
+                const gainPrimary = ctx.createGain();
+                oscPrimary.type = 'sine';
+                oscPrimary.frequency.setValueAtTime(freq, noteTime);
+
+                // Attack & Decay Envelope
+                gainPrimary.gain.setValueAtTime(0.0001, noteTime);
+                gainPrimary.gain.linearRampToValueAtTime(0.4, noteTime + 0.03); // Fast attack
+                gainPrimary.gain.exponentialRampToValueAtTime(0.0001, noteTime + duration); // Smooth decay
+
+                oscPrimary.connect(gainPrimary);
+                gainPrimary.connect(masterGain);
+
+                oscPrimary.start(noteTime);
+                oscPrimary.stop(noteTime + duration);
+
+                // Harmonic Tone (Triangle for clarity and warmth)
+                const oscHarmonic = ctx.createOscillator();
+                const gainHarmonic = ctx.createGain();
+                oscHarmonic.type = 'triangle';
+                oscHarmonic.frequency.setValueAtTime(freq * 2, noteTime); // Octave overtone
+
+                gainHarmonic.gain.setValueAtTime(0.0001, noteTime);
+                gainHarmonic.gain.linearRampToValueAtTime(0.12, noteTime + 0.02);
+                gainHarmonic.gain.exponentialRampToValueAtTime(0.0001, noteTime + duration * 0.7);
+
+                oscHarmonic.connect(gainHarmonic);
+                gainHarmonic.connect(masterGain);
+
+                oscHarmonic.start(noteTime);
+                oscHarmonic.stop(noteTime + duration * 0.7);
+            });
 
             setIsPlayingSample(true);
 
-            // Auto-stop state and close AudioContext safely after tone finishes
+            // Auto-stop state and close AudioContext safely after tone finishes (2.0s)
             timerRef.current = window.setTimeout(() => {
                 stopTestTone();
-            }, 950);
+            }, 2000);
         } catch (e) {
             console.error('Audio test tone error:', e);
             setIsPlayingSample(false);

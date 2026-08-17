@@ -53,4 +53,33 @@ class IeltsScoreConverter
         if ($correctCount == 1)  return 1.0;
         return 0.0;
     }
+
+    /**
+     * Calculate IELTS Overall Band Score from module scores with standard 0.5 rounding
+     */
+    public static function calculateOverallBand(array $scores): float
+    {
+        if (empty($scores)) return 0.0;
+        $avg = array_sum($scores) / count($scores);
+        $fraction = $avg - floor($avg);
+        if ($fraction < 0.25) {
+            return (float) floor($avg);
+        } elseif ($fraction < 0.75) {
+            return (float) (floor($avg) + 0.5);
+        } else {
+            return (float) ceil($avg);
+        }
+    }
+
+    /**
+     * Get CEFR equivalent level for IELTS Band score
+     */
+    public static function getCefrLevel(float $band): string
+    {
+        if ($band >= 8.5) return 'C2 Mastery / Proficient';
+        if ($band >= 7.0) return 'C1 Advanced';
+        if ($band >= 5.5) return 'B2 Vantage';
+        if ($band >= 4.0) return 'B1 Threshold';
+        return 'A2 Waystage';
+    }
 }

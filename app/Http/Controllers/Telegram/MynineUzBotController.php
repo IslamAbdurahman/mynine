@@ -18,16 +18,24 @@ class MynineUzBotController extends Controller
 
     public function handle(Request $request)
     {
-        Log::info('Webhook received:', $request->all()); // storage/logs/laravel.log da yoziladi
+        Log::info('Webhook received:', $request->all());
 
         $update = $request->all();
 
-        // Handle /start command
+        // Handle text message / command / code input
         if (isset($update['message']['text'])) {
             $chatId = $update['message']['chat']['id'];
-            $command = trim($update['message']['text']);
+            $text = trim($update['message']['text']);
 
-            $this->telegramService->handleCommand($update, $command, $chatId);
+            $this->telegramService->handleCommand($update, $text, $chatId);
+        }
+
+        // Handle callback query if any
+        if (isset($update['callback_query'])) {
+            $chatId = $update['callback_query']['message']['chat']['id'] ?? $update['callback_query']['from']['id'];
+            $data = $update['callback_query']['data'] ?? '';
+
+            $this->telegramService->handleCommand($update, $data, $chatId);
         }
 
         return response('OK', 200);
